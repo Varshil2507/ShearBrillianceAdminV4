@@ -284,6 +284,7 @@ const CustomerTable: React.FC = () => {
   };
 
   const handleDetailsClick = async (row: any) => {
+    debugger;
     console.log("Setting loadingRow to:", row.id);
     setLoadingRow(row.id); // Set the loading row
 
