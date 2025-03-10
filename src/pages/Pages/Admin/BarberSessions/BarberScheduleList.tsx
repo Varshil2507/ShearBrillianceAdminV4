@@ -42,6 +42,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
   const [filteredData, setFilteredData] = useState<any[]>(salonNames?.barbers || []);
   const [openAccordion, setOpenAccordion] = useState<string | string[]>("");
   const [newBarberSession, setNewBarberSession] = useState<BarberSessions | null>(null);
+  const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [showTransferSpinner, setShowTransferSpinner] = useState<boolean>(false);
@@ -85,6 +86,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     appointments: any;
     barber?: any; // Add this line
     isGeneralSchedule?: boolean; // Add this line
+    lastBarberScheduleDate?: string; // Add this line
   }
 
   const reasons = [
@@ -200,7 +202,8 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     return `${formattedHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
   };
 
-  const setScheduleData = (data: any, barberInfo: any) => {
+  const setScheduleData = (data: any, barberInfo: any, isAdd?: any) => {
+    setIsAddNew(isAdd);
     setNewBarberSession({
       id: data?.id,
       BarberId: barberInfo?.barber?.id,
@@ -212,7 +215,8 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
       availability_status: data?.availability_status,
       reason: data?.reason,
       barber: barberInfo?.barber,
-      isGeneralSchedule: data?.id ? false : true
+      isGeneralSchedule: data?.id ? false : true,
+      lastBarberScheduleDate: barberInfo.barber.schedule[barberInfo.barber.schedule.length - 1]?.date
     });
     toggle(); // Open the modal
   }
@@ -322,7 +326,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
 
     onSubmit: (values) => {
       setShowSpinner(true);
-
+      if (isAddNew && !newBarberSession?.session_date) {
+        toast.error("First select date", {
+          autoClose: 3000,
+        });
+        setShowSpinner(false);
+        return;
+      }
       // Validate start_time and end_time
       if (values.start_time >= values.end_time) {
         toast.error("Start time must be earlier than end time", {
@@ -362,7 +372,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
             }
             setShowSpinner(false);
           });
-      } else { 
+      } else {
         const obj = {
           BarberId: values.BarberId,
           SalonId: values.SalonId,
@@ -469,14 +479,28 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
   }
 
   const handleDateChange = (barberInfo: any, event: any) => {
-    formik.setFieldValue("session_date", event.target.value);
-    const isAvailableSchedule = barberInfo.schedule?.find((info: any) => formatDate(info.date).toString() === formatDate(event.target.value).toString() && info.is_non_working_day == false && info.is_leave_day === false);
-    setIsAvailableSchedule(isAvailableSchedule ? true : false);
-    if (isAvailableSchedule) {
-      toast.warning("Please select another date because this barber's schedule is already available on this date.");
-    } else {
-      formik.setFieldValue("session_date", event.target.value);
+    const selectedDate = event.target.value;
+    if (!newBarberSession || !newBarberSession.lastBarberScheduleDate) {
+      toast.error("No available schedule date.");
+      return;
     }
+    if (selectedDate > newBarberSession.lastBarberScheduleDate) {
+      toast.error("Selected date cannot be later than " + newBarberSession.lastBarberScheduleDate);
+      return;
+    }
+    // if(newBarberSession?.lastBarberScheduleDate )
+    formik.setFieldValue("session_date", event.target.value);
+    setNewBarberSession((prev: any) => ({
+      ...prev,
+      session_date: event.target.value,
+    }));
+    // const isAvailableSchedule = barberInfo.schedule?.find((info: any) => formatDate(info.date).toString() === formatDate(event.target.value).toString() && info.is_non_working_day == false && info.is_leave_day === false);
+    // setIsAvailableSchedule(isAvailableSchedule ? true : false);
+    // if (isAvailableSchedule) {
+    //   toast.warning("Please select another date because this barber's schedule is already available on this date.");
+    // } else {
+    //   formik.setFieldValue("session_date", event.target.value);
+    // }
   }
 
   const appointmentTransfer = async () => {
@@ -604,7 +628,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => {
-                        setScheduleData(null, barbr);
+                        setScheduleData(null, barbr, true);
                       }}
                     >
                       <i className="ri-add-circle-line me-1"></i> Add Schedule
@@ -726,7 +750,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                 </Col>
               )}
               <Col lg={4}>
-                {/* {newBarberSession?.isGeneralSchedule ? (
+                {isAddNew ? (
                   <div className="mb-3">
                     <Label htmlFor="session_date" className="form-label">
                       Date
@@ -757,14 +781,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                         </div>
                       )}
                   </div>
-                ) : (*/}
-                <div>
-                  <Label htmlFor="salon" className="form-label">
-                    Date
-                  </Label>
-                </div>
-                <b className="text-muted"> {newBarberSession?.session_date ? format(newBarberSession?.session_date, 'MMMM d, yyyy') : format(new Date(), 'MMMM d, yyyy')} </b>
-                {/* )} */}
+                ) : (
+                  <><div>
+                    <Label htmlFor="salon" className="form-label">
+                      Date
+                    </Label>
+                  </div><b className="text-muted"> {newBarberSession?.session_date ? format(newBarberSession?.session_date, 'MMMM d, yyyy') : format(new Date(), 'MMMM d, yyyy')} </b></>
+                )}
 
               </Col>
             </Row>

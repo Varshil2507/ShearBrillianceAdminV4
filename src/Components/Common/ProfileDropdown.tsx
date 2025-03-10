@@ -70,7 +70,7 @@ const ProfileDropdown = () => {
                         <DropdownItem className='p-0'>
                             <Link to="/notification" className="dropdown-item">
                                 <i className="mdi mdi-bell text-muted fs-16 align-middle me-1"></i>
-                                <span className="align-middle">Notification</span>
+                                <span className="align-middle">Send Notification</span>
                             </Link>
                         </DropdownItem>
                     }
