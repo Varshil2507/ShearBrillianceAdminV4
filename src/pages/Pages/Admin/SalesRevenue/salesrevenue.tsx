@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Col, Row, Spinner } from "reactstrap";
 import Flatpickr from "react-flatpickr";
@@ -7,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
 import Loader from "Components/Common/Loader";
 import { generateSalesReport } from "Services/Insalonappointment";
-import { fetchBarberBySalon } from "Services/barberService";
+import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
 
 const Salesrevenue = () => {
@@ -17,10 +16,12 @@ const Salesrevenue = () => {
   const [showLoader, setShowLoader] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
- const [salonData, setSalonData] = useState<any[]>([]); // List of all barbers
+  const [salonData, setSalonData] = useState<any[]>([]); // List of all barbers
   const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
   const [selectedSalonId, setSelectedSalonId] = useState<any | null>(null); // Selected salon
   const [selectedBarberId, setSelectedBarberId] = useState<any | null>(null); // Selected barber
+  const [barberDisabled, setBarberDisabled] = useState(false);
+  const [isLoadingBarbers, setIsLoadingBarbers] = useState(false);
   useEffect(() => {
     const authUser = localStorage.getItem("authUser");
     if (authUser) {
@@ -29,19 +30,51 @@ const Salesrevenue = () => {
     }
   }, []);
 
+  // const applyDateFilter = async () => {
+  //   setShowSpinner(true);
+  //   setShowLoader(true);
+
+  //   try {
+  //     const response = await generateSalesReport(
+  //       formatDate(selectedStartDate),
+  //       formatDate(selectedEndDate),
+  //       selectedSalonId === "all" ? undefined : selectedSalonId, // Pass undefined for "All"
+  //       // selectedSalonId || undefined, // Pass salonId if selected, else undefined
+  //       selectedBarberId || undefined // Pass barberId if selected, else undefined
+  //     );
+
+  //     if (response && response.downloadUrl) {
+  //       toast.success("PDF sales report generated successfully!");
+  //       window.open(response.downloadUrl, "_blank");
+  //     } else {
+  //       toast.error("Failed to generate PDF report.");
+  //     }
+  //   } catch (error: any) {
+  //     if (error.response?.data?.message) {
+  //       toast.error(error.response.data.message);
+  //     } else {
+  //       toast.error(error.message || "Something went wrong");
+  //     }
+  //   } finally {
+  //     setShowSpinner(false);
+  //     setShowLoader(false);
+  //     setShowDatePicker(false);
+  //   }
+  // };
   const applyDateFilter = async () => {
     setShowSpinner(true);
     setShowLoader(true);
-    
+
     try {
-      
+      debugger;
+
       const response = await generateSalesReport(
         formatDate(selectedStartDate),
         formatDate(selectedEndDate),
-        selectedSalonId || undefined, // Pass salonId if selected, else undefined
-        selectedBarberId || undefined // Pass barberId if selected, else undefined
+        selectedSalonId === "all" ? undefined : selectedSalonId, // Pass undefined for "All" salons
+        selectedBarberId === "all" ? undefined : selectedBarberId || undefined // Pass undefined for "All" barbers
       );
-  
+
       if (response && response.downloadUrl) {
         toast.success("PDF sales report generated successfully!");
         window.open(response.downloadUrl, "_blank");
@@ -60,7 +93,6 @@ const Salesrevenue = () => {
       setShowDatePicker(false);
     }
   };
-  
   const showToast = (message: string) => {
     toast.warning(message); // Display warning toast message
   };
@@ -72,26 +104,27 @@ const Salesrevenue = () => {
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       timeZone: userTimeZone, // Automatically adapts to the user's location
     };
 
     // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
+    const formattedDate = new Intl.DateTimeFormat("en-CA", options).format(
+      date
+    ); // en-CA ensures YYYY-MM-DD format
 
     // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, '-');
+    return formattedDate.replace(/\//g, "-");
   };
-//  const userRole = localStorage.getItem("userRole");
-//   let storeRoleInfo: any;
-//   if (userRole) {
-//     storeRoleInfo = JSON.parse(userRole);
-//   }
- useEffect(() => {
+  //  const userRole = localStorage.getItem("userRole");
+  //   let storeRoleInfo: any;
+  //   if (userRole) {
+  //     storeRoleInfo = JSON.parse(userRole);
+  //   }
+  useEffect(() => {
     const fetchAllData = async () => {
-
       try {
         // Fetch both salons and barbers data in parallel
         const [salonsResponse] = await Promise.all([
@@ -114,9 +147,8 @@ const Salesrevenue = () => {
     fetchAllData();
   }, []);
 
- const getSalonBabrer = async (salonId: any) => {
+  const getSalonBabrer = async (salonId: any) => {
     try {
-      
       // Fetch barbers for the selected salon
       const barberResponse = await fetchBarberBySalon(salonId, null);
       // Check if the barberResponse itself has data or is not empty
@@ -137,7 +169,7 @@ const Salesrevenue = () => {
       }
       setSalonBarberData([]); // Clear barber data in case of error
     }
-  }
+  };
   let storeUserInfo: any;
   const authUSer: any = localStorage.getItem("authUser");
   if (authUSer) {
@@ -159,39 +191,62 @@ const Salesrevenue = () => {
       getSalonBabrer(storeUserInfo.salon.id);
     }
   }, []);
-  
-    const handleSalonChange = async (
-      event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-      
-  
-      const salonId = event.target.value ? Number(event.target.value) : null;
-      setSelectedSalonId(salonId);
-      if (salonId !== null) {
-        getSalonBabrer(salonId);
-      } else {
-        setSalonBarberData([]); // Clear barbers if no salon is selected
+
+  const handleSalonChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedValue = event.target.value;
+    const salonId =
+      selectedValue === "all"
+        ? "all"
+        : selectedValue
+        ? Number(selectedValue)
+        : null;
+
+    setSelectedSalonId(salonId);
+
+    if (salonId === "all") {
+      // If "All" salons selected, set barber dropdown to "All" and disable it
+      setSalonBarberData([]); // Clear barbers list
+      setSelectedBarberId("all"); // Auto-select "All"
+      setBarberDisabled(true); // Disable barber dropdown
+      setIsLoadingBarbers(false); // No loading for "All"
+    } else if (salonId !== null) {
+      // Fetch barbers for the selected salon
+      setBarberDisabled(false); // Enable barber dropdown
+      setSelectedBarberId(""); // Reset to "Select Barber"
+      setIsLoadingBarbers(true); // Show spinner while loading barbers
+      try {
+        await getSalonBabrer(salonId); // Fetch barbers
+      } catch (error) {
+        console.error("Error fetching barbers:", error);
+        toast.error("Failed to fetch barbers.");
+      } finally {
+        setIsLoadingBarbers(false); // Hide spinner after fetching
       }
-  
-      // Clear selected barber when salon changes
-      setSelectedBarberId(null);
-    };
-    // Handle barber change
-    const handleBarberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-      
-      const barberId = event.target.value ? Number(event.target.value) : null;
-      setSelectedBarberId(barberId);
-      if (!selectedSalonId) {
-        alert("Please select a salon first.");
-      }
-    };
+    } else {
+      // If no salon is selected, reset barber dropdown
+      setSalonBarberData([]);
+      setSelectedBarberId(""); // Ensure it shows "Select Barber"
+      setBarberDisabled(false);
+      setIsLoadingBarbers(false); // No loading
+    }
+  };
+
+  const handleBarberChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const barberId = event.target.value;
+    setSelectedBarberId(barberId);
+  };
+
   return (
     <React.Fragment>
       <Row className="mb-3 pb-1">
         <Col xs={12}>
-          <div className="d-flex justify-content-end align-items-lg-center flex-lg-row flex-column"> 
+          <div className="d-flex justify-content-end align-items-lg-center flex-lg-row flex-column">
             {userRole?.role_name === "Admin" ||
-              userRole?.role_name === "Salon Owner" ? (
+            userRole?.role_name === "Salon Owner" ? (
               <div className="mt-3 mt-lg-0">
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
@@ -212,119 +267,140 @@ const Salesrevenue = () => {
           </div>
 
           {showDatePicker && (
-  <div className="row align-items-center mt-3 g-2">
-    {/* Salon Dropdown */}
-    {!storeUserInfo.berber && !storeUserInfo.salon && (
-      <div className="col-lg-3 col-md-6 col-sm-6">
-        <select
-          id="salonSelect"
-          className="form-select"
-          value={selectedSalonId !== null ? selectedSalonId : ""}
-          onChange={handleSalonChange}
-        >
-          <option value="" disabled>
-            Select Salon
-          </option>
-          {salonData.length > 0 ? (
-            salonData.map((salon: any) => (
-              <option key={salon.salon.id} value={salon.salon.id}>
-                {salon.salon.name}
-              </option>
-            ))
-          ) : (
-            <option value="" disabled>
-              No salons available
-            </option>
+            <div className="row align-items-center mt-3 g-2">
+              {/* Salon Dropdown */}
+              {!storeUserInfo.berber && !storeUserInfo.salon && (
+                <div className="col-lg-3 col-md-6 col-sm-6">
+                  <select
+                    id="salonSelect"
+                    className="form-select"
+                    value={
+                      selectedSalonId === "all"
+                        ? "all"
+                        : selectedSalonId !== null
+                        ? selectedSalonId
+                        : ""
+                    }
+                    onChange={handleSalonChange}
+                  >
+                    <option value="" disabled>
+                      Select Salon
+                    </option>
+                    <option value="all">All</option>{" "}
+                    {/* Use "all" as the value */}
+                    {salonData.length > 0 ? (
+                      salonData.map((salon: any) => (
+                        <option key={salon.salon.id} value={salon.salon.id}>
+                          {salon.salon.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No salons available
+                      </option>
+                    )}
+                  </select>
+                </div>
+              )}
+
+              {/* Barber Dropdown */}
+          
+              <div className="col-lg-3 col-md-6 col-sm-6 position-relative">
+                <select
+                  value={selectedBarberId}
+                  onChange={handleBarberChange}
+                  disabled={barberDisabled || isLoadingBarbers} // Disable dropdown while loading
+                  id="barberSelect"
+                  className="form-select"
+                >
+                  {isLoadingBarbers ? (
+                    <option value="" disabled>
+                      Loading barbers...
+                    </option>
+                  ) : (
+                    <>
+                      <option value="">Select Barber</option>
+                      <option value="all">All</option>
+                      {salonBarberData.map((barber) => (
+                        <option key={barber.id} value={barber.id}>
+                          {barber.name}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
+
+                {/* Inline Spinner */}
+                {isLoadingBarbers && (
+                  <div
+                    className="position-absolute"
+                    style={{
+                      top: "50%",
+                      right: "10px",
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <Spinner size="sm" /> {/* Show spinner while loading */}
+                  </div>
+                )}
+              </div>
+              {/* Start Date Picker */}
+              <div className="col-lg-3 col-md-6 col-sm-6">
+                <Flatpickr
+                  className="form-control"
+                  value={selectedStartDate}
+                  onChange={(dates: any) => setStartDate(dates[0])}
+                  options={{ dateFormat: "Y-m-d", maxDate: new Date() }}
+                  placeholder="Select Start Date"
+                />
+              </div>
+
+              {/* End Date Picker + Apply Button */}
+              <div className="col-lg-3 col-md-6 col-sm-6 d-flex align-items-center gap-2">
+                <div className="flex-grow-1">
+                  <Flatpickr
+                    className="form-control"
+                    value={selectedEndDate}
+                    onChange={(dates: any) => {
+                      const selectedEnd = dates[0];
+                      if (selectedEnd && selectedEnd < selectedStartDate) {
+                        showToast("End Date cannot be before Start Date!");
+                        return;
+                      }
+                      setEndDate(selectedEnd);
+                    }}
+                    options={{
+                      dateFormat: "Y-m-d",
+                      minDate: selectedStartDate,
+                      maxDate: new Date(),
+                    }}
+                    placeholder="Select End Date"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={applyDateFilter}
+                  disabled={showSpinner}
+                  style={{ whiteSpace: "nowrap" }} // Prevents button text from wrapping
+                >
+                  {showSpinner && (
+                    <Spinner size="sm" className="me-2">
+                      Loading...
+                    </Spinner>
+                  )}
+                  Apply
+                </button>
+              </div>
+            </div>
           )}
-        </select>
-      </div>
-    )}
-
-    {/* Barber Dropdown */}
-    <div className="col-lg-3 col-md-6 col-sm-6">
-      <select
-        id="barberSelect"
-        className="form-select"
-        value={selectedBarberId !== null ? selectedBarberId : ""}
-        onChange={handleBarberChange}
-        disabled={!selectedSalonId}
-      >
-        <option value="" disabled>
-          Select Barber
-        </option>
-        {salonBarberData.length > 0 ? (
-          salonBarberData.map((barber: any) => (
-            <option
-              key={barber.id}
-              value={barber.id}
-              disabled={barber.availability_status !== "available"}
-            >
-              {barber.name}
-            </option>
-          ))
-        ) : (
-          <option value="" disabled>
-            No barbers available
-          </option>
-        )}
-      </select>
-    </div>
-
-    {/* Start Date Picker */}
-    <div className="col-lg-3 col-md-6 col-sm-6">
-      <Flatpickr
-        className="form-control"
-        value={selectedStartDate}
-        onChange={(dates: any) => setStartDate(dates[0])}
-        options={{ dateFormat: "Y-m-d" ,maxDate: new Date() }}
-        placeholder="Select Start Date"
-      />
-    </div>
-
-    {/* End Date Picker + Apply Button */}
-    <div className="col-lg-3 col-md-6 col-sm-6 d-flex align-items-center gap-2">
-  <div className="flex-grow-1">
-    <Flatpickr
-      className="form-control"
-      value={selectedEndDate}
-      onChange={(dates: any) => {
-        const selectedEnd = dates[0];
-        if (selectedEnd && selectedEnd < selectedStartDate) {
-          showToast("End Date cannot be before Start Date!");
-          return;
-        }
-        setEndDate(selectedEnd);
-      }}
-      options={{
-        dateFormat: "Y-m-d",
-        minDate: selectedStartDate,
-        maxDate: new Date(),
-      }}
-      placeholder="Select End Date"
-    />
-  </div>
-
-  <button
-    type="button"
-    className="btn btn-primary"
-    onClick={applyDateFilter}
-    disabled={showSpinner}
-    style={{ whiteSpace: "nowrap" }} // Prevents button text from wrapping
-  >
-    {showSpinner && <Spinner size="sm" className="me-2">Loading...</Spinner>}
-    Apply
-  </button>
-</div>
-
-  </div>
-)}
-
 
           <ToastContainer closeButton={false} limit={1} />
         </Col>
       </Row>
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default Salesrevenue
+export default Salesrevenue;
