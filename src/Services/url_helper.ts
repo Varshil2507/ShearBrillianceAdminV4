@@ -35,6 +35,8 @@ export const registerAPI = '/auth/signup';
 
 export const userForgetPassword = '/users/send-reset-email';
 
+export const POST_RESET_PASSWORD = "/users/reset-password";
+
 export const Insalonappointment = '/appointments/board/insalonUsers';
 
 export const Generatereport = '/dashboard/generate-report';

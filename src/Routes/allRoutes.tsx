@@ -62,6 +62,7 @@ import Salonscheduleappointment from "pages/Pages/Admin/ScheludeAppointment";
 import SalonTransferBarber from "pages/Pages/Admin/TransferBarber";
 import Salesrevenueindex from "pages/Pages/Admin/SalesRevenue";
 import CalenderScheduleInfo from "pages/Pages/Admin/CalenderSchedule";
+import BasicPasswReset from "pages/Authentication/BasicPasswReset";
 
 
 const authProtectedRoutes = [
@@ -126,7 +127,7 @@ const publicRoutes = [
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/register", component: <Register /> },
   { path: "/access-denied", component: <Cover401 /> },
-
+  { path: "/reset-password", component: <BasicPasswReset /> },
   // //AuthenticationInner pages
   { path: "/auth-signin-basic", component: <BasicSignIn /> },
   { path: "/auth-signin-cover", component: <CoverSignIn /> },

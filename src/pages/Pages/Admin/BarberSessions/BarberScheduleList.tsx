@@ -27,33 +27,51 @@ import { useFormik } from "formik";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { format, parseISO, startOfWeek, isSameWeek } from 'date-fns';
-
-import { addBarberSession, updateBarberSession } from "Services/BarberSessionService";
-import { fetchAvailableBarber, saveTransferAppointments } from "Services/barberService";
+import { format, parseISO, startOfWeek, isSameWeek } from "date-fns";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import {
+  addBarberSession,
+  updateBarberSession,
+} from "Services/BarberSessionService";
+import {
+  fetchAvailableBarber,
+  saveTransferAppointments,
+} from "Services/barberService";
 import { cancelAppointment } from "Services/AppointmentService";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
-const today = format(new Date(), 'yyyy-MM-dd');
+const today = format(new Date(), "yyyy-MM-dd");
 
-const BarberScheduleList = ({ salonNames, onReload }: any) => {
+const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   // States for filters
   const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [filteredData, setFilteredData] = useState<any[]>(salonNames?.barbers || []);
+  const [filteredData, setFilteredData] = useState<any[]>(
+    salonNames?.barbers || []
+  );
   const [openAccordion, setOpenAccordion] = useState<string | string[]>("");
   const [newBarberSession, setNewBarberSession] = useState<BarberSessions | null>(null);
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
-  const [showTransferSpinner, setShowTransferSpinner] = useState<boolean>(false);
+  const [showTransferSpinner, setShowTransferSpinner] =
+    useState<boolean>(false);
   const [modalTransfer, setModalTransfer] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isAvailableSchedule, setIsAvailableSchedule] = useState(false);
+  const [dateRange, setDateRange] = useState<Date[] | null>(null); // State for date range
 
-  const [selectedBarberAppointment, setSelectedBarberAppointment] = useState<any>(null);
+  const [selectedBarberAppointment, setSelectedBarberAppointment] =
+    useState<any>(null);
   const [appointmentId, setAppointmentId] = useState<any>();
-  const [availableAppointmentBabrers, setAvailableAppointmentBabrers] = useState<any>();
+  const [availableAppointmentBabrers, setAvailableAppointmentBabrers] =
+    useState<any>();
   const [selectedAvailableBabrer, setSelectedAvailableBabrer] = useState<any>();
+  const [selectedDate, setSelectedDate] = useState(
+    newBarberSession?.session_date
+      ? new Date(newBarberSession.session_date)
+      : new Date()
+  );
 
   const userRole = localStorage.getItem("userRole");
   let storeRoleInfo: any;
@@ -72,7 +90,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
   const closeTransferModal = () => {
     setModalTransfer(!modalTransfer);
     setSelectedAvailableBabrer(null);
-  }
+  };
 
   interface BarberSessions {
     id: number;
@@ -80,7 +98,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     SalonId: number;
     start_time: string; // Field for availability status
     availability_status: string; // Field for availability status
-    end_time: string; // Field for default service time 
+    end_time: string; // Field for default service time
     session_date: string;
     reason: string;
     appointments: any;
@@ -90,16 +108,16 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
   }
 
   const reasons = [
-    'personal',
-    'sick',
-    'family_emergency',
-    'vacation',
-    'training',
-    'child care',
-    'maternity leave',
-    'bereavement',
-    'appointment',
-    'other'
+    "personal",
+    "sick",
+    "family_emergency",
+    "vacation",
+    "training",
+    "child care",
+    "maternity leave",
+    "bereavement",
+    "appointment",
+    "other",
   ];
   const toggleAccordion = (id: string) => {
     setOpenAccordion((prevState) => (prevState === id ? "" : id));
@@ -120,7 +138,9 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     let currentWeek: { date: Date }[] = [];
 
     // Ensure the week always starts with Monday
-    let currentMonday = startOfWeek(parsedSchedule[0].date, { weekStartsOn: 1 });
+    let currentMonday = startOfWeek(parsedSchedule[0].date, {
+      weekStartsOn: 1,
+    });
 
     parsedSchedule.forEach((day) => {
       if (isSameWeek(day.date, currentMonday, { weekStartsOn: 1 })) {
@@ -140,7 +160,6 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     if (currentWeek.length > 0) weeks.push(currentWeek);
     return weeks;
   };
-
 
   // Extract all unique weeks from all barbers
   const allWeeks = (): { week: number; startDate: string; endDate: string }[] => {
@@ -187,7 +206,9 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
         ...barbr,
         barber: {
           ...barbr.barber,
-          schedule: groupSchedulesByWeeks(barbr.barber.schedule)[selectedWeek - 1] || [],
+          schedule:
+            groupSchedulesByWeeks(barbr.barber.schedule)[selectedWeek - 1] ||
+            [],
         },
       }));
     }
@@ -202,19 +223,24 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
-    return date.toLocaleDateString('en-US', options);
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    };
+    return date.toLocaleDateString("en-US", options);
   };
 
   const formatDateShort = (date: string | Date): string => {
     const parsedDate = date instanceof Date ? date : new Date(date);
-    return parsedDate.toISOString().split('T')[0];
+    return parsedDate.toISOString().split("T")[0];
   };
   const formatTime = (time: string): string => {
-    const [hour, minute] = time.split(':').map(Number);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const [hour, minute] = time.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
     const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-    return `${formattedHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
   const setScheduleData = (data: any, barberInfo: any, isAdd?: any) => {
@@ -234,18 +260,22 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
       lastBarberScheduleDate: barberInfo.barber.schedule[barberInfo.barber.schedule.length - 1]?.date
     });
     toggle(); // Open the modal
-  }
+  };
 
-  const handleTimeChange = (type: 'start_time' | 'end_time', value: string) => {
+  const handleTimeChange = (type: "start_time" | "end_time", value: string) => {
     formik.setFieldValue(type, value);
 
-    if (type === 'start_time') {
+    if (type === "start_time") {
       const now = new Date();
       const selectedDate = formik.values?.session_date; // Ensure this holds the selected date
-      const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      const currentTime = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
       if (!selectedDate) {
         if (value >= currentTime) {
-          formik.setFieldError('start_time', ''); // Clear error if valid
+          formik.setFieldError("start_time", ""); // Clear error if valid
         }
       }
     }
@@ -254,55 +284,76 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
     // setSchedule(updatedSchedule);
   };
 
-
   const validateStartTime = (startTime: any, endTime: any) => {
     const selectedDate = formik.values?.session_date; // Ensure this holds the selected date
-    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); // Get current time in HH:mm format
+    const currentTime = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }); // Get current time in HH:mm format
 
     if (!startTime) return;
     if (!selectedDate) {
       if (startTime < currentTime) {
-        toast.error(`Start time cannot be in the past. Please select a valid time.`, {
-          autoClose: 3000,
-        });
-        formik.setFieldValue('start_time', '');
+        toast.error(
+          `Start time cannot be in the past. Please select a valid time.`,
+          {
+            autoClose: 3000,
+          }
+        );
+        formik.setFieldValue("start_time", "");
         return;
       }
     }
 
-    if (startTime && (startTime < salonNames.salon.open_time_temp || startTime > salonNames.salon.close_time_temp)) {
-      toast.error(`Start time must be later than ${salonNames.startTimeAMPM} and later than end time`, {
-        autoClose: 3000,
-      });
+    if (
+      startTime &&
+      (startTime < salonNames.salon.open_time_temp ||
+        startTime > salonNames.salon.close_time_temp)
+    ) {
+      toast.error(
+        `Start time must be later than ${salonNames.startTimeAMPM} and later than end time`,
+        {
+          autoClose: 3000,
+        }
+      );
       // Optionally reset invalid time back to a valid value
-      formik.setFieldValue('start_time', '');
+      formik.setFieldValue("start_time", "");
     }
   };
 
   const validateEndTime = (endTime: any, startTime: any) => {
-    if (endTime && (endTime > salonNames.salon.close_time_temp || endTime < startTime)) {
-      toast.error(`End time must be earlier than ${salonNames.closeTimeAMPM} and later than start time`, {
-        autoClose: 3000,
-      });
+    if (
+      endTime &&
+      (endTime > salonNames.salon.close_time_temp || endTime < startTime)
+    ) {
+      toast.error(
+        `End time must be earlier than ${salonNames.closeTimeAMPM} and later than start time`,
+        {
+          autoClose: 3000,
+        }
+      );
       // Optionally reset invalid time back to a valid value
       // const updatedSchedule = [...schedule];
       // updatedSchedule[index].endTime = '';
       // setSchedule(updatedSchedule);
 
-      formik.setFieldValue('end_time', '');
+      formik.setFieldValue("end_time", "");
     }
   };
 
   const handleTimeBlur = (timeType: any) => {
     const dayItem = formik.values;
-    if (timeType === 'start_time') {
+    if (timeType === "start_time") {
       validateStartTime(dayItem?.start_time, dayItem?.end_time);
-    } else if (timeType === 'end_time') {
+    } else if (timeType === "end_time") {
       validateEndTime(dayItem?.end_time, dayItem?.start_time);
     }
   };
 
-  const sessionDateFormatted = newBarberSession?.session_date ? format(new Date(newBarberSession?.session_date || ''), 'yyyy-MM-dd') : null;
+  const sessionDateFormatted = newBarberSession?.session_date
+    ? format(new Date(newBarberSession?.session_date || ""), "yyyy-MM-dd")
+    : null;
 
   // validation
   const formik = useFormik({
@@ -311,32 +362,38 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
       id: newBarberSession?.id ? newBarberSession?.id : 0,
       SalonId: newBarberSession?.SalonId ? newBarberSession?.SalonId : 0,
       BarberId: newBarberSession?.BarberId ? newBarberSession?.BarberId : 0,
-      start_time: newBarberSession?.start_time ? newBarberSession?.start_time : "",
-      availability_status: newBarberSession?.availability_status ? newBarberSession?.availability_status : "available",
+      start_time: newBarberSession?.start_time
+        ? newBarberSession?.start_time
+        : "",
+      availability_status: newBarberSession?.availability_status
+        ? newBarberSession?.availability_status
+        : "available",
       reason: newBarberSession?.reason ? newBarberSession?.reason : "",
       end_time: newBarberSession?.end_time ? newBarberSession?.end_time : "",
-      session_date: newBarberSession?.session_date ? newBarberSession?.session_date : "",
+      session_date: newBarberSession?.session_date
+        ? newBarberSession?.session_date
+        : "",
     },
     validationSchema: Yup.object().shape({
-      availability_status: Yup.string().required('Availability status is required'),
+      availability_status: Yup.string().required(
+        "Availability status is required"
+      ),
       session_date: Yup.string(),
       // session_date: !newBarberSession?.isGeneralSchedule
       //   ? Yup.string()
       //   : Yup.string()
       //     .required("Date is required"), // Add this line
       // address: Yup.string().required("Address is required"), // Add this line
-      start_time: Yup.string()
-        .when('availability_status', {
-          is: 'available',
-          then: (schema) => schema.notRequired(), // No validation, not required
-          otherwise: (schema) => schema.notRequired(), // No validation, not required
-        }),
-      end_time: Yup.string()
-        .when('availability_status', {
-          is: 'available',
-          then: (schema) => schema.notRequired(), // No validation, not required
-          otherwise: (schema) => schema.notRequired(), // No validation, not required
-        }),
+      start_time: Yup.string().when("availability_status", {
+        is: "available",
+        then: (schema) => schema.notRequired(), // No validation, not required
+        otherwise: (schema) => schema.notRequired(), // No validation, not required
+      }),
+      end_time: Yup.string().when("availability_status", {
+        is: "available",
+        then: (schema) => schema.notRequired(), // No validation, not required
+        otherwise: (schema) => schema.notRequired(), // No validation, not required
+      }),
     }),
 
     onSubmit: (values) => {
@@ -362,7 +419,9 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
         values.end_time = "";
       }
       if (newBarberSession?.isGeneralSchedule) {
-        values.session_date = newBarberSession?.session_date ? format(new Date(newBarberSession?.session_date), 'yyyy-MM-dd') : today;
+        values.session_date = newBarberSession?.session_date
+          ? format(new Date(newBarberSession?.session_date), "yyyy-MM-dd")
+          : today;
       }
       if (newBarberSession?.id) {
         updateBarberSession(values.id, values)
@@ -393,7 +452,9 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
           SalonId: values.SalonId,
           availableDays: [
             {
-              date: values.session_date ? formatDateShort(values.session_date) : formatDateShort(today),
+              date: values.session_date
+                ? formatDateShort(values.session_date)
+                : formatDateShort(today),
               startTime: values.start_time,
               endTime: values.end_time,
             },
@@ -424,7 +485,6 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
           });
       }
     },
-
   });
 
   const handleAppointmentDetails = async (appointment: any) => {
@@ -448,11 +508,11 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
   const cancelAppointmentDetails = async (appointment: any) => {
     setAppointmentId(appointment.id);
     toggleConfirmModal(); // Open the confirmation modal
-  }
+  };
 
   const toggleConfirmModal = () => {
     setConfirmModalOpen(!confirmModalOpen);
-  }
+  };
 
   const confirmAppointmentChange = async () => {
     try {
@@ -491,7 +551,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
 
   const handleAvailableBarberChange = (event: any) => {
     setSelectedAvailableBabrer(event.target.value);
-  }
+  };
 
   const handleDateChange = (barberInfo: any, event: any) => {
     const selectedDate = event.target.value;
@@ -523,14 +583,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
       setShowTransferSpinner(true);
       const obj = {
         appointmentId: selectedBarberAppointment.id,
-        newBarberId: parseInt(selectedAvailableBabrer)
-      }
+        newBarberId: parseInt(selectedAvailableBabrer),
+      };
       const data = await saveTransferAppointments(obj);
       setShowTransferSpinner(false);
       setModalTransfer(!modalTransfer);
       if (data) {
         toast.success("Transfer barber successfully");
-
       }
       // Ensure selectedLeave and barber exist before modifying appointments
       if (newBarberSession && newBarberSession?.appointments) {
@@ -562,8 +621,24 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
         toast.error(error.message || "Something went wrong");
       }
     }
-  }
+  };
+//   const lastSchedule = barbers?.barber?.schedule?.length
+//   ? barbers.barber.schedule[barbers.barber.schedule.length - 1]
+//   : null;
 
+// // Default start date = Next day after last scheduled date
+// const defaultStartDate = lastSchedule ? new Date(lastSchedule.date) : new Date();
+// defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to the next day
+useEffect(() => {
+  
+  if (BarberId?.schedule?.length) {
+    const lastSchedule = BarberId.schedule[BarberId.schedule.length - 1];
+    const defaultStartDate = new Date(lastSchedule.date);
+    defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to next day
+
+    setDateRange([defaultStartDate]); // Set default start date
+  }
+}, [BarberId]);
   return (
     <React.Fragment>
       <Row className="g-3">
@@ -586,8 +661,6 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
           </div>
         </Col>
         <Col lg={6}>
-
-
           {/* Week Filter */}
           <div className="mb-3">
             <label className="form-label">Select Week:</label>
@@ -616,20 +689,23 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                   <h5 className="mb-0">{barbr.barber.name}</h5>
                   <div className="d-flex align-items-center">
                     <span className="me-2">
-                      <b>Position:</b>{' '}
+                      <b>Position:</b>{" "}
                       <span className="text-info">{barbr.barber.position}</span>
                     </span>
                     <span className="me-2">
-                      <b>Category:</b>{' '}
+                      <b>Category:</b>{" "}
                       <span className="text-warning">
-                        {barbr.barber.category === 2 ? 'Walk In' : 'Appointment'}
+                        {barbr.barber.category === 2
+                          ? "Walk In"
+                          : "Appointment"}
                       </span>
                     </span>
                     <span
-                      className={`badge ${barbr.barber.availability_status === 'available'
-                        ? 'bg-success'
-                        : 'bg-danger'
-                        }`}
+                      className={`badge ${
+                        barbr.barber.availability_status === "available"
+                          ? "bg-success"
+                          : "bg-danger"
+                      }`}
                     >
                       {barbr.barber.availability_status}
                     </span>
@@ -648,85 +724,121 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                     >
                       <i className="ri-add-circle-line me-1"></i> Add Schedule
                     </button>
-
                   </div>
                   {barbr.barber?.schedule?.length > 0 ? (
-                    groupSchedulesByWeeks(barbr.barber.schedule).map((week: any[], weekIdx: number) => (
-                      <div key={`week-${idx}-${weekIdx}`} className="mb-4">
-                        {/* Week Heading */}
-                        <div className="bg-primary text-white p-3 rounded shadow-sm mb-4 d-flex flex-column flex-sm-row align-items-center">
-                          <h5 className="mb-2 mb-sm-0 me-sm-auto text-white">{selectedWeek ? selectedWeek === 1 ? "Current Week" : `Week ${selectedWeek}` : weekIdx === 0 ? "Current Week" : `Week ${weekIdx + 1}`}</h5>
-                          <span className="badge bg-light text-dark">Schedule Overview</span>
-                        </div>
+                    groupSchedulesByWeeks(barbr.barber.schedule).map(
+                      (week: any[], weekIdx: number) => (
+                        <div key={`week-${idx}-${weekIdx}`} className="mb-4">
+                          {/* Week Heading */}
+                          <div className="bg-primary text-white p-3 rounded shadow-sm mb-4 d-flex flex-column flex-sm-row align-items-center">
+                            <h5 className="mb-2 mb-sm-0 me-sm-auto text-white">
+                              {selectedWeek
+                                ? selectedWeek === 1
+                                  ? "Current Week"
+                                  : `Week ${selectedWeek}`
+                                : weekIdx === 0
+                                ? "Current Week"
+                                : `Week ${weekIdx + 1}`}
+                            </h5>
+                            <span className="badge bg-light text-dark">
+                              Schedule Overview
+                            </span>
+                          </div>
 
-                        {/* Week Days */}
-                        <div className="row">
-                          {week.map((day: any, dayIdx: number) => (
-                            <div
-                              key={`day-${idx}-${weekIdx}-${dayIdx}`}
-                              className="col-md-6 col-lg-4 mb-3"
-                            >
-                              {day.id ? (
-                                // Existing day card
-                                <div className="border p-3 rounded bg-light shadow-sm position-relative"
-                                  style={{ minHeight: "121px" }}>
-                                  {/* Icon in the top-right corner */}
+                          {/* Week Days */}
+                          <div className="row">
+                            {week.map((day: any, dayIdx: number) => (
+                              <div
+                                key={`day-${idx}-${weekIdx}-${dayIdx}`}
+                                className="col-md-6 col-lg-4 mb-3"
+                              >
+                                {day.id ? (
+                                  // Existing day card
                                   <div
-                                    className="position-absolute"
-                                    style={{
-                                      top: "10px",
-                                      right: "10px",
-                                      zIndex: 1,
-                                    }}
-                                    onClick={() => {
-                                      setScheduleData(day, barbr);
-                                    }}
+                                    className="border p-3 rounded bg-light shadow-sm position-relative"
+                                    style={{ minHeight: "121px" }}
                                   >
-                                    <i className="ri-edit-box-line text-primary"
-                                      style={{ fontSize: "22px" }} ></i>
+                                    {/* Icon in the top-right corner */}
+                                    <div
+                                      className="position-absolute"
+                                      style={{
+                                        top: "10px",
+                                        right: "10px",
+                                        zIndex: 1,
+                                      }}
+                                      onClick={() => {
+                                        setScheduleData(day, barbr);
+                                      }}
+                                    >
+                                      <i
+                                        className="ri-edit-box-line text-primary"
+                                        style={{ fontSize: "22px" }}
+                                      ></i>
+                                    </div>
+                                    {/* Day Content */}
+                                    <h6 className="text-primary mb-2">
+                                      {day.day}
+                                    </h6>
+                                    <p className="mb-1">
+                                      <b>Date:</b>{" "}
+                                      {format(day.date, "MMMM d, yyyy")}
+                                    </p>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                      <span className="badge bg-success">
+                                        {formatTime(day.startTime)}
+                                      </span>
+                                      <span className="badge bg-danger">
+                                        {formatTime(day.endTime)}
+                                      </span>
+                                    </div>
                                   </div>
-                                  {/* Day Content */}
-                                  <h6 className="text-primary mb-2">{day.day}</h6>
-                                  <p className="mb-1">
-                                    <b>Date:</b> {format(day.date, 'MMMM d, yyyy')}
-                                  </p>
-                                  <div className="d-flex justify-content-between align-items-center">
-                                    <span className="badge bg-success">{formatTime(day.startTime)}</span>
-                                    <span className="badge bg-danger">{formatTime(day.endTime)}</span>
+                                ) : (
+                                  // Missing day card with + button
+                                  <div className="border p-3 rounded bg-light shadow-sm position-relative">
+                                    <h6 className="text-secondary mb-2">
+                                      {day.day}
+                                    </h6>
+                                    <p className="text-muted">
+                                      <b>Date:</b>{" "}
+                                      {format(day.date, "MMMM d, yyyy")}
+                                    </p>
+                                    <div
+                                      className="position-absolute"
+                                      style={{
+                                        top: "10px",
+                                        right: "10px",
+                                        zIndex: 1,
+                                      }}
+                                    >
+                                      <span
+                                        className={`${
+                                          day?.is_non_working_day
+                                            ? "badge bg-primary"
+                                            : "badge bg-info"
+                                        }`}
+                                      >
+                                        {day?.is_non_working_day
+                                          ? "Non working day"
+                                          : "Leave Day"}
+                                      </span>
+                                    </div>
+                                    <button
+                                      className="btn btn-sm btn-outline-primary w-100"
+                                      onClick={() => {
+                                        setScheduleData(day, barbr);
+                                      }}
+                                    >
+                                      <i className="ri-add-circle-line me-1"></i>{" "}
+                                      Add Schedule
+                                    </button>
                                   </div>
-                                </div>
-                              ) : (
-                                // Missing day card with + button
-                                <div className="border p-3 rounded bg-light shadow-sm position-relative">
-                                  <h6 className="text-secondary mb-2">{day.day}</h6>
-                                  <p className="text-muted">
-                                    <b>Date:</b> {format(day.date, 'MMMM d, yyyy')}
-                                  </p>
-                                  <div
-                                    className="position-absolute"
-                                    style={{
-                                      top: "10px",
-                                      right: "10px",
-                                      zIndex: 1,
-                                    }}
-                                  >
-                                    <span className={`${day?.is_non_working_day ? 'badge bg-primary' : 'badge bg-info'}`}>{day?.is_non_working_day ? "Non working day" : "Leave Day"}</span>
-                                  </div>
-                                  <button
-                                    className="btn btn-sm btn-outline-primary w-100"
-                                    onClick={() => {
-                                      setScheduleData(day, barbr);
-                                    }}
-                                  >
-                                    <i className="ri-add-circle-line me-1"></i> Add Schedule
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    )
                   ) : (
                     <div className="text-center text-muted">No data found</div>
                   )}
@@ -736,14 +848,21 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
           ))}
         </Accordion>
       </div>
-      <Modal isOpen={modal} toggle={toggle} centered backdrop="static" size="lg">
+      <Modal
+        isOpen={modal}
+        toggle={toggle}
+        centered
+        backdrop="static"
+        size="lg"
+      >
         <ModalHeader toggle={toggle}>
-          {newBarberSession?.id ? 'Update' : 'Add'} Barber Schedule
+          {newBarberSession?.id ? "Update" : "Add"} Barber Schedule
         </ModalHeader>
         <Form className="tablelist-form" onSubmit={formik.handleSubmit}>
           <ModalBody className="modal-body">
             <Row className="g-3">
-              {(storeRoleInfo.role_name === "Admin" || storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name === "Admin" ||
+                storeRoleInfo.role_name === "Salon Manager") && (
                 <Col lg={4}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -754,14 +873,18 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                 </Col>
               )}
               {/* Barber ID */}
-              {(storeRoleInfo.role_name === "Admin" || storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name === "Admin" ||
+                storeRoleInfo.role_name === "Salon Manager") && (
                 <Col lg={4}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
                       Barber
                     </Label>
                   </div>
-                  <b className="text-muted"> {newBarberSession?.barber?.name} </b>
+                  <b className="text-muted">
+                    {" "}
+                    {newBarberSession?.barber?.name}{" "}
+                  </b>
                 </Col>
               )}
               <Col lg={4}>
@@ -806,7 +929,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
 
               </Col>
             </Row>
-            {newBarberSession?.id &&
+            {newBarberSession?.id && (
               <Row className="mt-3">
                 {/* Availability Status */}
                 <Col lg={12}>
@@ -818,20 +941,27 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                       value={formik.values.availability_status}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      invalid={formik.touched.availability_status && !!formik.errors.availability_status}
+                      invalid={
+                        formik.touched.availability_status &&
+                        !!formik.errors.availability_status
+                      }
                     >
                       <option value="available">Available</option>
                       <option value="unavailable">Unavailable</option>
                     </Input>
-                    {formik.touched.availability_status && formik.errors.availability_status && (
-                      <FormFeedback>{formik.errors.availability_status}</FormFeedback>
-                    )}
+                    {formik.touched.availability_status &&
+                      formik.errors.availability_status && (
+                        <FormFeedback>
+                          {formik.errors.availability_status}
+                        </FormFeedback>
+                      )}
                   </FormGroup>
                 </Col>
-              </Row>}
+              </Row>
+            )}
             {/* Conditionally Render Start Time and End Time Fields */}
             {formik.values.availability_status === "available" && (
-              <Row className={`${newBarberSession?.id ? '' : 'mt-3'}`}>
+              <Row className={`${newBarberSession?.id ? "" : "mt-3"}`}>
                 <Col lg={6}>
                   <FormGroup>
                     <Label for="start_time">Start Time</Label>
@@ -839,9 +969,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                       type="time"
                       id="start_time"
                       value={formik.values.start_time}
-                      onChange={e => handleTimeChange('start_time', e.target.value)}
-                      onBlur={() => handleTimeBlur('start_time')} // Validate onBlur
-                      invalid={formik.touched.start_time && !!formik.errors.start_time}
+                      onChange={(e) =>
+                        handleTimeChange("start_time", e.target.value)
+                      }
+                      onBlur={() => handleTimeBlur("start_time")} // Validate onBlur
+                      invalid={
+                        formik.touched.start_time && !!formik.errors.start_time
+                      }
                     />
                     {formik.touched.start_time && formik.errors.start_time && (
                       <FormFeedback>{formik.errors.start_time}</FormFeedback>
@@ -855,9 +989,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                       type="time"
                       id="end_time"
                       value={formik.values.end_time}
-                      onChange={e => handleTimeChange('end_time', e.target.value)}
-                      onBlur={() => handleTimeBlur('end_time')} // Validate onBlur
-                      invalid={formik.touched.end_time && !!formik.errors.end_time}
+                      onChange={(e) =>
+                        handleTimeChange("end_time", e.target.value)
+                      }
+                      onBlur={() => handleTimeBlur("end_time")} // Validate onBlur
+                      invalid={
+                        formik.touched.end_time && !!formik.errors.end_time
+                      }
                     />
                     {formik.touched.end_time && formik.errors.end_time && (
                       <FormFeedback>{formik.errors.end_time}</FormFeedback>
@@ -885,7 +1023,8 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                       <option value="">Select Reason</option>
                       {reasons.map((reason, index) => (
                         <option key={index} value={reason}>
-                          {reason.replace(/_/g, ' ').toUpperCase()} {/* Format enum value */}
+                          {reason.replace(/_/g, " ").toUpperCase()}{" "}
+                          {/* Format enum value */}
                         </option>
                       ))}
                     </Input>
@@ -926,9 +1065,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                                       (element: any, idx: any) => (
                                         <span>
                                           {" "}
-                                          {idx > 0 && (
-                                            <span>,</span>
-                                          )}{" "}
+                                          {idx > 0 && <span>,</span>}{" "}
                                           {element.name}
                                         </span>
                                       )
@@ -944,14 +1081,18 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                                   <Button
                                     color="btn btn-sm btn-primary me-2"
                                     size="sm"
-                                    onClick={() => handleAppointmentDetails(row)}
+                                    onClick={() =>
+                                      handleAppointmentDetails(row)
+                                    }
                                   >
                                     Transfer
                                   </Button>
                                   <Button
                                     color="btn btn-sm btn-danger"
                                     size="sm"
-                                    onClick={() => cancelAppointmentDetails(row)}
+                                    onClick={() =>
+                                      cancelAppointmentDetails(row)
+                                    }
                                   >
                                     Cancel
                                   </Button>
@@ -961,10 +1102,7 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                           })
                         ) : (
                           <tr>
-                            <td
-                              colSpan={5}
-                              className="text-center py-3"
-                            >
+                            <td colSpan={5} className="text-center py-3">
                               No Data Available
                             </td>
                           </tr>
@@ -1007,7 +1145,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
         </Form>
       </Modal>
       {modalTransfer && (
-        <Modal isOpen={modalTransfer} toggle={closeTransferModal} centered backdrop="static" size="lg">
+        <Modal
+          isOpen={modalTransfer}
+          toggle={closeTransferModal}
+          centered
+          backdrop="static"
+          size="lg"
+        >
           <ModalHeader toggle={closeTransferModal}>
             Transfer Appointment
           </ModalHeader>
@@ -1016,7 +1160,8 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Salon: <b className="text-muted"> {salonNames?.salon?.name}</b>
+                    Salon:{" "}
+                    <b className="text-muted"> {salonNames?.salon?.name}</b>
                   </Label>
                 </div>
               </Col>
@@ -1024,7 +1169,11 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Barber: <b className="text-muted"> {newBarberSession?.barber?.name} </b>
+                    Barber:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {newBarberSession?.barber?.name}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -1033,7 +1182,11 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Appointment Start Time: <b className="text-muted"> {formatTime(selectedBarberAppointment?.start_time)}</b>
+                    Appointment Start Time:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {formatTime(selectedBarberAppointment?.start_time)}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -1041,7 +1194,11 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Appointment End Time: <b className="text-muted"> {formatTime(selectedBarberAppointment?.end_time)} </b>
+                    Appointment End Time:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {formatTime(selectedBarberAppointment?.end_time)}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -1060,11 +1217,13 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
                     onChange={handleAvailableBarberChange}
                   >
                     <option value="">Select Barber</option>
-                    {availableAppointmentBabrers?.availableBarbers?.map((appointment: any, index: any) => (
-                      <option key={index} value={appointment.id}>
-                        {appointment.name} {/* Format enum value */}
-                      </option>
-                    ))}
+                    {availableAppointmentBabrers?.availableBarbers?.map(
+                      (appointment: any, index: any) => (
+                        <option key={index} value={appointment.id}>
+                          {appointment.name} {/* Format enum value */}
+                        </option>
+                      )
+                    )}
                   </Input>
                 </div>
               </Col>
@@ -1104,18 +1263,16 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
       <AppointmentConfirmationModal
         isOpen={confirmModalOpen}
         toggle={toggleConfirmModal}
-        onConfirm={confirmAppointmentChange}  // Pass the confirm function with appointmentId
-        status={''}
+        onConfirm={confirmAppointmentChange} // Pass the confirm function with appointmentId
+        status={""}
         isAppointment={true}
         isTransferBarber={false}
         isService={false}
-        appointmentId={appointmentId}  // Pass appointmentId to modal
+        appointmentId={appointmentId} // Pass appointmentId to modal
       />
       <ToastContainer closeButton={false} limit={1} />
-    </React.Fragment >
+    </React.Fragment>
   );
 };
 
 export default BarberScheduleList;
-
-

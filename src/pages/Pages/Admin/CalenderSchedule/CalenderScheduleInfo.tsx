@@ -438,6 +438,7 @@ const cancelPopoverRemoval = () => {
     }
   };
   const handleEventClick = (arg: any) => {
+    
     cancelPopoverRemoval(); // Stop previous popover removal process
     // Ensure old popovers are removed
     removeFullCalendarPopovers();
@@ -469,6 +470,8 @@ const cancelPopoverRemoval = () => {
       username: event._def.extendedProps.username,
       // barber_bg_color: appointment.barber.background_color,
       salon: event._def.extendedProps.salon,
+      paymentDetails: event._def.extendedProps.paymentDetails,
+
       queue_position: event._def.extendedProps.queue_position,
       number_of_people: event._def.extendedProps.number_of_people,
       mobile_number: event._def.extendedProps.mobile_number,
@@ -482,7 +485,7 @@ const cancelPopoverRemoval = () => {
       //   },
       // ],
       haircutDetails: event._def.extendedProps.haircutDetails,
-      paymentDetails: event._def.extendedProps.paymentDetails,
+      // paymentDetails: event._def.extendedProps.paymentDetails,
       paymentStatus: event._def.extendedProps.paymentStatus,
       paymentMode: event._def.extendedProps.paymentMode,
     });
@@ -914,6 +917,8 @@ const cancelPopoverRemoval = () => {
                     <b>Mobile Number: </b>
                     <span>{event?.mobile_number || "N/A"}</span>
                   </div>
+               
+                  
                   <div className="form-group py-2 border-bottom">
                     <b>Services: </b>
                     <span>
@@ -930,6 +935,17 @@ const cancelPopoverRemoval = () => {
                         </span>
                       )}
                     </span>
+                  </div>
+                  <div className="form-group py-2 border-bottom d-flex">
+                    <div style={{width: "50%"}} >
+                      <b>Total Amount: </b>
+                    <span>{event?.paymentDetails?.totalAmount || "N/A"}</span>
+                    </div>
+                    <div style={{width: "50%"}}>
+                      <b>Tip: </b>
+                    <span>{event?.paymentDetails?.tip || "N/A"}</span>
+                    </div>
+                    
                   </div>
                 </div>
               </div>
