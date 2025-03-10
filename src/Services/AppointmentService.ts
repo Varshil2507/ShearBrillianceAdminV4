@@ -7,10 +7,8 @@ export const fetchAppointments = async (page: any, limit: any, startDate: any, e
     try {
         const statusInfo = status === 'All' ? '' : status;
         const response = await axios.get(`${APPOINTMENT_ENDPOINT}?page=` + page + `&limit=` + limit + `&startDate=` + startDate + `&endDate=` + endDate + `&status=` + statusInfo + `&category=` + category + `&search=` + search ?? '');
-        console.log("Fetched appointments:", response);
         return response;
     } catch (error) {
-        console.error("Error fetching appointments:", error);
         throw error;
     }
 };
@@ -19,10 +17,8 @@ export const fetchAppointments = async (page: any, limit: any, startDate: any, e
 export const fetchBoardAppointments = async (page: any, limit: any) => {
     try {
         const response = await axios.get(`${APPOINTMENT_ENDPOINT}/board/findAll?page=` + page + `&limit=` + limit);
-        console.log("Fetched appointments:", response);
         return response;
     } catch (error) {
-        console.error("Error fetching appointments:", error);
         throw error;
     }
 };
@@ -33,7 +29,6 @@ export const updateAppointmentStatus = async (id: number, statusData: any): Prom
     try {
         await axios.put(`${APPOINTMENT_ENDPOINT}/status/${id}`, statusData);
     } catch (error) {
-        console.error("Error updating status:", error);
         throw error;
     }
 };
@@ -43,7 +38,6 @@ export const updateAppointmentWaitTime = async (id: number, additionalTime: any)
     try {
         await axios.put(`${APPOINTMENT_ENDPOINT}/extend-wait-time/${id}`, additionalTime);
     } catch (error) {
-        console.error("Error updating wating time:", error);
         throw error;
     }
 };
@@ -53,7 +47,6 @@ export const cancelAppointment = async (id: number): Promise<void> => {
     try {
         await axios.put(`${APPOINTMENT_ENDPOINT}/cancel/${id}`, id);
     } catch (error) {
-        console.error("Error cancel appointment:", error);
         throw error;
     }
 };
@@ -62,10 +55,8 @@ export const createAppointment = async (appointmentData: any): Promise<any> => {
 
     try {
         const response = await axios.post(`${APPOINTMENT_ENDPOINT}/barber/create`, appointmentData);
-        console.log("Created appointment:", response);
         return response;
     } catch (error) {
-        console.error("Error creating appointment:", error);
         throw error;
     }
 };
@@ -73,10 +64,8 @@ export const deleteAppointment = async (appointmentData: any): Promise<any> => {
 
     try {
         const response = await axios.put(APPOINTMENT_ENDPOINT, appointmentData);
-        console.log("Deleted appointment:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error deleting appointment:", error);
         throw error;
     }
 };

@@ -357,7 +357,6 @@ const UserTable: React.FC = () => {
     setCurrentPage(pageIndex);
     setShowLoader(true);
     getUsers(total, selectedSearchText);
-    console.log("Current Page Index:", pageIndex);
     // Handle page change logic here
   };
 

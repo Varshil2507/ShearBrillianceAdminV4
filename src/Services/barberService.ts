@@ -27,10 +27,8 @@ export const fetchBarber = async (
 export const fetchAvailableBarber = async (appointmentId: any) => {
   try {
     const response = await axios.get(`${BARBER_ENDPOINT}/available-barbers/${appointmentId}`);
-    console.log("Fetched appointments:", response);
     return response;
   } catch (error) {
-    console.error("Error fetching appointments:", error);
     throw error;
   }
 };
@@ -39,10 +37,8 @@ export const fetchAvailableBarber = async (appointmentId: any) => {
 export const saveTransferAppointments = async (appointmentData: any) => {
   try {
     const response = await axios.post(`${BARBER_ENDPOINT}/transfer-appointments`, appointmentData);
-    console.log("Save transfer appointments:", response);
     return response;
   } catch (error) {
-    console.error("Error fetching appointments:", error);
     throw error;
   }
 };
@@ -57,7 +53,6 @@ export const addBarber = async (barberData: FormData): Promise<any> => {
     });
     return response;
   } catch (error) {
-    console.error("Error adding barber:", error);
     throw error;
   }
 };
@@ -69,7 +64,6 @@ export const updateBarberStatus = async (userId: number, status: { status: strin
     );
     return response; // Return the updated barber data
   } catch (error) {
-    console.error("Error updating barber status:", error);
     throw error;
   }
 };
@@ -81,7 +75,6 @@ export const updateBarberCategory = async (barberId: number, category: { categor
     );
     return response; // Return the updated barber data
   } catch (error) {
-    console.error("Error updating barber category:", error);
     throw error;
   }
 };
@@ -96,7 +89,6 @@ export const updateBarber = async (id: number, barberData: FormData): Promise<an
     });
     return response;
   } catch (error) {
-    console.error("Error updating barber:", error);
     throw error;
   }
 };
@@ -106,7 +98,6 @@ export const deleteBarber = async (id: number): Promise<void> => {
   try {
     await axios.delete(`${BARBER_ENDPOINT}/${id}`);
   } catch (error) {
-    console.error("Error deleting barber:", error);
     throw error;
   }
 };
@@ -119,7 +110,6 @@ export const fetchBarberBySalon = async (salonId: any, category: any): Promise<a
     });
     return response; // Extract and return the data field
   } catch (error) {
-    console.error("Error fetching barbers:", error);
     throw error;
   }
 };

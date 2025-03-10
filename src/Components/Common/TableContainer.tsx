@@ -238,12 +238,10 @@ const TableContainer = ({
 
     setFilters(selectedFilters);
     filterData(selectedFilters);
-    console.log("Filters Applied:", selectedFilters); // Debugging
   };
 
   // Handler to receive the updated global filter value
   const handleGlobalFilterChange = (value: string) => {
-    console.log("Received in Parent:", value); // Debugging or pass it to an API
     setGlobalFilter(value); // Update local state
     searchText(value);
   };

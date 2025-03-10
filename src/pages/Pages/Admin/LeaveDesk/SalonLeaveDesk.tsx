@@ -393,8 +393,6 @@ const RequestedLeavesTable: React.FC = () => {
       selectedStatus,
       selectedSearchText ?? ""
     );
-
-    console.log("Current Page Index:", pageIndex);
   };
 
   const formatHours = (timeString: string) => {

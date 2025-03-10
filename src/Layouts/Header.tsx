@@ -116,7 +116,6 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
   //     try {
   //       // Call the fetchSalons API with pagination and search params
   //       const response = await fetchSalons(1, 10, ""); // Example: page = 1, limit = 10, no search term
-  //       console.log("Salons fetched successfully:", response);
 
   //       // Handle the response (e.g., update the UI with fetched salons)
   //     } catch (error) {

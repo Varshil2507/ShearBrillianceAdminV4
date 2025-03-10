@@ -10,11 +10,9 @@ const api = new APIClient();
 export const loginUser = async (loginData: LoginData) => {
   try {
     const response = await axios.post(loginAPI, loginData);
-    console.log('API Response:', response); // Check API response here
     return response; // Return the response data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Axios Error:", error.response?.data); // Log detailed error
       throw error.response?.data || { message: 'An unknown error occurred.' };
     } else {
       throw { message: 'An unknown error occurred.' };
@@ -37,7 +35,6 @@ const registerUser = async (userData: RegisterData): Promise<any> => {
     return response; // return the response data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Axios Error:", error.response?.data); // Log detailed error
       throw error.response?.data || "An error occurred during registration"; // Custom error message
     } else {
       throw { message: 'An unknown error occurred' }; // Fallback error

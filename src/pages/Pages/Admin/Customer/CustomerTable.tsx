@@ -131,7 +131,6 @@ const CustomerTable: React.FC = () => {
     setCurrentPage(pageIndex);
     setShowLoader(true);
     getCustomers(total, selectedSearchText);
-    console.log('Current Page Index:', pageIndex);
     // Handle page change logic here
   };
 
@@ -165,7 +164,6 @@ const CustomerTable: React.FC = () => {
   const [loadingRow, setLoadingRow] = useState<number | null>(null); // Track which row is loading
 
   useEffect(() => {
-    console.log("loadingRow updated:", loadingRow);
   }, [loadingRow]);
   const columns = useMemo(
     () => [
@@ -284,19 +282,14 @@ const CustomerTable: React.FC = () => {
   };
 
   const handleDetailsClick = async (row: any) => {
-    debugger;
-    console.log("Setting loadingRow to:", row.id);
     setLoadingRow(row.id); // Set the loading row
-
     try {
       // Simulate an API call or data processing
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Processing complete for row:", row.id);
 
       // Call your card edit function
       handleCardEdit(row);
     } catch (error) {
-      console.error("Error handling details click:", error);
     }
   };
 

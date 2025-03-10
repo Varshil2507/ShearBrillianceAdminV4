@@ -55,14 +55,6 @@ const LeaveHistoryTable: React.FC = () => {
   ) => {
     try {
       setShowLoader(true);
-      // console.log("Fetching data with params:", {
-      //   page: page === 0 ? 1 : page,
-      //    limit,
-      //   selectedStartDate,
-      //   selectedEndDate,
-      //   selectedStatus,
-      // });
-
       const response = await fetchLeaveHistory(
         page === 0 ? 1 : page,
         limit,
@@ -260,8 +252,6 @@ const LeaveHistoryTable: React.FC = () => {
       data?.status === "All" ? "" : data?.status, // Send empty string for "All"
       selectedSearchText ?? ""
     );
-
-    console.log("Filtered Data:", data);
   };
 
   const handlePageChange = async (pageIndex: number) => {
@@ -275,7 +265,6 @@ const LeaveHistoryTable: React.FC = () => {
       selectedStatus,
       selectedSearchText ?? ""
     ); // Fetch data for the new page
-    console.log("Current Page Index:", pageIndex);
   };
 
   const handleSearchText = async (search: any) => {

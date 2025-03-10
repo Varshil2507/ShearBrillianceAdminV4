@@ -13,7 +13,6 @@ export const Insalonappointment = (query:any) => api.get(url.Insalonappointment+
 // export const generatereport = async (startDate: any, endDate: any): Promise<any> => {
 //     try {
 //         const response = await axios.get(`${url.Generatereport}?startDate=` + startDate + `&endDate=` + endDate);
-//         console.log("Fetched report:", response);
 //         return response;
 //     } catch (error) {
 //         console.error("Error fetching report:", error);
@@ -35,10 +34,8 @@ export const generatereport = async (
     if (barberId) queryParams += `&barberId=${barberId}`;
 
     const response = await axios.get(`${url.Generatereport}${queryParams}`);
-    console.log("Fetched sales report:", response);
     return response;
   } catch (error) {
-    console.error("Error fetching report:", error);
     throw error;
   }
 };
@@ -59,10 +56,8 @@ export const generateSalesReport = async (
       if (barberId) queryParams += `&barberId=${barberId}`;
   
       const response = await axios.get(`${url.GenerateSalesReport}${queryParams}`);
-      console.log("Fetched sales report:", response);
       return response;
     } catch (error) {
-      console.error("Error fetching report:", error);
       throw error;
     }
   };

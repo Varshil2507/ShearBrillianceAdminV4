@@ -66,8 +66,6 @@ const Salesrevenue = () => {
     setShowLoader(true);
 
     try {
-      debugger;
-
       const response = await generateSalesReport(
         formatDate(selectedStartDate),
         formatDate(selectedEndDate),

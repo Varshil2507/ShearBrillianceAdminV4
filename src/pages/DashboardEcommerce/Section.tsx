@@ -59,7 +59,6 @@ const Section = (props: any) => {
     setShowLoader(true);
     
     try {
-    debugger;
       const response = await generatereport(
         formatDate(selectedStartDate),
         formatDate(selectedEndDate),

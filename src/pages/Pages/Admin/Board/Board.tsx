@@ -750,7 +750,6 @@ const Board = () => {
         toast.warning("Please first select atleast one service!!!");
         setIsAppointmentAvailable(false);
       }
-      console.log("Selected options:", selected);
     }, 500);
   };
 
@@ -1008,7 +1007,6 @@ const Board = () => {
       // );
       // setSelectedSalon(selectedSalonData || null);
     }
-    console.log("Selected option:", event.target.value);
   };
 
   const handleBarberChange = async (event: any) => {
@@ -1718,8 +1716,6 @@ const Board = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  //console.log('tempAppointments:', tempAppointments);
 
   const handleFilterClick = (barber: any) => {
     setActiveFilter(barber.name);

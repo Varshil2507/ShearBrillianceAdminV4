@@ -14,10 +14,8 @@ export const createBarberLeaveRequest = async (leaveData: {
 }): Promise<any> => {
   try {
     const response = await axios.post(url.BARBER_LEAVE_REQUEST, leaveData);
-    console.log("Leave request submitted:", response);
     return response; // Return the response after the request is successful
   } catch (error) {
-    console.error("Error creating barber leave request:", error);
     throw error;
   }
 };

@@ -377,7 +377,6 @@ const BarberSessionsTable: React.FC = () => {
       // );
       // setSelectedSalon(selectedSalonData || null);
     }
-    console.log("Selected option:", event.target.value);
   };
 
   const handleBarberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -418,7 +417,6 @@ const BarberSessionsTable: React.FC = () => {
       // );
       // setSelectedSalon(selectedSalonData || null);
     }
-    console.log("Selected option:", event.target.value);
   };
 
   // Helper to compare times
