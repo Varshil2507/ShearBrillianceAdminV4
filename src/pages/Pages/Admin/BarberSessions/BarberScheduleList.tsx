@@ -143,11 +143,26 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
 
 
   // Extract all unique weeks from all barbers
-  const allWeeks = (): number[] => {
-    const weeks: number[] = salonNames?.barbers?.flatMap((barbr: any) =>
-      groupSchedulesByWeeks(barbr.barber.schedule).map((_: any, weekIdx: number) => weekIdx + 1)
-    ) || [];
-    return Array.from(new Set(weeks)).sort((a, b) => a - b); // Unique and sorted weeks
+  const allWeeks = (): { week: number; startDate: string; endDate: string }[] => {
+    // const weeks: number[] = salonNames?.barbers?.flatMap((barbr: any) =>
+    //   groupSchedulesByWeeks(barbr.barber.schedule).map((_: any, weekIdx: number) => weekIdx + 1)
+    // ) || [];
+    // return Array.from(new Set(weeks)).sort((a, b) => a - b); // Unique and sorted weeks
+    const weeksMap = new Map();
+
+    salonNames?.barbers?.forEach((barber: any) => {
+      groupSchedulesByWeeks(barber.barber.schedule).forEach((weekData: any, weekIdx: number) => {
+        const weekNumber = weekIdx + 1;
+        const startDate = format(weekData[0].date, 'MMMM d, yyyy'); // First entry of the week
+        const endDate = format(weekData[weekData.length - 1]?.date, 'MMMM d, yyyy'); // Last entry of the week
+
+        if (!weeksMap.has(weekNumber)) {
+          weeksMap.set(weekNumber, { week: weekNumber, startDate, endDate });
+        }
+      });
+    });
+
+    return Array.from(weeksMap.values()).sort((a, b) => a.week - b.week);
   };
 
   const handleBarberSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -582,9 +597,9 @@ const BarberScheduleList = ({ salonNames, onReload }: any) => {
               onChange={handleWeekSelect}
             >
               <option value="all">All Weeks</option>
-              {allWeeks().map((week: number) => (
+              {allWeeks().map(({ week, startDate, endDate }) => (
                 <option key={`week-option-${week}`} value={week}>
-                  Week {week}
+                  Week {week} ({startDate} - {endDate})
                 </option>
               ))}
             </select>
