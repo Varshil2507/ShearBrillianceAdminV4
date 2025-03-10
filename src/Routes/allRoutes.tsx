@@ -128,7 +128,6 @@ const publicRoutes = [
   { path: "/register", component: <Register /> },
   { path: "/access-denied", component: <Cover401 /> },
   { path: "/reset-password", component: <BasicPasswReset /> },
-  { path: "/reset-password?token=", component: <BasicPasswReset /> },
   // //AuthenticationInner pages
   { path: "/auth-signin-basic", component: <BasicSignIn /> },
   { path: "/auth-signin-cover", component: <CoverSignIn /> },
