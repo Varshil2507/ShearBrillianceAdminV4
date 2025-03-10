@@ -582,7 +582,6 @@ const BarberTable: React.FC = () => {
     setCurrentPage(pageIndex);
     setShowLoader(true);
     fetchBarbersList(total, selectedSearchText);
-    console.log('Current Page Index:', pageIndex);
     // Handle page change logic here
   };
 

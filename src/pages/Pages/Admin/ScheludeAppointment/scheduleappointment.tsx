@@ -322,7 +322,6 @@ const Scheduleappointment = () => {
       setShowSpinner(true);
       const mappedData = mapAppointmentData(appointmentData); // Map the data to match Swagger format
       const response = await createAppointment(mappedData); // Pass the mapped data to the API
-      console.log("Appointment created successfully:", response);
       setShowSpinner(false);
       toast.success("Appointment created successfully!");
       // Move to the next step
@@ -423,7 +422,6 @@ const Scheduleappointment = () => {
   }, [formData.selectedSalon]);
 
   const handleBarberSelect = (barber: { id: any; name: any; services: [] }) => {
-    console.log("Selected Barber:", barber); // Debug the selected barber
     setSelectedBarberId(barber.id);
     formData.selectedBarber = barber.id;
     setSelectedService(selectedService);
@@ -453,8 +451,6 @@ const Scheduleappointment = () => {
   };
   const handleConfirm = () => {
     // Do something when user confirms (e.g., proceed with booking)
-
-    console.log("Confirmed barber selection:", selectedBarber);
     toggleModal(); // Close modal after confirmation
   };
 

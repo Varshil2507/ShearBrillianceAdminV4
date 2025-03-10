@@ -194,7 +194,6 @@ const AppointmentTable: React.FC = () => {
       toast.warning("Please first select atleast one service!!!");
       setIsAppointmentAvailable(false);
     }
-    console.log("Selected options:", selected);
   };
 
   // Custom styles for react-select
@@ -625,7 +624,6 @@ const AppointmentTable: React.FC = () => {
           payment_mode: "Pay_In_Person",
           tip: tipAmount,
         };
-        console.log("Submitted values:", processedValues);
         const response = await createAppointment(processedValues);
         toast.success("Appointment created successfully", {
           autoClose: 3000,
@@ -820,7 +818,6 @@ const AppointmentTable: React.FC = () => {
       formik.setFieldValue("salon_id", salonId);
       getBarberSessionsData(salonId);
     }
-    console.log("Selected option:", event.target.value);
   };
   const handleBarberChange = async (event: any) => {
     if (event.target.value) {
@@ -927,7 +924,6 @@ const AppointmentTable: React.FC = () => {
       2,
       selectedSearchText ?? ""
     );
-    console.log("Current Page Index:", data);
     // Handle page change logic here
   };
   const handlePageChange = (pageIndex: number) => {
@@ -942,7 +938,6 @@ const AppointmentTable: React.FC = () => {
       2,
       selectedSearchText ?? ""
     );
-    console.log("Current Page Index:", pageIndex);
     // Handle page change logic here
   };
 

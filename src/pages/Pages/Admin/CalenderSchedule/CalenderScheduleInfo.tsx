@@ -392,7 +392,6 @@ const CalenderScheduleInfo: React.FC = () => {
       const popovers = document.querySelectorAll(".fc-popover");
 
       if (popovers.length === 0 && lastClickedEvent) {
-        console.log("No popovers found. Re-triggering event click...");
         lastClickedEvent.click(); // Simulate clicking the event again
       }
     }, 200); // Short delay to allow modal closing

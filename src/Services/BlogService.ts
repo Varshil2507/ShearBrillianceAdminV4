@@ -12,10 +12,8 @@ export const fetchBlogs = async (page: number, limit: number,search: any): Promi
       const response = await axios.get(`${BLOG_ENDPOINT}`, {
         params: { page, limit,search},
       });
-      console.log("Fetched blogs:", response);
       return response; // Ensure the API response is what you expect
     } catch (error: any) {
-      console.error("Error fetching blogs:", error.message);
       throw new Error("Failed to fetch blogs. Please try again.");
     }
   };
@@ -33,7 +31,6 @@ export const addBlog = async (blogData: FormData): Promise<any> => {
       
         return response;
     } catch (error) {
-        console.error("Error adding blog:", error);
         throw error;
     }
 };
@@ -48,7 +45,6 @@ export const updateBlog = async (id: number, formData: FormData): Promise<Blog> 
         });
         return response.data;
     } catch (error) {
-        console.error("Error updating blog:", error);
         throw error;
     }
 };
@@ -58,7 +54,6 @@ export const deleteBlog = async (id: number): Promise<void> => {
     try {
         await apiClient.delete(`${BLOG_ENDPOINT}/${id}`);
     } catch (error) {
-        console.error("Error deleting blog:", error);
         throw error;
     }
 };

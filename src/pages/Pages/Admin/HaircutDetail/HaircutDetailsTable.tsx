@@ -210,9 +210,6 @@ const HaircutDetailsTable: React.FC = () => {
         const updatedHairCutData = await updateHaircutDetail(newHaircut.id, {
           ...values
         });
-
-        console.log("Updated haircut data from API:", updatedHairCutData);
-
         // Update the local state with the edited data if the API returns it
         setHaircutData((prevData) =>
           prevData.map((haircut) =>

@@ -8,7 +8,6 @@ export const loginAPI = (loginData: LoginData, navigate: (path: string) => void)
   return async (dispatch: any) => {
     try {
       const userData: any = await loginUser(loginData);
-      console.log('Thunk UserData:', userData); // Check if userData is populated
       localStorage.setItem("authBarberUser", JSON.stringify(userData.barber));
       localStorage.setItem("authSalonUser", JSON.stringify(userData.salon));
       localStorage.setItem("userCategory", userData.categoryType); // Store role in localStorage

@@ -37,8 +37,6 @@ function App() {
     const isInitialLoad = !sessionStorage.getItem('appStarted');
 
     if (isInitialLoad) {
-      console.log('App started via npm run start or fresh load');
-
       // Perform any cleanup or actions here
       localStorage.clear();
       sessionStorage.clear();
@@ -47,9 +45,7 @@ function App() {
       sessionStorage.setItem('appStarted', 'true');
       navigate("/login");
       //  return <Navigate to="/login" />;
-    } else {
-      console.log('Page reloaded (F5 pressed)');
-    }
+    } 
   }, [navigate]); // Runs once on component mount
 
   return (

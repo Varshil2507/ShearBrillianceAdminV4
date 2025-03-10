@@ -102,11 +102,9 @@ const { updateBalanceOverviewData, updateMetrics, updateFilter } = dashboardCRMS
 // Thunk Logic
 const getBalanceChartsData = (filter: string) => async (dispatch: any) => {
   try {
-    console.log(`Fetching data for filter: ${filter}`);
     const salesData: SalesDataItem[] = await fetchWalkInSalesData(filter);
 
     if (salesData && Array.isArray(salesData)) {
-      console.log('Sales data fetched successfully:', salesData);
 
       const totalSales = salesData.reduce((sum, item) => sum + parseFloat(item.revenue || 0), 0);
       const totalAppointments = salesData.reduce((sum, item) => sum + Number(item.appointments || 0), 0);
@@ -114,7 +112,6 @@ const getBalanceChartsData = (filter: string) => async (dispatch: any) => {
       dispatch(updateBalanceOverviewData([...salesData]));
       dispatch(updateMetrics({ sales: totalSales, appointments: totalAppointments, profitRatio }));
     } else {
-      console.error('Invalid sales data format or empty data');
       dispatch(updateBalanceOverviewData([]));
       dispatch(updateMetrics({ sales: 0, appointments: 0, profitRatio: 0 }));
     }

@@ -29,14 +29,9 @@ const PaymentChart: React.FC = () => {
         setLoading(true);
         try {
             const response = await fetchPaymentMethod(filter);
-            console.log("API Response:", response);
-    
             // Convert to numbers and apply `.toFixed(2)`
             const online = response?.online ? Number(response.online).toFixed(2) : "0.00";
             const offline = response?.offline ? Number(response.offline).toFixed(2) : "0.00";
-    
-            console.log("Processed Values:", online, offline);
-    
             // Convert back to numbers for ApexCharts
             setChartData([parseFloat(online), parseFloat(offline)]);
         } catch (error: any) {
@@ -47,8 +42,6 @@ const PaymentChart: React.FC = () => {
             setLoading(false);
         }
     };
-    
-    
 
     const onChangeChartPeriod = (filter: string): void => {
         const filterMapping: { [key: string]: string } = {

@@ -281,7 +281,6 @@ const SalonTable: React.FC = () => {
   };
 
   const onClickDelete = (salon: any) => {
-    console.log("Selected salon:", salon); // Debugging log
     setSelectedSalon(salon); // Ensure this is correctly assigning the ID
     setDeleteModal(true);
   };
@@ -295,8 +294,6 @@ const SalonTable: React.FC = () => {
     setShowSpinner(true);
     try {
       if (selectedSalon !== null) {
-        console.log("Deleting salon with ID:", selectedSalon.id); // Debugging log
-
         await deleteSalon(selectedSalon.id);
 
         toast.success("Salon deleted successfully", { autoClose: 3000 });
@@ -401,7 +398,6 @@ const SalonTable: React.FC = () => {
     setCurrentPage(pageIndex);
     setShowLoader(true);
     fetchSalonsList(total, selectedSearchText);
-    console.log('Current Page Index:', pageIndex);
     // Handle page change logic here
   };
 
@@ -528,8 +524,6 @@ const SalonTable: React.FC = () => {
 
       // Call the API to update the salon
       const response = await updateSalon(id, formData);
-      console.log("Backend response after updating salon:", response);
-
       // Fetch the updated salons list with search filter
       // const updatedSalons = await fetchSalons(1, limit, selectedSearchText); // Adjust fetchSalons to include the search filter
       // const salonArray = updatedSalons.salons.map((item: any) => item.salon);

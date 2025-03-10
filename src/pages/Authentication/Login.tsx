@@ -63,8 +63,6 @@ const Login = (props: any) => {
             setLoader(true);
             try {
                 const response = await dispatch(loginAPI(values, navigate));
-                console.log('Login Response in onSubmit:', response); // Check final response here
-
                 if (!response || response.error) {
                     toast.error(response.error, { autoClose: 3000 });
                     setLoader(false);
@@ -89,10 +87,6 @@ const Login = (props: any) => {
                 setLoader(false);
             }
         }
-
-
-
-
     });
 
     const signIn = (type: any) => {

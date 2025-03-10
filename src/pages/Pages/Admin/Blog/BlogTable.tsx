@@ -354,10 +354,8 @@ const BlogTable: React.FC = () => {
 
         // Handle image upload logic
         if (selectedImage instanceof File) {
-          console.log("Appending selectedImage to formData with key 'image':", selectedImage);
           formData.append("image", selectedImage);
         } else if (typeof newBlog.image === "string") {
-          console.log("Appending existing photo URL to formData with key 'image':", newBlog.image);
           formData.append("image", newBlog.image);
         }
 
@@ -365,8 +363,6 @@ const BlogTable: React.FC = () => {
         const updatedBlogData = await updateBlog(newBlog.id, formData);
         toast.success("Blog updated successfully", { autoClose: 3000 });
         setShowSpinner(false);
-        console.log("Updated blog data from API:", updatedBlogData);
-
         // Fetch updated blogs filtered by title
         fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
         // const updatedBlogs = await fetchBlogs(1, limit, selectedSearchText); // Pass search text
@@ -400,7 +396,6 @@ const BlogTable: React.FC = () => {
     setCurrentPage(pageIndex);
     setShowLoader(true);
     fetchBlogList(total, selectedSearchText);
-    console.log('Current Page Index:', pageIndex);
     // Handle page change logic here
   };
 
