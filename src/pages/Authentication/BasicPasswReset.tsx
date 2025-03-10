@@ -38,6 +38,7 @@ const BasicPasswCreate = () => {
   // Example: Get a specific query parameter
   const token = queryParams.get("token");
   useEffect(() => {
+    alert();
     debugger;
   }, []);
   const validation = useFormik({
