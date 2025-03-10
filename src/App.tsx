@@ -43,7 +43,7 @@ function App() {
       
       // Set a flag to mark the app as started
       sessionStorage.setItem('appStarted', 'true');
-      navigate("/login");
+      // navigate("/login");
       //  return <Navigate to="/login" />;
     } 
   }, [navigate]); // Runs once on component mount
