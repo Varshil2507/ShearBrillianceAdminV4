@@ -8,7 +8,7 @@ import Loader from "Components/Common/Loader";
 import { generatereport } from "Services/Insalonappointment";
 import "./section.css"
 import { fetchSalons } from "Services/SalonService";
-import { fetchBarberBySalon } from "Services/barberService";
+import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 
 const Section = (props: any) => {
   const [userInformation, setUserInformation] = useState<any>(null);
@@ -24,6 +24,10 @@ const Section = (props: any) => {
   const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
   const [selectedSalonId, setSelectedSalonId] = useState<any | null>(null); // Selected salon
   const [selectedBarberId, setSelectedBarberId] = useState<any | null>(null); // Selected barber
+  const [barberDisabled, setBarberDisabled] = useState(false);
+  const [isLoadingBarbers, setIsLoadingBarbers] = useState(false);
+  
+  
   useEffect(() => {
     const authUser = localStorage.getItem("authUser");
     if (authUser) {
@@ -55,12 +59,12 @@ const Section = (props: any) => {
     setShowLoader(true);
     
     try {
-    
+    debugger;
       const response = await generatereport(
         formatDate(selectedStartDate),
         formatDate(selectedEndDate),
-        selectedSalonId || undefined, // Pass salonId if selected, else undefined
-        selectedBarberId || undefined // Pass barberId if selected, else undefined
+        selectedSalonId === "all" ? undefined : selectedSalonId, // Pass undefined for "All" salons
+        selectedBarberId === "all" ? undefined : selectedBarberId || undefined // Pass undefined for "All" barbers
       );
   
       if (response && response.downloadLink) {
@@ -81,6 +85,7 @@ const Section = (props: any) => {
       setShowDatePicker(false);
     }
   };
+ 
   const showToast = (message: string) => {
     toast.warning(message); // Display warning toast message
   };
@@ -174,35 +179,54 @@ const Section = (props: any) => {
     }
   }, []);
   
-    const handleSalonChange = async (
-      event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-      
-  
-      const salonId = event.target.value ? Number(event.target.value) : null;
-      setSelectedSalonId(salonId);
-      if (salonId !== null) {
-        getSalonBabrer(salonId);
-      } else {
-        setSalonBarberData([]); // Clear barbers if no salon is selected
-      }
-  
-      // Clear selected barber when salon changes
-      setSelectedBarberId(null);
-    };
-    // Handle barber change
-    const handleBarberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-      
-      const barberId = event.target.value ? Number(event.target.value) : null;
-      setSelectedBarberId(barberId);
-      if (!selectedSalonId) {
-        alert("Please select a salon first.");
-      }
-    };
-
-  return (
    
+const handleSalonChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedValue = event.target.value;
+    const salonId =
+      selectedValue === "all"
+        ? "all"
+        : selectedValue
+        ? Number(selectedValue)
+        : null;
 
+    setSelectedSalonId(salonId);
+
+    if (salonId === "all") {
+      // If "All" salons selected, set barber dropdown to "All" and disable it
+      setSalonBarberData([]); // Clear barbers list
+      setSelectedBarberId("all"); // Auto-select "All"
+      setBarberDisabled(true); // Disable barber dropdown
+      setIsLoadingBarbers(false); // No loading for "All"
+    } else if (salonId !== null) {
+      // Fetch barbers for the selected salon
+      setBarberDisabled(false); // Enable barber dropdown
+      setSelectedBarberId(""); // Reset to "Select Barber"
+      setIsLoadingBarbers(true); // Show spinner while loading barbers
+      try {
+        await getSalonBabrer(salonId); // Fetch barbers
+      } catch (error) {
+        console.error("Error fetching barbers:", error);
+        toast.error("Failed to fetch barbers.");
+      } finally {
+        setIsLoadingBarbers(false); // Hide spinner after fetching
+      }
+    } else {
+      // If no salon is selected, reset barber dropdown
+      setSalonBarberData([]);
+      setSelectedBarberId(""); // Ensure it shows "Select Barber"
+      setBarberDisabled(false);
+      setIsLoadingBarbers(false); // No loading
+    }
+  };
+
+     const handleBarberChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const barberId = event.target.value;
+        setSelectedBarberId(barberId);
+      }
+  return (
+  
     <React.Fragment>
   <Row className="mb-3 pb-1">
     <Col xs={12}>
@@ -236,64 +260,83 @@ const Section = (props: any) => {
         ) : null}
       </div>
 
-               {showDatePicker && (
-       <div className="row align-items-center mt-3 g-2">
-         {/* Salon Dropdown */}
-         {!storeUserInfo.berber && !storeUserInfo.salon && (
-           <div className="col-lg-3 col-md-6 col-sm-6">
-             <select
-               id="salonSelect"
-               className="form-select"
-               value={selectedSalonId !== null ? selectedSalonId : ""}
-               onChange={handleSalonChange}
-             >
-               <option value="" disabled>
-                 Select Salon
-               </option>
-               {salonData.length > 0 ? (
-                 salonData.map((salon: any) => (
-                   <option key={salon.salon.id} value={salon.salon.id}>
-                     {salon.salon.name}
-                   </option>
-                 ))
-               ) : (
-                 <option value="" disabled>
-                   No salons available
-                 </option>
-               )}
-             </select>
-           </div>
-         )}
-     
-         {/* Barber Dropdown */}
-         <div className="col-lg-3 col-md-6 col-sm-6">
-           <select
-             id="barberSelect"
-             className="form-select"
-             value={selectedBarberId !== null ? selectedBarberId : ""}
-             onChange={handleBarberChange}
-             disabled={!selectedSalonId}
-           >
-             <option value="" disabled>
-               Select Barber
-             </option>
-             {salonBarberData.length > 0 ? (
-               salonBarberData.map((barber: any) => (
-                 <option
-                   key={barber.id}
-                   value={barber.id}
-                   disabled={barber.availability_status !== "available"}
-                 >
-                   {barber.name}
-                 </option>
-               ))
-             ) : (
-               <option value="" disabled>
-                 No barbers available
-               </option>
-             )}
-           </select>
-         </div>
+      {showDatePicker && (
+            <div className="row align-items-center mt-3 g-2">
+              {/* Salon Dropdown */}
+              {!storeUserInfo.berber && !storeUserInfo.salon && (
+                <div className="col-lg-3 col-md-6 col-sm-6">
+                  <select
+                    id="salonSelect"
+                    className="form-select"
+                    value={
+                      selectedSalonId === "all"
+                        ? "all"
+                        : selectedSalonId !== null
+                        ? selectedSalonId
+                        : ""
+                    }
+                    onChange={handleSalonChange}
+                  >
+                    <option value="" disabled>
+                      Select Salon
+                    </option>
+                    <option value="all">All</option>{" "}
+                    {/* Use "all" as the value */}
+                    {salonData.length > 0 ? (
+                      salonData.map((salon: any) => (
+                        <option key={salon.salon.id} value={salon.salon.id}>
+                          {salon.salon.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No salons available
+                      </option>
+                    )}
+                  </select>
+                </div>
+              )}
+
+              {/* Barber Dropdown */}
+              <div className="col-lg-3 col-md-6 col-sm-6 position-relative">
+                         <select
+                           value={selectedBarberId}
+                           onChange={handleBarberChange}
+                           disabled={barberDisabled || isLoadingBarbers} // Disable dropdown while loading
+                           id="barberSelect"
+                           className="form-select"
+                         >
+                           {isLoadingBarbers ? (
+                             <option value="" disabled>
+                               Loading barbers...
+                             </option>
+                           ) : (
+                             <>
+                               <option value="">Select Barber</option>
+                               <option value="all">All</option>
+                               {salonBarberData.map((barber) => (
+                                 <option key={barber.id} value={barber.id}>
+                                   {barber.name}
+                                 </option>
+                               ))}
+                             </>
+                           )}
+                         </select>
+         
+                         {/* Inline Spinner */}
+                         {isLoadingBarbers && (
+                           <div
+                             className="position-absolute"
+                             style={{
+                               top: "50%",
+                               right: "10px",
+                               transform: "translateY(-50%)",
+                             }}
+                           >
+                             <Spinner size="sm" /> {/* Show spinner while loading */}
+                           </div>
+                         )}
+                       </div>
      
          {/* Start Date Picker */}
          <div className="col-lg-3 col-md-6 col-sm-6">
@@ -351,3 +394,5 @@ const Section = (props: any) => {
 };
 
 export default Section;
+
+

@@ -50,8 +50,8 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     salonNames?.barbers || []
   );
   const [openAccordion, setOpenAccordion] = useState<string | string[]>("");
-  const [newBarberSession, setNewBarberSession] =
-    useState<BarberSessions | null>(null);
+  const [newBarberSession, setNewBarberSession] = useState<BarberSessions | null>(null);
+  const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [showTransferSpinner, setShowTransferSpinner] =
@@ -104,6 +104,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     appointments: any;
     barber?: any; // Add this line
     isGeneralSchedule?: boolean; // Add this line
+    lastBarberScheduleDate?: string; // Add this line
   }
 
   const reasons = [
@@ -161,14 +162,26 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   };
 
   // Extract all unique weeks from all barbers
-  const allWeeks = (): number[] => {
-    const weeks: number[] =
-      salonNames?.barbers?.flatMap((barbr: any) =>
-        groupSchedulesByWeeks(barbr.barber.schedule).map(
-          (_: any, weekIdx: number) => weekIdx + 1
-        )
-      ) || [];
-    return Array.from(new Set(weeks)).sort((a, b) => a - b); // Unique and sorted weeks
+  const allWeeks = (): { week: number; startDate: string; endDate: string }[] => {
+    // const weeks: number[] = salonNames?.barbers?.flatMap((barbr: any) =>
+    //   groupSchedulesByWeeks(barbr.barber.schedule).map((_: any, weekIdx: number) => weekIdx + 1)
+    // ) || [];
+    // return Array.from(new Set(weeks)).sort((a, b) => a - b); // Unique and sorted weeks
+    const weeksMap = new Map();
+
+    salonNames?.barbers?.forEach((barber: any) => {
+      groupSchedulesByWeeks(barber.barber.schedule).forEach((weekData: any, weekIdx: number) => {
+        const weekNumber = weekIdx + 1;
+        const startDate = format(weekData[0].date, 'MMMM d, yyyy'); // First entry of the week
+        const endDate = format(weekData[weekData.length - 1]?.date, 'MMMM d, yyyy'); // Last entry of the week
+
+        if (!weeksMap.has(weekNumber)) {
+          weeksMap.set(weekNumber, { week: weekNumber, startDate, endDate });
+        }
+      });
+    });
+
+    return Array.from(weeksMap.values()).sort((a, b) => a.week - b.week);
   };
 
   const handleBarberSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -230,8 +243,8 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
-  const setScheduleData = (data: any, barberInfo: any) => {
-    
+  const setScheduleData = (data: any, barberInfo: any, isAdd?: any) => {
+    setIsAddNew(isAdd);
     setNewBarberSession({
       id: data?.id,
       BarberId: barberInfo?.barber?.id,
@@ -244,6 +257,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       reason: data?.reason,
       barber: barberInfo?.barber,
       isGeneralSchedule: data?.id ? false : true,
+      lastBarberScheduleDate: barberInfo.barber.schedule[barberInfo.barber.schedule.length - 1]?.date
     });
     toggle(); // Open the modal
   };
@@ -384,7 +398,13 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
 
     onSubmit: (values) => {
       setShowSpinner(true);
-
+      if (isAddNew && !newBarberSession?.session_date) {
+        toast.error("First select date", {
+          autoClose: 3000,
+        });
+        setShowSpinner(false);
+        return;
+      }
       // Validate start_time and end_time
       if (values.start_time >= values.end_time) {
         toast.error("Start time must be earlier than end time", {
@@ -534,23 +554,29 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   };
 
   const handleDateChange = (barberInfo: any, event: any) => {
-    formik.setFieldValue("session_date", event.target.value);
-    const isAvailableSchedule = barberInfo.schedule?.find(
-      (info: any) =>
-        formatDate(info.date).toString() ===
-          formatDate(event.target.value).toString() &&
-        info.is_non_working_day == false &&
-        info.is_leave_day === false
-    );
-    setIsAvailableSchedule(isAvailableSchedule ? true : false);
-    if (isAvailableSchedule) {
-      toast.warning(
-        "Please select another date because this barber's schedule is already available on this date."
-      );
-    } else {
-      formik.setFieldValue("session_date", event.target.value);
+    const selectedDate = event.target.value;
+    if (!newBarberSession || !newBarberSession.lastBarberScheduleDate) {
+      toast.error("No available schedule date.");
+      return;
     }
-  };
+    if (selectedDate > newBarberSession.lastBarberScheduleDate) {
+      toast.error("Selected date cannot be later than " + newBarberSession.lastBarberScheduleDate);
+      return;
+    }
+    // if(newBarberSession?.lastBarberScheduleDate )
+    formik.setFieldValue("session_date", event.target.value);
+    setNewBarberSession((prev: any) => ({
+      ...prev,
+      session_date: event.target.value,
+    }));
+    // const isAvailableSchedule = barberInfo.schedule?.find((info: any) => formatDate(info.date).toString() === formatDate(event.target.value).toString() && info.is_non_working_day == false && info.is_leave_day === false);
+    // setIsAvailableSchedule(isAvailableSchedule ? true : false);
+    // if (isAvailableSchedule) {
+    //   toast.warning("Please select another date because this barber's schedule is already available on this date.");
+    // } else {
+    //   formik.setFieldValue("session_date", event.target.value);
+    // }
+  }
 
   const appointmentTransfer = async () => {
     try {
@@ -644,9 +670,9 @@ useEffect(() => {
               onChange={handleWeekSelect}
             >
               <option value="all">All Weeks</option>
-              {allWeeks().map((week: number) => (
+              {allWeeks().map(({ week, startDate, endDate }) => (
                 <option key={`week-option-${week}`} value={week}>
-                  Week {week}
+                  Week {week} ({startDate} - {endDate})
                 </option>
               ))}
             </select>
@@ -693,7 +719,7 @@ useEffect(() => {
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => {
-                        setScheduleData(null, barbr);
+                        setScheduleData(null, barbr, true);
                       }}
                     >
                       <i className="ri-add-circle-line me-1"></i> Add Schedule
@@ -862,7 +888,7 @@ useEffect(() => {
                 </Col>
               )}
               <Col lg={4}>
-                {/* {newBarberSession?.isGeneralSchedule ? (
+                {isAddNew ? (
                   <div className="mb-3">
                     <Label htmlFor="session_date" className="form-label">
                       Date
@@ -893,27 +919,14 @@ useEffect(() => {
                         </div>
                       )}
                   </div>
-                ) : (*/}
-                <div>
-                  <Label htmlFor="salon" className="form-label">
-                    Date
-                  </Label>
-                  <Flatpickr
-                    data-enable-time={false}
-                    value={selectedDate}
-                    options={{
-                      mode: "range",
-                      dateFormat: "d M, Y",
-                      // defaultDate: initialDateRange, // Set default date range from props
-                    }}
-                    onChange={(selectedDates: any) =>
-                      setDateRange(selectedDates)
-                    } // Update date range state
-                    className="form-control"
-                  />
-                  {/* <b className="text-muted"> {format(selectedDate, "MMMM d, yyyy")} </b> */}
-                </div>
-                {/* )} */}
+                ) : (
+                  <><div>
+                    <Label htmlFor="salon" className="form-label">
+                      Date
+                    </Label>
+                  </div><b className="text-muted"> {newBarberSession?.session_date ? format(newBarberSession?.session_date, 'MMMM d, yyyy') : format(new Date(), 'MMMM d, yyyy')} </b></>
+                )}
+
               </Col>
             </Row>
             {newBarberSession?.id && (
