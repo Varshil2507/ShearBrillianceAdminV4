@@ -47,7 +47,6 @@ const BasicPasswCreate = () => {
 
     // Inside your validation.onSubmit method:
     onSubmit: async (values, { setSubmitting, setErrors }) => {
-        
         try {
           // Prepare the payload with token and new password
           const payload = {
@@ -103,7 +102,7 @@ const BasicPasswCreate = () => {
                                     </div>
 
                                     <div className="p-2">
-                                        <Form onSubmit={validation.handleSubmit} action="/auth-signin-basic">
+                                        <Form onSubmit={validation.handleSubmit} action="/reset-password">
                                             <div className="mb-3">
                                                 <Label className="form-label" htmlFor="password-input">Password</Label>
                                                 <div className="position-relative auth-pass-inputgroup">
@@ -170,7 +169,7 @@ const BasicPasswCreate = () => {
                                 </CardBody>
                             </Card>
                             <div className="mt-4 text-center">
-                                <p className="mb-0">Wait, I remember my password... <Link to="/auth-signin-basic" className="fw-semibold text-primary text-decoration-underline"> Click here </Link> </p>
+                                <p className="mb-0">Wait, I remember my password... <Link to="/login" className="fw-semibold text-primary text-decoration-underline"> Click here </Link> </p>
                             </div>
                         </Col>
                     </Row>
