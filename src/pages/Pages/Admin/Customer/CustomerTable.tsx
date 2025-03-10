@@ -282,9 +282,7 @@ const CustomerTable: React.FC = () => {
   };
 
   const handleDetailsClick = async (row: any) => {
-    debugger;
     setLoadingRow(row.id); // Set the loading row
-
     try {
       // Simulate an API call or data processing
       await new Promise((resolve) => setTimeout(resolve, 2000));
