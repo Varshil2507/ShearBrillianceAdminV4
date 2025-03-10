@@ -24,7 +24,7 @@ const Section = (props: any) => {
   const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
   const [selectedSalonId, setSelectedSalonId] = useState<any | null>(null); // Selected salon
   const [selectedBarberId, setSelectedBarberId] = useState<any | null>(null); // Selected barber
-  const [barberDisabled, setBarberDisabled] = useState(false);
+  const [barberDisabled, setBarberDisabled] = useState(true);
   const [isLoadingBarbers, setIsLoadingBarbers] = useState(false);
   
   
