@@ -231,7 +231,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   };
 
   const setScheduleData = (data: any, barberInfo: any) => {
-    debugger
+    
     setNewBarberSession({
       id: data?.id,
       BarberId: barberInfo?.barber?.id,
@@ -604,7 +604,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
 // const defaultStartDate = lastSchedule ? new Date(lastSchedule.date) : new Date();
 // defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to the next day
 useEffect(() => {
-  debugger
+  
   if (BarberId?.schedule?.length) {
     const lastSchedule = BarberId.schedule[BarberId.schedule.length - 1];
     const defaultStartDate = new Date(lastSchedule.date);

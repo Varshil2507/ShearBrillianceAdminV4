@@ -37,7 +37,7 @@ const ForgetPasswordPage = (props: any) => {
       email: Yup.string().matches(emailValidationRegex, "Enter valid email!!").required("Please Enter Your Email"),
     }),
     onSubmit: async (values) => {
-      debugger
+      
       try {
         setLoader(true);
         // Dispatch the forgot password action with the email value

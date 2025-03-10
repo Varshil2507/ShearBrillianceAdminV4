@@ -2,6 +2,7 @@ import { APIClient } from "./api_helper";
 import axios from 'axios'; // Import AxiosError
 import { loginAPI, registerAPI, userForgetPassword } from "./url_helper";
 import { LoginData, RegisterData } from "./type";
+import * as url from "./url_helper";
 
 const api = new APIClient();
 
@@ -68,6 +69,31 @@ export const sendResetPassword = async (email: string) => {
     }
   }
 };
+
+ export const resetPassword = async (token: string, newPassword: string) => {
+  try {
+    
+    const response = await fetch("/api/users/reset-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, newPassword }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log("Password reset successful:", data);
+    return data; // Handle success response
+  } catch (error) {
+    console.error("Password reset failed:", error);
+    throw error; // Handle error in UI
+  }
+};
+export const postSetPassword = (data : any) => api.create(url.POST_RESET_PASSWORD, data);
 
 
 // // Gets the logged in user data from local session

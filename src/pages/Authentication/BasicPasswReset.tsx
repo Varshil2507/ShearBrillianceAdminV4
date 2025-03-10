@@ -1,44 +1,81 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardBody, Col, Container, Row, Form, Input, Label, FormFeedback } from 'reactstrap';
 import ParticlesAuth from '../AuthenticationInner/ParticlesAuth';
 import logoLight from "../../assets/images/smallest.png";
 import config from "config";
+import {  postSetPassword } from "Services/AuthService";
 
 //formik
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { toast } from 'react-toastify';
 
 const BasicPasswCreate = () => {
     const { commonText } = config;
+    const navigate = useNavigate();
 
     document.title = "Create New Password | Shear Brilliance"; 
-
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
     const [passwordShow, setPasswordShow] = useState<boolean>(false);
     const [confrimPasswordShow, setConfrimPasswordShow] = useState<boolean>(false);
 
-    const validation = useFormik({
-        enableReinitialize: true,
+  // Example: Get a specific query parameter
+  const token = queryParams.get("token");
 
-        initialValues: {
-            password: "",
-            confirm_password: "",
-        },
-        validationSchema: Yup.object({
-            password: Yup.string()
-                .min(8, 'Password must be at least 8 characters')
-                .matches(RegExp('(.*[a-z].*)'), 'At least lowercase letter')
-                .matches(RegExp('(.*[A-Z].*)'), 'At least uppercase letter')
-                .matches(RegExp('(.*[0-9].*)'), 'At least one number')
-                .required("This field is required"),
-            confirm_password: Yup.string()
-                .oneOf([Yup.ref('password'), ""],)
-                .required('Confirm Password is required')
-        }),
-        onSubmit: (values) => {
-            // console.log(values);
+  const validation = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      password: "",
+      confirm_password: "",
+    },
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .min(8, "Password must be at least 8 characters")
+        .matches(RegExp("(.*[a-z].*)"), "At least lowercase letter")
+        .matches(RegExp("(.*[A-Z].*)"), "At least uppercase letter")
+        .matches(RegExp("(.*[0-9].*)"), "At least one number")
+        .required("This field is required"),
+      confirm_password: Yup.string()
+        .oneOf(
+          [Yup.ref("password"), undefined],
+          "Passwod & Confirm password does not match"
+        )
+        .required("Confirm Password is required"),
+    }),
+
+    // Inside your validation.onSubmit method:
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
+        
+        try {
+          // Prepare the payload with token and new password
+          const payload = {
+            token: token, // Use provided token or default
+            newPassword: values.password,
+          };
+  
+          // Call the API method with the payload
+          const response = await postSetPassword(payload);
+          var data: any = await response;
+  
+          // Check if the response indicates failure (success: false)
+          if (!data.success) {
+            toast.error(data.message); // Show the error message as a toast
+          } else {
+            toast.success("Password reset successfully!"); // Success case, optional
+            navigate("/signin");
+          }
+        } catch (error) {
+          // Handle error, set error message for feedback if necessary
+          setErrors({ password: "Failed to reset password. Please try again." });
+          toast.error("An error occurred while resetting the password."); // Show generic error if request fails
+        } finally {
+          setSubmitting(false);
         }
-    });
+      },
+
+  });
     return (
         <ParticlesAuth>
             <div className="auth-page-content mt-lg-5">
@@ -144,3 +181,5 @@ const BasicPasswCreate = () => {
 };
 
 export default BasicPasswCreate;
+
+
