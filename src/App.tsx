@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 //import Scss
 import './assets/scss/themes.scss';
@@ -32,9 +32,12 @@ fakeBackend();
 
 function App() {
   const navigate = useNavigate(); // Initialize useNavigate hook for navigation
+  const location = useLocation();
+   const queryParams = new URLSearchParams(location.search);
   useEffect(() => {
     // Check if this is the first app load
     const isInitialLoad = !sessionStorage.getItem('appStarted');
+    const token = queryParams.get("token");
 
     if (isInitialLoad) {
       // Perform any cleanup or actions here
@@ -43,6 +46,9 @@ function App() {
       
       // Set a flag to mark the app as started
       sessionStorage.setItem('appStarted', 'true');
+      if(!token) {
+        navigate("/login");
+      }
       // navigate("/login");
       //  return <Navigate to="/login" />;
     } 
