@@ -1716,22 +1716,25 @@ const BarberTable: React.FC = () => {
                 </div>
               </Col> */}
             </Row>
-            <Row className="mt-4">
-              <Col xs={12}>
-                <h5 className="text-center">Weekly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
+            <Row className="mt-4 align-items-center">
+              <Col xs={6}>
+                <h5 className="text-center">Weeklly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
+              </Col>
+              <Col xs={6}>
+                <p className="badge bg-warning text-wrap text-start" style={{lineHeight: "1.5", fontSize: "14px"}}><strong>Note:</strong>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown.</p>
               </Col>
               {schedule.map((dayItem, index) => (
                   <Col lg={3} md={4} sm={6} xs={12} key={dayItem.day} className="mb-4">
                     <div className="d-flex flex-column align-items-start p-3 border rounded shadow-sm">
                       <div className="d-flex justify-content-between w-100">
                         <div className="d-flex align-items-center">
-                          <Input
+                          {/* <Input
                             type="checkbox"
                             checked={dayItem.isChecked}
                             disabled={dayItem.isReadonly}
                             onChange={() => handleWeekCheckboxChange(index)}
-                          />
-                          <Label className="ms-2 mb-0">{dayItem.day}</Label>
+                          /> */}
+                          <Label className="mb-0">{dayItem.day}</Label>
                         </div>
                       </div>
                       {dayItem.isChecked ? (
