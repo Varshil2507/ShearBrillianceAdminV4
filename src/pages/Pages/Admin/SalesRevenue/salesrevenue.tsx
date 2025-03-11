@@ -303,7 +303,7 @@ const Salesrevenue = () => {
               <div
                 className={
                   !storeUserInfo.salon
-                    ? "col-sm-3 col-3"
+                    ? "col-sm-3 col-md-6 col-lg-3  col-3"
                     : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"
                 }
               >
