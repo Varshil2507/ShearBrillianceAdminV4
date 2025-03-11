@@ -307,7 +307,6 @@ const Salesrevenue = () => {
                     : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"
                 }
               >
-                
                 <select
                   value={selectedBarberId}
                   onChange={handleBarberChange}
