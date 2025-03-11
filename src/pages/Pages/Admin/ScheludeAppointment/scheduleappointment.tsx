@@ -34,6 +34,7 @@ import Loader from "Components/Common/Loader";
 import { addDays, isAfter, isBefore, isSameDay, parse } from "date-fns";
 import SelectBarberModal from "../../../../Components/Common/SelectedServiceModal"; // Import the modal
 import config from "config";
+import "./Scheduleappointment.css"
 
 interface Service {
   id: number;
@@ -1274,7 +1275,7 @@ const Scheduleappointment = () => {
                                 salons?.map((salon) => (
                                   <div
                                     key={salon.salon.id}
-                                    className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3"
+                                    className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3 "
                                     style={{
                                       cursor: "pointer",
                                       border:
@@ -1291,8 +1292,8 @@ const Scheduleappointment = () => {
                                       });
                                       setIsNextButtonActive(true);
                                     }}
-                                  >
-                                    <div className="d-flex align-items-center gap-3 border p-3 rounded">
+                                   >
+                                    <div className="d-flex align-items-center gap-3 border p-3 rounded min-h-md-180">
                                       {/* Image Section */}
                                       <img
                                         src={

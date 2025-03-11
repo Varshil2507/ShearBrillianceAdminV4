@@ -1,0 +1,6 @@
+@media (min-width: 992px) and (max-width: 1200px) {
+    .min-h-md-180 {
+      min-height: 180px !important;
+    }
+  }
+  
