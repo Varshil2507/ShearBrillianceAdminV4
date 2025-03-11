@@ -1679,7 +1679,6 @@ const BarberTable: React.FC = () => {
                     isMulti
                     name="non_working_days"
                     options={days}
-                    required
                     value={selectedDays}
                     styles={customStyles} // Apply custom styles
                     onChange={handleDayChange}
