@@ -1745,7 +1745,7 @@ const BarberTable: React.FC = () => {
                     </div>
                     {dayItem.isChecked ? (
                       <div className="row g-2 mt-3 w-100">
-                        <div className="col-12 col-lg-6">
+                        <div className="col-12 col-xl-6">
                           <Input
                             type="time"
                             value={dayItem.startTime}
@@ -1756,7 +1756,7 @@ const BarberTable: React.FC = () => {
                             className="form-control form-control-sm"
                           />
                         </div>
-                        <div className="col-12 col-lg-6">
+                        <div className="col-12 col-xl-6">
                           <Input
                             type="time"
                             value={dayItem.endTime}
