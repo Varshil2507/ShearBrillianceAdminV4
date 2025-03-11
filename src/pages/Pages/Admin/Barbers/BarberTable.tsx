@@ -1679,7 +1679,6 @@ const BarberTable: React.FC = () => {
                     isMulti
                     name="non_working_days"
                     options={days}
-                    required
                     value={selectedDays}
                     styles={customStyles} // Apply custom styles
                     onChange={handleDayChange}
@@ -1724,7 +1723,7 @@ const BarberTable: React.FC = () => {
             </Row>
             <Row className="mt-4 align-items-center">
               <Col xs={6}>
-                <h5 className="text-center">Weeklly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
+                <h5 className="text-center">Weekly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
               </Col>
               <Col xs={6}>
                 <p className="badge bg-warning text-wrap text-start" style={{ lineHeight: "1.5", fontSize: "14px" }}><span style={{ fontSize: "16px", fontWeight: 800 }}>Note: </span>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown. Also, the changed weekly schedule will apply from next week.</p>
