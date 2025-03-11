@@ -116,7 +116,7 @@ const CalenderScheduleInfo: React.FC = () => {
   }
   let storeUserInfo: any;
   const authUSer: any = localStorage.getItem("authUser");
-  if (authUSer) {debugger;
+  if (authUSer) {
     storeUserInfo = JSON.parse(authUSer);
   }
   useEffect(() => {

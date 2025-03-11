@@ -149,7 +149,6 @@ const Salesrevenue = () => {
 
   const getSalonBabrer = async (salonId: any) => {
     try {
-      debugger;
       // Fetch barbers for the selected salon
       const barberResponse = await fetchBarberBySalon(salonId, null);
       // Check if the barberResponse itself has data or is not empty
@@ -173,7 +172,6 @@ const Salesrevenue = () => {
   };
 
   useEffect(() => {
-    debugger;
     if (storeUserInfo.berber) {
       setSelectedSalonId(storeUserInfo.berber.SalonId);
       setSelectedBarberId(storeUserInfo.berber.id);
