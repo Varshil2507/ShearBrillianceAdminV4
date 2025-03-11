@@ -103,7 +103,9 @@ const ServiceTable: React.FC = () => {
       fetchServices();
       toggleConfirmModal();
       setSelectedService(null);
+      setShowSpinner(false);
     } catch (error: any) {
+      setShowSpinner(false);
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
@@ -138,7 +140,7 @@ const ServiceTable: React.FC = () => {
 
       if (!minError && !maxError) {
         setShowSpinner(true);
-        values.name.trim(); 
+        values.name.trim();
         if (newService) {
           await handleUpdateService(newService.id, values);
         } else {
@@ -364,8 +366,14 @@ const ServiceTable: React.FC = () => {
           !selectedService?.isActive
         )
       }
-    } catch (error) {
-      console.error("Failed to update status:", error);
+    } catch (error: any) {
+      setShowSpinner(false);
+      // Capture the error message from the API response
+      const errorMessage =
+        error.response?.data?.message ||
+        "Error updating service, please try again later";
+      toast.error(errorMessage, { autoClose: 3000 });
+      setShowSpinner(false);
     }
   };
 
