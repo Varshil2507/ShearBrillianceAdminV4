@@ -1727,7 +1727,7 @@ const BarberTable: React.FC = () => {
                 <h5 className="text-center">Weeklly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
               </Col>
               <Col xs={6}>
-                <p className="badge bg-warning text-wrap text-start" style={{ lineHeight: "1.5", fontSize: "14px" }}><strong>Note: </strong>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown. Also, the changed weekly schedule will apply from next week.</p>
+                <p className="badge bg-warning text-wrap text-start" style={{ lineHeight: "1.5", fontSize: "14px" }}><span style={{ fontSize: "16px", fontWeight: 800 }}>Note: </span>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown. Also, the changed weekly schedule will apply from next week.</p>
               </Col>
               {schedule.map((dayItem, index) => (
                 <Col lg={3} md={4} sm={6} xs={12} key={dayItem.day} className="mb-4">
