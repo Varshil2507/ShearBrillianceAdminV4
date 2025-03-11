@@ -394,8 +394,15 @@ const BarberTable: React.FC = () => {
 
   const handleDayChange = (selectedOptions: any) => {
     setSelectedDays(selectedOptions);
-    let updatedSchedule = [...schedule];
-    updatedSchedule = schedule.map(item => {
+    let updatedSchedule = schedule.map(item => ({
+      ...item,
+      isChecked: true, // Reset all checkboxes 
+      startTime: selectedSalonOpenTime,
+      endTime: selectedSalonCloseTime, isReadonly: false
+    }));
+
+    setSchedule(updatedSchedule); // Ensure to update the state
+    updatedSchedule = updatedSchedule.map(item => {
       // If the day is selected, set the startTime and endTime to null
       if (selectedOptions.some((selected: any) => selected.label === item.day)) {
         return { ...item, isChecked: false, startTime: '', endTime: '', isReadonly: true };
@@ -1720,76 +1727,76 @@ const BarberTable: React.FC = () => {
                 <h5 className="text-center">Weeklly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
               </Col>
               <Col xs={6}>
-                <p className="badge bg-warning text-wrap text-start" style={{lineHeight: "1.5", fontSize: "14px"}}><strong>Note:</strong>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown.</p>
+                <p className="badge bg-warning text-wrap text-start" style={{ lineHeight: "1.5", fontSize: "14px" }}><strong>Note: </strong>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown. Also, the changed weekly schedule will apply from next week.</p>
               </Col>
               {schedule.map((dayItem, index) => (
-                  <Col lg={3} md={4} sm={6} xs={12} key={dayItem.day} className="mb-4">
-                    <div className="d-flex flex-column align-items-start p-3 border rounded shadow-sm">
-                      <div className="d-flex justify-content-between w-100">
-                        <div className="d-flex align-items-center">
-                          {/* <Input
+                <Col lg={3} md={4} sm={6} xs={12} key={dayItem.day} className="mb-4">
+                  <div className="d-flex flex-column align-items-start p-3 border rounded shadow-sm">
+                    <div className="d-flex justify-content-between w-100">
+                      <div className="d-flex align-items-center">
+                        {/* <Input
                             type="checkbox"
                             checked={dayItem.isChecked}
                             disabled={dayItem.isReadonly}
                             onChange={() => handleWeekCheckboxChange(index)}
                           /> */}
-                          <Label className="mb-0">{dayItem.day}</Label>
+                        <Label className="mb-0">{dayItem.day}</Label>
+                      </div>
+                    </div>
+                    {dayItem.isChecked ? (
+                      <div className="row g-2 mt-3 w-100">
+                        <div className="col-12 col-lg-6">
+                          <Input
+                            type="time"
+                            value={dayItem.startTime}
+                            onChange={e => handleTimeChange(index, 'startTime', e.target.value)}
+                            onBlur={() => handleTimeBlur(index, 'startTime')}
+                            disabled={dayItem.isReadonly}
+                            required
+                            className="form-control form-control-sm"
+                          />
+                        </div>
+                        <div className="col-12 col-lg-6">
+                          <Input
+                            type="time"
+                            value={dayItem.endTime}
+                            onChange={e => handleTimeChange(index, 'endTime', e.target.value)}
+                            onBlur={() => handleTimeBlur(index, 'endTime')}
+                            disabled={dayItem.isReadonly}
+                            required
+                            className="form-control form-control-sm"
+                          />
                         </div>
                       </div>
-                      {dayItem.isChecked ? (
-                        <div className="row g-2 mt-3 w-100">
-                          <div className="col-12 col-lg-6">
-                            <Input
-                              type="time"
-                              value={dayItem.startTime}
-                              onChange={e => handleTimeChange(index, 'startTime', e.target.value)}
-                              onBlur={() => handleTimeBlur(index, 'startTime')}
-                              disabled={dayItem.isReadonly}
-                              required
-                              className="form-control form-control-sm"
-                            />
-                          </div>
-                          <div className="col-12 col-lg-6">
-                            <Input
-                              type="time"
-                              value={dayItem.endTime}
-                              onChange={e => handleTimeChange(index, 'endTime', e.target.value)}
-                              onBlur={() => handleTimeBlur(index, 'endTime')}
-                              disabled={dayItem.isReadonly}
-                              required
-                              className="form-control form-control-sm"
-                            />
-                          </div>
-                        </div>
-                        // <div className="d-flex flex-column gap-2 mt-3 w-100">
-                        //   <div className="d-flex gap-2 flex-md-wrap flex-sm-wrap flex-lg-nowrap flex-xl-nowrap flex-xxl-nowrap w-100">
-                        //     <Input
-                        //       type="time"
-                        //       value={dayItem.startTime}
-                        //       onChange={e => handleTimeChange(index, 'startTime', e.target.value)}
-                        //       onBlur={() => handleTimeBlur(index, 'startTime')}
-                        //       disabled={dayItem.isReadonly}
-                        //       required
-                        //       className="form-control form-control-sm flex-grow-1"
-                        //     />
-                        //     <Input
-                        //       type="time"
-                        //       value={dayItem.endTime}
-                        //       onChange={e => handleTimeChange(index, 'endTime', e.target.value)}
-                        //       onBlur={() => handleTimeBlur(index, 'endTime')}
-                        //       disabled={dayItem.isReadonly}
-                        //       required
-                        //       className="form-control form-control-sm flex-grow-1"
-                        //     />
-                        //   </div>
-                        // </div>
+                      // <div className="d-flex flex-column gap-2 mt-3 w-100">
+                      //   <div className="d-flex gap-2 flex-md-wrap flex-sm-wrap flex-lg-nowrap flex-xl-nowrap flex-xxl-nowrap w-100">
+                      //     <Input
+                      //       type="time"
+                      //       value={dayItem.startTime}
+                      //       onChange={e => handleTimeChange(index, 'startTime', e.target.value)}
+                      //       onBlur={() => handleTimeBlur(index, 'startTime')}
+                      //       disabled={dayItem.isReadonly}
+                      //       required
+                      //       className="form-control form-control-sm flex-grow-1"
+                      //     />
+                      //     <Input
+                      //       type="time"
+                      //       value={dayItem.endTime}
+                      //       onChange={e => handleTimeChange(index, 'endTime', e.target.value)}
+                      //       onBlur={() => handleTimeBlur(index, 'endTime')}
+                      //       disabled={dayItem.isReadonly}
+                      //       required
+                      //       className="form-control form-control-sm flex-grow-1"
+                      //     />
+                      //   </div>
+                      // </div>
 
-                      ) : (
-                        <p className="text-muted text-center mb-0 mt-2">Unavailable</p>
-                      )}
-                    </div>
-                  </Col>
-                )
+                    ) : (
+                      <p className="text-muted text-center mb-0 mt-2">Unavailable</p>
+                    )}
+                  </div>
+                </Col>
+              )
               )}
             </Row>
             <div className="mt-4">

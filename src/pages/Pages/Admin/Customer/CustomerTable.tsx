@@ -98,20 +98,28 @@ const CustomerTable: React.FC = () => {
   const getCustomers = async (page: any, search: any) => {
     try {
       const response: any = await fetchUsers(null, 'customer', page === 0 ? 1 : page, limit, search ?? null);
-      const users = response.users.map((usr: any) => {
-        usr.fullname = usr.firstname + " " + usr.lastname;
-        return usr;
-      })
-      setTotalItems(response?.totalItems);
-      setTotalPages(response?.totalPages);
-      setCustomerData(users);
-      setCustomerTempData(users);
-      if (customerData?.length === 0) {
-        const timer = setTimeout(() => {
-          setShowLoader(false);
-        }, 5000); // Hide loader after 5 seconds
-        return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
-      } else {
+      if (response?.users?.length > 0) {
+        const sortedCustomers = response.users.sort(
+          (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const users = sortedCustomers.map((usr: any) => {
+          usr.fullname = usr.firstname + " " + usr.lastname;
+          return usr;
+        })
+        setTotalItems(response?.totalItems);
+        setTotalPages(response?.totalPages);
+        setCustomerData(users);
+        setCustomerTempData(users);
+        if (customerData?.length === 0) {
+          const timer = setTimeout(() => {
+            setShowLoader(false);
+          }, 5000); // Hide loader after 5 seconds
+          return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
+        } else {
+          setShowLoader(false); // Immediately hide loader if data is available
+        }
+      }
+      else {
         setShowLoader(false); // Immediately hide loader if data is available
       }
     } catch (error: any) {
@@ -471,7 +479,7 @@ const CustomerTable: React.FC = () => {
         }
       // Convert to string or undefined
       />
-      
+
       <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );

@@ -42,6 +42,7 @@ import Profile from "../../../../assets/images/users/avatar-8.jpg";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
 import Loader from "Components/Common/Loader";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -71,6 +72,7 @@ interface CardData {
 const CalenderScheduleInfo: React.FC = () => {
   const [event, setEvent] = useState<any>({});
   const [modal, setModal] = useState<boolean>(false);
+  const [isTodayEvent, setIsTodayEvent] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isEditButton, setIsEditButton] = useState<boolean>(true);
   const [showLoader, setShowLoader] = useState(true);
@@ -101,7 +103,7 @@ const CalenderScheduleInfo: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [previousOption, setPreviousOption] = useState("");
   const [appointmentId, setAppointmentId] = useState<any>();
-
+  const today = format(new Date(), "yyyy-MM-dd");
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
     setSelectedStatus(previousOption);
@@ -451,6 +453,7 @@ const cancelPopoverRemoval = () => {
         ? str_dt(st_date)
         : str_dt(st_date) + " to " + str_dt(ed_date);
     const er_date = ed_date === null ? [st_date] : [st_date, ed_date];
+    setIsTodayEvent(event?.start ? format(new Date(event?.start), "yyyy-MM-dd") === today ? true : false : false);
     setEvent({
       id: event.id,
       title: event.title,
@@ -1004,14 +1007,14 @@ const cancelPopoverRemoval = () => {
                   >
                     <option
                       value="appointment"
-                      disabled={selectedStatus === "appointment"}
+                      disabled={selectedStatus === "appointment" || !isTodayEvent}
                       style={{ color: "orange", fontWeight: "bold" }}
                     >
                       Appointment
                     </option>
                     <option
                       value="completed"
-                      disabled={selectedStatus === "completed"}
+                      disabled={selectedStatus === "completed" || !isTodayEvent}
                       style={{ color: "green", fontWeight: "bold" }}
                     >
                       Completed

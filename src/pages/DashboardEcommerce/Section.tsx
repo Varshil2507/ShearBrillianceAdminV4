@@ -239,7 +239,7 @@ const handleSalonChange = async (
           </p>
         </div>
         {userRole?.role_name === "Admin" ||
-        userRole?.role_name === "Salon Owner" ? (
+        userRole?.role_name === "Salon Manager" ? (
           <div className="mt-3 mt-lg-0">
             <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
               <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
