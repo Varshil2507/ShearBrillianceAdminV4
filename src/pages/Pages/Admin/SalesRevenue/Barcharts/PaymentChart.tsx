@@ -3,6 +3,7 @@ import { Card, CardBody, CardHeader, Col, DropdownItem, DropdownMenu, DropdownTo
 import { PrjectsStatusCharts } from '../DashboardProjectCharts';
 import { fetchPaymentMethod } from 'Services/Sales';
 import { toast, ToastContainer } from 'react-toastify';
+import Loader from 'Components/Common/Loader';
 
 interface PaymentMethod {
     status: string;
@@ -93,49 +94,47 @@ const PaymentChart: React.FC = () => {
                     </CardHeader>
 
                     <CardBody>
-                        {loading ? (
-                            <div className="text-center">Loading...</div>
-                        ) : (
-                            <>
-                                <PrjectsStatusCharts
-                                    series={chartData}
-                                    chartId="projects-status"
-                                />
-
-                                <div className="mt-3">
-                                    <div className="d-flex justify-content-center align-items-center mb-4">
-                                        <h2 className="me-3 ff-secondary mb-0">
-                                        ${chartData.reduce((total, num) => total + num, 0).toFixed(2)}
-                                        </h2>
-                                        <div>
-                                            <p className="text-muted mb-0">Total Payment</p>
-                                        </div>
-                                    </div>
- 
-                                   {[
-                                        { color: "success", label: "Online Payment", count: chartData[0] },
-                                        { color: "warning", label: "Offline Payment", count: chartData[1] },
-                                    ].map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className={`d-flex justify-content-between ${index < 2 ? 'border-bottom border-bottom-dashed' : ''} py-2`}
-                                        >
-                                            <p className="fw-medium mb-0">
-                                                <i className={`ri-checkbox-blank-circle-fill text-${item.color} align-middle me-2`}></i>
-                                                {item.label}
-                                            </p>
-                                            <div>
-                                                <span className="text-muted pe-5">{item.count.toFixed(2)}  Payment</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
+                        {loading && (
+                            // <div className="text-center">Loading...</div>
+                            <Loader />
                         )}
+                        <PrjectsStatusCharts
+                            series={chartData}
+                            chartId="projects-status"
+                        />
+
+                        <div className="mt-3">
+                            <div className="d-flex justify-content-center align-items-center mb-4">
+                                <h2 className="me-3 ff-secondary mb-0">
+                                    ${chartData.reduce((total, num) => total + num, 0).toFixed(2)}
+                                </h2>
+                                <div>
+                                    <p className="text-muted mb-0">Total Payment</p>
+                                </div>
+                            </div>
+
+                            {[
+                                { color: "success", label: "Online Payment", count: chartData[0] },
+                                { color: "warning", label: "Offline Payment", count: chartData[1] },
+                            ].map((item, index) => (
+                                <div
+                                    key={index}
+                                    className={`d-flex justify-content-between ${index < 2 ? 'border-bottom border-bottom-dashed' : ''} py-2`}
+                                >
+                                    <p className="fw-medium mb-0">
+                                        <i className={`ri-checkbox-blank-circle-fill text-${item.color} align-middle me-2`}></i>
+                                        {item.label}
+                                    </p>
+                                    <div>
+                                        <span className="text-muted pe-5">{item.count.toFixed(2)}  Payment</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </CardBody>
                 </Card>
             </Col>
-            
+
             <ToastContainer closeButton={false} limit={1} />
         </React.Fragment>
     );

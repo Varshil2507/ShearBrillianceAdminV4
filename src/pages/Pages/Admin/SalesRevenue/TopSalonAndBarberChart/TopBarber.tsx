@@ -3,8 +3,10 @@ import ReactApexChart from "react-apexcharts";
 import getChartColorsArray from "../../../../../Components/Common/ChartsDynamicColor";
 import { fetchTopBarber } from "Services/Sales"; // Import API method
 import { toast, ToastContainer } from "react-toastify";
+import Loader from "Components/Common/Loader";
 
 const TopBarber = ({ dataColors }: any) => {
+  const [showLoader, setShowLoader] = useState(true);
   const [barberData, setBarberData] = useState<{
     names: string[];
     counts: number[];
@@ -18,6 +20,7 @@ const TopBarber = ({ dataColors }: any) => {
   });
 
   useEffect(() => {
+    setShowLoader(true);
     const getTopBarbers = async () => {
       try {
         const topBarbers = await fetchTopBarber(); // Call the API function
@@ -28,11 +31,17 @@ const TopBarber = ({ dataColors }: any) => {
           const backgroundColors = topBarbers.map((barber: any) => barber.backgroundColor); // Get colors
 
           setBarberData({ names, counts, salons, backgroundColors });
+          const timer = setTimeout(() => {
+            setShowLoader(false);
+          }, 500); // Hide loader after 5 seconds
+          return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
         } else {
           toast.error("No top barbers found");
+          setShowLoader(false);
         }
       } catch (error) {
         toast.error("Error fetching top barbers");
+        setShowLoader(false);
       }
     };
 
@@ -42,7 +51,7 @@ const TopBarber = ({ dataColors }: any) => {
   // 🔹 Series Data: Display Salon Name and Barber Name
   const series = [
     {
-      name:"Appointments",
+      name: "Appointments",
       data: barberData.counts.map((count, index) => ({
         x: barberData.names[index], // Only Barber Name for X-axis
         y: count, // Appointments Count
@@ -50,7 +59,7 @@ const TopBarber = ({ dataColors }: any) => {
       })),
     },
   ];
-  
+
   const options: any = {
     chart: {
       height: 350,
@@ -86,10 +95,13 @@ const TopBarber = ({ dataColors }: any) => {
       },
     },
   };
-  
+
 
   return (
     <>
+      {showLoader && (
+        <Loader />
+      )}
       <ToastContainer />
       <ReactApexChart dir="ltr" className="apex-charts" series={series} options={options} type="bar" height={350} />
     </>

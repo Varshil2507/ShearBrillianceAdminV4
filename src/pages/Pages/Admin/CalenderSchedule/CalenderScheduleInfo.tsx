@@ -120,6 +120,7 @@ const CalenderScheduleInfo: React.FC = () => {
     storeUserInfo = JSON.parse(authUSer);
   }
   useEffect(() => {
+
     if (storeUserInfo.berber) {
       setSelectedSalonId(storeUserInfo.berber.SalonId);
       setSelectedBarberId(storeUserInfo.berber.id);
@@ -740,7 +741,8 @@ const cancelPopoverRemoval = () => {
                   )}
 
                   {/* Dropdown for selecting Barber */}
-                  <div className={!storeUserInfo.salon ? "col-sm-3 col-3" : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"}>                    <select
+                  <div className={!storeUserInfo.salon ? "col-sm-3 col-3" : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"}> 
+                      <select
                     id="barberSelect"
                     className="form-select"
                     value={selectedBarberId !== null ? selectedBarberId : ""}

@@ -230,7 +230,7 @@ const SalonTransferBarber: React.FC = () => {
   return (
     <>
       <div className="d-flex justify-content-end" style={{ padding: "20px" }}>
-        <b className="text-danger"><span style={{ fontSize: "16px", fontWeight: 800 }}>Note: </span>If you change the barber category, then the barber needs to relog in.</b>
+        <b className="text-danger"><span style={{ fontSize: "16px", fontWeight: 800 }}>Note: </span>If you change the barber category, then the barber needs to relogin.</b>
       </div>
       <><DragDropContext onDragEnd={handleDragEnd}>
         <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "40px" }}>
