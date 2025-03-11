@@ -535,9 +535,9 @@ const TaskStatusGlobalFilter: React.FC<TaskStatusGlobalFilterProps> = ({ onFilte
                 </div>
             </div>
             <div className="col-xxl-2 col-sm-2">
-                <button type="button" className="btn btn-primary w-100"
+            <button type="button" className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-1"
                     onClick={handleFiltersClick} // Trigger callback on click
-                > <i className="bx bx-search me-1 align-bottom"></i>
+                > <i className="bx bx-search"></i>
                     Search
                 </button>
             </div>
