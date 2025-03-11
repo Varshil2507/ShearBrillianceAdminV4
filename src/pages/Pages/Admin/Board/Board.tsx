@@ -27,7 +27,7 @@ import Profile from "../../../../assets/images/users/avatar-8.jpg";
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 // import moment from "moment"
 import { toast, ToastContainer } from "react-toastify";
@@ -144,6 +144,7 @@ const Board = () => {
   const [tipPercentage, setTipPercentage] = useState<any>(0);
   const [customTip, setCustomTip] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
+  const navigate = useNavigate();
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
@@ -528,8 +529,15 @@ const Board = () => {
       transports: ["websocket"],
       withCredentials: true,
       query: { token },
+      reconnection: true,
+      reconnectionAttempts: 5,  // Number of attempts before giving up
+      reconnectionDelay: 3000,  // Time between reconnections
     });
 
+    socket.on("connect_error", (error) => {
+      navigate("/dashboard");
+    });
+  
     // Listen for messages from the servers
     socket.on("updateBoard", (updatedAppointments) => {
       if (activeFilterBarber) {
@@ -565,6 +573,7 @@ const Board = () => {
     // Cleanup function to avoid memory leaks
     return () => {
       socket.off("updateBoard"); // Clean up the socket event listener
+      socket.disconnect();
     };
   }, [token, activeFilterBarber]); // Only depend on id and token
 

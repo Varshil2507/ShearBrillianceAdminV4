@@ -1,5 +1,6 @@
 import config from "config";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Insalonappointment } from "Services/Insalonappointment";
 import { io } from "socket.io-client";
@@ -56,6 +57,7 @@ const { api } = config;
 const AppointmentCards = () => {
   const [cards, setCards] = useState<any>();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const authTUser = localStorage.getItem("authUser");
   let storeUserInfo: any;
@@ -70,11 +72,17 @@ const AppointmentCards = () => {
       transports: ["websocket"],
       withCredentials: true,
       query: { token },
+      reconnection: true,
+      reconnectionAttempts: 5,  // Number of attempts before giving up
+      reconnectionDelay: 3000,  // Time between reconnections
     });
 
+    socket.on("connect_error", (error) => {
+      navigate("/dashboard");
+    });
+  
     // Listen for messages from the servers
-    socket.on("insaloncustomerupdate", (updatedAppointments) => {
-
+    socket.on("insaloncustomerupdate", (updatedAppointments) => { 
       const transformedCards = updatedAppointments.map((appointment: any) => ({
         barber: appointment.Barber.name,
         barber_bg_color: appointment.Barber.background_color,
@@ -89,6 +97,7 @@ const AppointmentCards = () => {
     // Cleanup function to avoid memory leaks
     return () => {
       socket.off("insaloncustomerupdate"); // Clean up the socket event listener
+      socket.disconnect();
     };
   }, [token]);
 
@@ -96,7 +105,7 @@ const AppointmentCards = () => {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      
+
       try {
         const response: any = await Insalonappointment("status=active"); // Fetch data from API
         if (!response.success) {
