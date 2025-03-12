@@ -32,7 +32,7 @@ const reasons = [
   'vacation',
   'training',
   'child care',
-  'maternity leave',
+  'maternity_leave',
   'bereavement',
   'appointment',
   'other'

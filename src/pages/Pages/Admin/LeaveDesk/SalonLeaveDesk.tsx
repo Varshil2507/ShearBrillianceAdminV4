@@ -545,30 +545,30 @@ const RequestedLeavesTable: React.FC = () => {
       <div className="card-body pt-0">
         {showLoader ? (
           <Loader />
-        ) : ( 
-        <TableContainer
-          columns={columns}
-          data={leaveData || []} // This should contain the correctly structured data
-          isGlobalFilter={true}
-          totalPages={selectedTotalPages ?? 0}
-          totalItems={selectedTotalItems ?? 0}
-          customPageSize={limit}
-          currentPageIndex={selectedCurrentPage ?? 0}
-          selectedDateRange={[
-            selectedStartDate ?? new Date(),
-            selectedEndDate ?? new Date(),
-          ]}
-          filterData={handleFilterData}
-          searchText={handleSearchText}
-          onChangeIndex={handlePageChange}
-          selectedStatus={selectedStatus ?? ""}
-          divClass="table-responsive table-card mb-3"
-          tableClass="align-middle table-nowrap mb-0"
-          theadClass="table-light text-muted"
-          isStatusListFilter={true}
-          isLeaveFilter={true}
-          SearchPlaceholder="Search by barber name"
-        />
+        ) : (
+          <TableContainer
+            columns={columns}
+            data={leaveData || []} // This should contain the correctly structured data
+            isGlobalFilter={true}
+            totalPages={selectedTotalPages ?? 0}
+            totalItems={selectedTotalItems ?? 0}
+            customPageSize={limit}
+            currentPageIndex={selectedCurrentPage ?? 0}
+            selectedDateRange={[
+              selectedStartDate ?? new Date(),
+              selectedEndDate ?? new Date(),
+            ]}
+            filterData={handleFilterData}
+            searchText={handleSearchText}
+            onChangeIndex={handlePageChange}
+            selectedStatus={selectedStatus ?? ""}
+            divClass="table-responsive table-card mb-3"
+            tableClass="align-middle table-nowrap mb-0"
+            theadClass="table-light text-muted"
+            isStatusListFilter={true}
+            isLeaveFilter={true}
+            SearchPlaceholder="Search by barber name"
+          />
         )}
       </div>
 
@@ -766,20 +766,24 @@ const RequestedLeavesTable: React.FC = () => {
                   <Label htmlFor="salon" className="form-label">
                     Transfer Barber
                   </Label>
-                  <Input
-                    type="select"
-                    name="reason"
-                    id="reason"
-                    value={selectedAvailableBabrer}
-                    onChange={handleAvailableBarberChange}
-                  >
-                    <option value="">Select Barber</option>
-                    {availableAppointmentBabrers?.availableBarbers?.map((appointment: any, index: any) => (
-                      <option key={index} value={appointment.id}>
-                        {appointment.name} {/* Format enum value */}
-                      </option>
-                    ))}
-                  </Input>
+                  {availableAppointmentBabrers?.availableBarbers?.length > 0 ? (
+                    <Input
+                      type="select"
+                      name="reason"
+                      id="reason"
+                      value={selectedAvailableBabrer}
+                      onChange={handleAvailableBarberChange}
+                    >
+                      <option value="">Select Barber</option>
+                      {availableAppointmentBabrers.availableBarbers.map((appointment: any, index: any) => (
+                        <option key={index} value={appointment.id}>
+                          {appointment.name}
+                        </option>
+                      ))}
+                    </Input>
+                  ) : (
+                    <p>No barber available</p>
+                  )}
                 </div>
               </Col>
             </Row>
