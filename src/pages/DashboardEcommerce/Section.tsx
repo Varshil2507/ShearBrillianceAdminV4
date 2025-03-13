@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Row, Spinner } from "reactstrap";
+import { Button, Col, Modal, ModalBody, ModalHeader, Row, Spinner } from "reactstrap";
 import Flatpickr from "react-flatpickr";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,6 +18,7 @@ const Section = (props: any) => {
   const [showLoader, setShowLoader] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
+  const [isShowBarberModal, setIsShowBarberModal] = useState<boolean>(false);
 
   const [salonData, setSalonData] = useState<any[]>([]); // List of all barbers
   const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
@@ -87,11 +88,14 @@ const Section = (props: any) => {
     }
   };
 
+  const showBarber = async () => {
+    setIsShowBarberModal(true);
+  }
   const showToast = (message: string) => {
     toast.warning(message); // Display warning toast message
   };
   useEffect(() => {
-    if (userRole?.role_name !== "Salon Manager") {
+    if (userRole?.role_name !== "Salon Manager" && userRole?.role_name !== "Salon Owner") {
       const fetchAllData = async () => {
         try {
           // Fetch both salons and barbers data in parallel
@@ -186,8 +190,8 @@ const Section = (props: any) => {
       selectedValue === "all"
         ? "all"
         : selectedValue
-        ? Number(selectedValue)
-        : null;
+          ? Number(selectedValue)
+          : null;
 
     setSelectedSalonId(salonId);
 
@@ -239,9 +243,24 @@ const Section = (props: any) => {
               </p>
             </div>
             {userRole?.role_name === "Admin" ||
-            userRole?.role_name === "Salon Manager" ? (
-              <div className="mt-3 mt-lg-0 d-flex align-items-center justify-center">
-                <TodaysBarber rightClickBtn={toggleRightColumn} />
+              userRole?.role_name === "Salon Manager" ||
+              userRole?.role_name === "Salon Owner" ? (
+              <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center">
+
+                <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 mb-2 bg-light">
+                  <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
+                    Today's Avaialable Barber
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-soft-info btn-icon waves-effect waves-light"
+                    onClick={() => showBarber()}
+                    title="Select Date Range"
+                    aria-label="Select Date Range"
+                  >
+                    <i className="ri-file-list-line"></i>
+                  </button>
+                </div>
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
                     Generate Report
@@ -272,8 +291,8 @@ const Section = (props: any) => {
                       selectedSalonId === "all"
                         ? "all"
                         : selectedSalonId !== null
-                        ? selectedSalonId
-                        : ""
+                          ? selectedSalonId
+                          : ""
                     }
                     onChange={handleSalonChange}
                   >
@@ -401,6 +420,33 @@ const Section = (props: any) => {
           <ToastContainer closeButton={false} limit={1} />
         </Col>
       </Row>
+      {
+        storeUserInfo.salon && (userRole?.role_name === "Salon Manager" || userRole?.role_name === "Salon Owner") && (
+          <Modal isOpen={isShowBarberModal} toggle={() => setIsShowBarberModal(!isShowBarberModal)} centered backdrop="static" size="xl">
+          <ModalHeader toggle={() => setIsShowBarberModal(!isShowBarberModal)}>
+            Today's Barber(s) Status
+          </ModalHeader>
+          <ModalBody className="modal-body">
+            <TodaysBarber rightClickBtn={toggleRightColumn} />
+          </ModalBody>
+          <div className="modal-footer">
+            <div className="gap-2 hstack justify-content-end w-100">
+              <div className="hstack gap-2 justify-content-end">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setIsShowBarberModal(false);
+                  }}
+                  className="btn-light"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        )
+      } 
     </React.Fragment>
   );
 };

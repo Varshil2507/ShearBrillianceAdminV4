@@ -10,8 +10,6 @@ import config from "config";
 import RevenueStatus from "./RevenueStatus";
 import CustomerStatus from "./CustomerStatus";
 import { CustomerMixedChart } from "./CustomerMixedChart";
-import { Card, CardBody, CardHeader } from "reactstrap";
-import TodaysBarber from "./TodaysBarber";
 
 export const DASHBOARD_ENDPOINT = "/dashboard";
 const { commonText } = config;
