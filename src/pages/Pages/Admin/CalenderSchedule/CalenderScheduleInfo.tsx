@@ -163,7 +163,7 @@ const CalenderScheduleInfo: React.FC = () => {
       const barberResponse = await fetchBarberBySalon(salonId, 1);
       // Check if the barberResponse itself has data or is not empty
       if (barberResponse && barberResponse.length > 0) {
-        const barbers = barberResponse; // Assuming the response is directly the list of barbers
+        const barbers = barberResponse.filter((b: any) => b.availability_status === 'available'); // Assuming the response is directly the list of barbers
         setSalonBarberData(barbers); // Update barber data
       } else {
         setSalonBarberData([]); // No barbers found, clear barber data
@@ -415,13 +415,13 @@ const CalenderScheduleInfo: React.FC = () => {
     }, 200);
   };
 
-// Function to cancel popover removal (call when clicking another event)
-const cancelPopoverRemoval = () => {
-  if (abortController) {
-    abortController.abort(); // Stop any pending popover removal
-    abortController = new AbortController(); // Reset it for future use
-  }
-};
+  // Function to cancel popover removal (call when clicking another event)
+  const cancelPopoverRemoval = () => {
+    if (abortController) {
+      abortController.abort(); // Stop any pending popover removal
+      abortController = new AbortController(); // Reset it for future use
+    }
+  };
 
   // Stop all background processes when closing modal
   const stopAllProcesses = () => {
@@ -441,7 +441,7 @@ const cancelPopoverRemoval = () => {
     }
   };
   const handleEventClick = (arg: any) => {
-    
+
     cancelPopoverRemoval(); // Stop previous popover removal process
     // Ensure old popovers are removed
     removeFullCalendarPopovers();
@@ -658,7 +658,7 @@ const cancelPopoverRemoval = () => {
 
   const confirmStatusChange = async () => {
     try {
-      
+
       if (appointmentId) {
         setShowSpinner(true);
         await updateAppointmentStatus(appointmentId, {
@@ -741,29 +741,29 @@ const cancelPopoverRemoval = () => {
                   )}
 
                   {/* Dropdown for selecting Barber */}
-                  <div className={!storeUserInfo.salon ? "col-sm-3 col-3" : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"}> 
-                      <select
-                    id="barberSelect"
-                    className="form-select"
-                    value={selectedBarberId !== null ? selectedBarberId : ""}
-                    onChange={handleBarberChange}
-                    disabled={!selectedSalonId} // Disable barber dropdown if no salon is selected
-                  >
-                    <option value="" disabled>
-                      Select Barber
-                    </option>
-                    {salonBarberData.length > 0 ? (
-                      salonBarberData.map((barber: any) => (
-                        <option key={barber.id} value={barber.id} disabled={barber.availability_status !== 'available'}>
-                          {barber.name}
-                        </option>
-                      ))
-                    ) : (
+                  <div className={!storeUserInfo.salon ? "col-sm-3 col-3" : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"}>
+                    <select
+                      id="barberSelect"
+                      className="form-select"
+                      value={selectedBarberId !== null ? selectedBarberId : ""}
+                      onChange={handleBarberChange}
+                      disabled={!selectedSalonId} // Disable barber dropdown if no salon is selected
+                    >
                       <option value="" disabled>
-                        No barbers available
+                        Select Barber
                       </option>
-                    )}
-                  </select>
+                      {salonBarberData.length > 0 ? (
+                        salonBarberData.map((barber: any) => (
+                          <option key={barber.id} value={barber.id} disabled={barber.availability_status !== 'available'}>
+                            {barber.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>
+                          No barbers available
+                        </option>
+                      )}
+                    </select>
 
                     {/* Instructional Text Below the Barber Dropdown */}
                     {/* <div className="mt-2">
@@ -787,7 +787,7 @@ const cancelPopoverRemoval = () => {
                     <button
                       type="button"
                       className="btn btn-primary"
-                      style={{width : "126px"}}
+                      style={{ width: "126px" }}
                       id="btn-delete-event"
                       onClick={filterAppointment}
                       disabled={showSpinner} // Disable button when loader is active
@@ -922,8 +922,8 @@ const cancelPopoverRemoval = () => {
                     <b>Mobile Number: </b>
                     <span>{event?.mobile_number || "N/A"}</span>
                   </div>
-               
-                  
+
+
                   <div className="form-group py-2 border-bottom">
                     <b>Services: </b>
                     <span>
@@ -942,15 +942,15 @@ const cancelPopoverRemoval = () => {
                     </span>
                   </div>
                   <div className="form-group py-2 border-bottom d-flex">
-                    <div style={{width: "50%"}} >
+                    <div style={{ width: "50%" }} >
                       <b>Total Amount: </b>
-                    <span>{event?.paymentDetails?.totalAmount || "N/A"}</span>
+                      <span>{event?.paymentDetails?.totalAmount || "N/A"}</span>
                     </div>
-                    <div style={{width: "50%"}}>
+                    <div style={{ width: "50%" }}>
                       <b>Tip: </b>
-                    <span>{event?.paymentDetails?.tip || "N/A"}</span>
+                      <span>{event?.paymentDetails?.tip || "N/A"}</span>
                     </div>
-                    
+
                   </div>
                 </div>
               </div>
@@ -1003,8 +1003,8 @@ const cancelPopoverRemoval = () => {
                             ? "red"
                             : "orange",
                       fontWeight: "bold",
-                      width:"auto"
-                      
+                      width: "auto"
+
                     }}
                   >
                     <option
