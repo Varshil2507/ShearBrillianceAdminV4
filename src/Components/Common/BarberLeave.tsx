@@ -31,7 +31,7 @@ const reasons = [
   'family_emergency',
   'vacation',
   'training',
-  'child care',
+  'child_care',
   'maternity_leave',
   'bereavement',
   'appointment',
