@@ -11,6 +11,7 @@ import RevenueStatus from "./RevenueStatus";
 import CustomerStatus from "./CustomerStatus";
 import { CustomerMixedChart } from "./CustomerMixedChart";
 import { Card, CardBody, CardHeader } from "reactstrap";
+import TodaysBarber from "./TodaysBarber";
 
 export const DASHBOARD_ENDPOINT = "/dashboard";
 const { commonText } = config;
@@ -51,7 +52,14 @@ const DashboardEcommerce = () => {
           <Row>
             <Col>
               <div className="h-100">
-                <Section rightClickBtn={toggleRightColumn} />
+              <                                                      Row>
+        {/* First Section */}
+        <Col md={12}>
+
+          <Section rightClickBtn={toggleRightColumn} />
+        </Col>
+      </Row>
+
                 <Row>
                   {showLoader ? (
                     <Loader />

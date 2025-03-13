@@ -23,6 +23,7 @@ export const fetchBarber = async (
   }
 };
 
+
 // Fetch the list of all appointments
 export const fetchAvailableBarber = async (appointmentId: any) => {
   try {

@@ -9,6 +9,7 @@ import { generatereport } from "Services/Insalonappointment";
 import "./section.css";
 import { fetchSalons } from "Services/SalonService";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
+import TodaysBarber from "./TodaysBarber";
 
 const Section = (props: any) => {
   const [greeting, setGreeting] = useState("");
@@ -24,6 +25,10 @@ const Section = (props: any) => {
   const [selectedBarberId, setSelectedBarberId] = useState<any | null>(null); // Selected barber
   const [barberDisabled, setBarberDisabled] = useState(true);
   const [isLoadingBarbers, setIsLoadingBarbers] = useState(false);
+  const toggleRightColumn = () => {
+    setRightColumn(!rightColumn);
+  };
+  const [rightColumn, setRightColumn] = useState<boolean>(true);
 
   let authUser = localStorage.getItem("authUser");
   let userRole: any;
@@ -235,7 +240,8 @@ const Section = (props: any) => {
             </div>
             {userRole?.role_name === "Admin" ||
             userRole?.role_name === "Salon Manager" ? (
-              <div className="mt-3 mt-lg-0">
+              <div className="mt-3 mt-lg-0 d-flex align-items-center justify-center">
+                <TodaysBarber rightClickBtn={toggleRightColumn} />
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
                     Generate Report
