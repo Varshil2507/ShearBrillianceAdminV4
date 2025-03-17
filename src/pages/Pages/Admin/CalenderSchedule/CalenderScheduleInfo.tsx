@@ -42,7 +42,7 @@ import Profile from "../../../../assets/images/users/avatar-8.jpg";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
 import Loader from "Components/Common/Loader";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, isToday } from "date-fns";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -56,6 +56,9 @@ interface CardData {
   id?: string;
   kanId?: string;
   title?: string;
+  eventDate?: any;
+  eventStartTime?: any;
+  eventEndTime?: any;
   cardId?: string;
   botId?: any;
   check_in_time?: any;
@@ -72,7 +75,6 @@ interface CardData {
 const CalenderScheduleInfo: React.FC = () => {
   const [event, setEvent] = useState<any>({});
   const [modal, setModal] = useState<boolean>(false);
-  const [isTodayEvent, setIsTodayEvent] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isEditButton, setIsEditButton] = useState<boolean>(true);
   const [showLoader, setShowLoader] = useState(true);
@@ -203,6 +205,9 @@ const CalenderScheduleInfo: React.FC = () => {
         setShowSpinner(false);
         const formattedAppointments = response.map((appointment: any) => {
           const { appointment_date, time_slot, Services, User } = appointment;
+          const isTodayEvent = appointment.appointment_date ? isToday(appointment.appointment_date) ? true : false : false;
+          const isPreviousEvent = appointment.appointment_date ? isBefore(appointment.appointment_date, today) : false;
+          const isFeatureEvent = appointment.appointment_date ? isAfter(appointment.appointment_date, today) : false;
           return {
             date: appointment.appointment_date,
             id: appointment.id,
@@ -233,7 +238,13 @@ const CalenderScheduleInfo: React.FC = () => {
               haircutDetails: appointment.haircutDetails,
               paymentDetails: appointment.paymentDetails,
               paymentStatus: appointment.paymentStatus,
-              paymentMode: appointment.paymentMode
+              paymentMode: appointment.paymentMode,
+              isTodayEvent: isTodayEvent,
+              isPreviousEvent: isPreviousEvent,
+              isFeatureEvent: isFeatureEvent,
+              eventDate: appointment.appointment_date,
+              eventStartTime: time_slot.start,
+              eventEndTime: time_slot.end,
             },
           };
         });
@@ -423,6 +434,13 @@ const CalenderScheduleInfo: React.FC = () => {
     }
   };
 
+  const formatTime = (time: string): string => {
+    const [hour, minute] = time.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  };
+
   // Stop all background processes when closing modal
   const stopAllProcesses = () => {
     if (removePopoverTimeout) {
@@ -454,11 +472,13 @@ const CalenderScheduleInfo: React.FC = () => {
         ? str_dt(st_date)
         : str_dt(st_date) + " to " + str_dt(ed_date);
     const er_date = ed_date === null ? [st_date] : [st_date, ed_date];
-    setIsTodayEvent(event?.start ? format(new Date(event?.start), "yyyy-MM-dd") === today ? true : false : false);
     setEvent({
       id: event.id,
       title: event.title,
       start: event.start,
+      eventDate: event?._def?.extendedProps?.eventDate,
+      eventStartTime: event?._def?.extendedProps?.eventStartTime,
+      eventEndTime: event?._def?.extendedProps?.eventEndTime,
       end: event.end,
       className: event.classNames,
       category: event.classNames[0],
@@ -492,6 +512,9 @@ const CalenderScheduleInfo: React.FC = () => {
       // paymentDetails: event._def.extendedProps.paymentDetails,
       paymentStatus: event._def.extendedProps.paymentStatus,
       paymentMode: event._def.extendedProps.paymentMode,
+      isTodayEvent: event._def.extendedProps.isTodayEvent,
+      isPreviousEvent: event._def.extendedProps.isPreviousEvent,
+      isFeatureEvent: event._def.extendedProps.isFeatureEvent,
     });
     setSelectedStatus(event._def.extendedProps.status);
     setPreviousOption(event._def.extendedProps.status);
@@ -852,6 +875,18 @@ const CalenderScheduleInfo: React.FC = () => {
                   }}
                   slotMinTime="08:00:00" // Start time at 8 AM
                   slotMaxTime="21:00:00" // End time at 9 PM
+                  eventDidMount={(info) => {
+                    if (info?.event?._def?.extendedProps?.status === "completed") {
+                      info.el.style.backgroundColor = "green"; // Today's events - Blue
+                      info.el.style.borderColor = "green";
+                    } else if (info?.event?._def?.extendedProps?.status === "canceled") {
+                      info.el.style.backgroundColor = "red"; // Past events - Red
+                      info.el.style.borderColor = "red";
+                    } else if (info?.event?._def?.extendedProps?.status === "appointment") {
+                      info.el.style.backgroundColor = "orange"; // Future events - Green
+                      info.el.style.borderColor = "orange";
+                    }
+                  }}
                 // contentHeight="auto" // Adjust height dynamically
                 />
               </div>
@@ -868,7 +903,12 @@ const CalenderScheduleInfo: React.FC = () => {
           backdrop="static"
           size="lg"
         >
-          <ModalHeader toggle={toggle}>Appointment Details</ModalHeader>
+          <ModalHeader toggle={toggle} className="w-100">
+            Appointment Details
+            <span style={{ position: "absolute", right: "6%" }}>
+              {event?.eventDate} ({event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - {event?.eventEndTime ? formatTime(event?.eventEndTime) : "N/A"})
+            </span>
+          </ModalHeader>
           <ModalBody>
             <Form
               onSubmit={(e) => {
@@ -1009,25 +1049,29 @@ const CalenderScheduleInfo: React.FC = () => {
                   >
                     <option
                       value="appointment"
-                      disabled={selectedStatus === "appointment" || !isTodayEvent}
+                      disabled={selectedStatus === "appointment"}
                       style={{ color: "orange", fontWeight: "bold" }}
                     >
                       Appointment
                     </option>
-                    <option
-                      value="completed"
-                      disabled={selectedStatus === "completed" || !isTodayEvent}
-                      style={{ color: "green", fontWeight: "bold" }}
-                    >
-                      Completed
-                    </option>
-                    <option
-                      value="canceled"
-                      disabled={selectedStatus === "canceled"}
-                      style={{ color: "red", fontWeight: "bold" }}
-                    >
-                      Canceled
-                    </option>
+                    {!event?.isFeatureEvent && (
+                      <option
+                        value="completed"
+                        disabled={selectedStatus === "completed"}
+                        style={{ color: "green", fontWeight: "bold" }}
+                      >
+                        Completed
+                      </option>
+                    )}
+                    {!event?.isPreviousEvent && (
+                      <option
+                        value="canceled"
+                        disabled={selectedStatus === "canceled"}
+                        style={{ color: "red", fontWeight: "bold" }}
+                      >
+                        Canceled
+                      </option>
+                    )}
                   </select>
 
                   <AppointmentConfirmationModal
