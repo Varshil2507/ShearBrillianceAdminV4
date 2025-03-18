@@ -357,9 +357,10 @@ const AppointmentTable: React.FC = () => {
     try {
       const response: any = await fetchBarberSession(salonId);
       if (response?.length > 0) {
+       
         let barberArray: any = [];
         response[0].barbers
-          .filter((brbr: any) => brbr.barber.category === 2)
+          .filter((brbr: any) => brbr.barber.category === 2 && brbr.barber.availability_status === "available")
           .map((brbr: any) => {
             const today = new Date().toISOString().split("T")[0];
             const todayScheduleInfo = brbr.barber?.schedule.find(

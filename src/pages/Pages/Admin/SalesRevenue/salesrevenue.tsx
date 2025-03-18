@@ -153,7 +153,8 @@ const Salesrevenue = () => {
       const barberResponse = await fetchBarberBySalon(salonId, null);
       // Check if the barberResponse itself has data or is not empty
       if (barberResponse && barberResponse.length > 0) {
-        const barbers = barberResponse; // Assuming the response is directly the list of barbers
+        const availableBarbers = barberResponse.filter((barber: any) => barber.availability_status === "available");
+        const barbers = availableBarbers; // Assuming the response is directly the list of barbers
         setSalonBarberData(barbers); // Update barber data
       } else {
         setSalonBarberData([]); // No barbers found, clear barber data

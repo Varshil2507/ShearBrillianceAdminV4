@@ -206,17 +206,17 @@ const Board = () => {
               status === "checked_in"
                 ? "Check In"
                 : status === "in_salon"
-                ? "In Salon"
-                : status,
+                  ? "In Salon"
+                  : status,
             badge: 0,
             color:
               status === "checked_in"
                 ? "warning"
                 : status === "completed"
-                ? "success"
-                : status === "canceled"
-                ? "danger"
-                : "secondary",
+                  ? "success"
+                  : status === "canceled"
+                    ? "danger"
+                    : "secondary",
             index: index++,
             cards: [],
           };
@@ -248,10 +248,10 @@ const Board = () => {
             status === "checked_in"
               ? curr.check_in_time
               : status === "completed"
-              ? curr.complete_time
-              : status === "canceled"
-              ? curr.cancel_time
-              : curr.in_salon_time,
+                ? curr.complete_time
+                : status === "canceled"
+                  ? curr.cancel_time
+                  : curr.in_salon_time,
           paymentDetails: curr.paymentDetails,
           paymentStatus: curr.paymentStatus,
           paymentMode: curr.paymentMode,
@@ -304,17 +304,17 @@ const Board = () => {
                 status === "checked_in"
                   ? "Check In"
                   : status === "in_salon"
-                  ? "In Salon"
-                  : status,
+                    ? "In Salon"
+                    : status,
               badge: 0,
               color:
                 status === "checked_in"
                   ? "warning"
                   : status === "completed"
-                  ? "success"
-                  : status === "canceled"
-                  ? "danger"
-                  : "secondary",
+                    ? "success"
+                    : status === "canceled"
+                      ? "danger"
+                      : "secondary",
               index: index++,
               cards: [],
             };
@@ -333,17 +333,17 @@ const Board = () => {
               status === "checked_in"
                 ? "Check In"
                 : status === "in_salon"
-                ? "In Salon"
-                : status,
+                  ? "In Salon"
+                  : status,
             badge: 0,
             color:
               status === "checked_in"
                 ? "warning"
                 : status === "completed"
-                ? "success"
-                : status === "canceled"
-                ? "danger"
-                : "secondary",
+                  ? "success"
+                  : status === "canceled"
+                    ? "danger"
+                    : "secondary",
             index: index++,
             cards: [],
           };
@@ -446,8 +446,9 @@ const Board = () => {
         null,
         search ?? null
       );
+
       const barbers = response.barbers
-        .filter((brbr: any) => brbr.category === 2)
+        .filter((brbr: any) => brbr.category === 2 && brbr.availability_status === "available")
         .map((barber: any) => {
           return {
             ...barber,
@@ -537,7 +538,7 @@ const Board = () => {
     socket.on("connect_error", (error) => {
       navigate("/dashboard");
     });
-  
+
     // Listen for messages from the servers
     socket.on("updateBoard", (updatedAppointments) => {
       if (activeFilterBarber) {
@@ -1055,8 +1056,8 @@ const Board = () => {
 
                 const price = barberService
                   ? parseFloat(barberService?.barber_price) ??
-                    parseFloat(barberService?.min_price) ??
-                    0
+                  parseFloat(barberService?.min_price) ??
+                  0
                   : parseFloat(service.min_price);
 
                 return acc + price;
@@ -1071,8 +1072,8 @@ const Board = () => {
 
                   const price = barberService
                     ? parseFloat(barberService?.barber_price) ??
-                      parseFloat(barberService?.min_price) ??
-                      0
+                    parseFloat(barberService?.min_price) ??
+                    0
                     : parseFloat(service.min_price);
 
                   return acc + price;
@@ -1672,7 +1673,7 @@ const Board = () => {
           if (error.response && error.response.data) {
             const apiMessage = error.response.data.message; // Extract the message from the response
             toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
-          } 
+          }
           // Revert the UI changes if API fails
           const revertedLines = cards.map((line: any) => {
             if (line.id === source.droppableId) {
@@ -1810,10 +1811,10 @@ const Board = () => {
           onClick={handlePrev}
           disabled={startIndex === 0}
           className="btn btn-link btn-sm mx-1 custom-btn"
-          // style={{
-          //   cursor: startIndex === 0 ? "not-allowed" : "pointer",
-          //   fontSize: "12px", // Inline for precise font control
-          // }}
+        // style={{
+        //   cursor: startIndex === 0 ? "not-allowed" : "pointer",
+        //   fontSize: "12px", // Inline for precise font control
+        // }}
         >
           {"<"}
         </button>
@@ -1825,11 +1826,10 @@ const Board = () => {
             .map((barber: any, index: any) => (
               <div
                 key={index}
-                className={`px-2 py-1 text-center rounded ${
-                  activeFilter === barber.name
+                className={`px-2 py-1 text-center rounded ${activeFilter === barber.name
                     ? "bg-primary text-white"
                     : "bg-light "
-                }`}
+                  }`}
                 style={{
                   cursor: "pointer",
                   border: "1px solid #ddd",
@@ -2002,16 +2002,16 @@ const Board = () => {
                                               </DropdownItem>
                                               {line.nameAlias ===
                                                 "In Salon" && (
-                                                <DropdownItem
-                                                  className="deletetask"
-                                                  onClick={() =>
-                                                    handleWaitTime(card, line)
-                                                  }
-                                                >
-                                                  <i className="ri-time-line"></i>{" "}
-                                                  Add Minutes
-                                                </DropdownItem>
-                                              )}
+                                                  <DropdownItem
+                                                    className="deletetask"
+                                                    onClick={() =>
+                                                      handleWaitTime(card, line)
+                                                    }
+                                                  >
+                                                    <i className="ri-time-line"></i>{" "}
+                                                    Add Minutes
+                                                  </DropdownItem>
+                                                )}
                                             </DropdownMenu>
                                           </UncontrolledDropdown>
                                           <div className="mb-3">
@@ -2090,14 +2090,13 @@ const Board = () => {
                                                   </b>{" "}
                                                   <span>
                                                     {card.estimated_wait_time >
-                                                    60
+                                                      60
                                                       ? `${Math.floor(
-                                                          card.estimated_wait_time /
-                                                            60
-                                                        )} hr ${
-                                                          card.estimated_wait_time %
-                                                          60
-                                                        } min`
+                                                        card.estimated_wait_time /
+                                                        60
+                                                      )} hr ${card.estimated_wait_time %
+                                                      60
+                                                      } min`
                                                       : `${card.estimated_wait_time} min`}
                                                   </span>
                                                 </div>
@@ -2105,109 +2104,109 @@ const Board = () => {
                                                 {(line.nameAlias ===
                                                   "Check In" ||
                                                   line.nameAlias ===
-                                                    "In Salon") && (
-                                                  <div className="flex-grow-1 mt-2">
-                                                    {/* Button for "In Salon" */}
-                                                    {line.nameAlias ===
-                                                      "Check In" && (
-                                                      <Button
-                                                        color="info"
-                                                        type="button"
-                                                        style={{
-                                                          padding: "0px 5px",
-                                                          margin: "0 5px 0 0",
-                                                        }}
-                                                        onClick={() =>
-                                                          updateStatus(
-                                                            card,
-                                                            "check_in",
-                                                            "in_salon"
-                                                          )
-                                                        }
-                                                        disabled={inSalonLoader} // Disable button when loader is active
-                                                      >
-                                                        {inSalonLoader &&
-                                                          selectedCard?.id ===
-                                                            card?.id && (
-                                                            <Spinner
-                                                              size="sm"
-                                                              className="me-2"
-                                                            >
-                                                              Loading...
-                                                            </Spinner>
-                                                          )}
-                                                        In Salon
-                                                      </Button>
-                                                    )}
+                                                  "In Salon") && (
+                                                    <div className="flex-grow-1 mt-2">
+                                                      {/* Button for "In Salon" */}
+                                                      {line.nameAlias ===
+                                                        "Check In" && (
+                                                          <Button
+                                                            color="info"
+                                                            type="button"
+                                                            style={{
+                                                              padding: "0px 5px",
+                                                              margin: "0 5px 0 0",
+                                                            }}
+                                                            onClick={() =>
+                                                              updateStatus(
+                                                                card,
+                                                                "check_in",
+                                                                "in_salon"
+                                                              )
+                                                            }
+                                                            disabled={inSalonLoader} // Disable button when loader is active
+                                                          >
+                                                            {inSalonLoader &&
+                                                              selectedCard?.id ===
+                                                              card?.id && (
+                                                                <Spinner
+                                                                  size="sm"
+                                                                  className="me-2"
+                                                                >
+                                                                  Loading...
+                                                                </Spinner>
+                                                              )}
+                                                            In Salon
+                                                          </Button>
+                                                        )}
 
-                                                    {/* Button for "Cancel" */}
-                                                    {line.nameAlias ===
-                                                      "Check In" && (
-                                                      <Button
-                                                        color="danger"
-                                                        type="button"
-                                                        disabled={cancelLoader} // Disable button when loader is active
-                                                        style={{
-                                                          padding: "0px 5px",
-                                                        }}
-                                                        onClick={() =>
-                                                          updateStatus(
-                                                            card,
-                                                            "check_in",
-                                                            "canceled"
-                                                          )
-                                                        }
-                                                      >
-                                                        {cancelLoader &&
-                                                          selectedCard?.id ===
-                                                            card?.id && (
-                                                            <Spinner
-                                                              size="sm"
-                                                              className="me-2"
-                                                            >
-                                                              Loading...
-                                                            </Spinner>
-                                                          )}
-                                                        Cancel
-                                                      </Button>
-                                                    )}
+                                                      {/* Button for "Cancel" */}
+                                                      {line.nameAlias ===
+                                                        "Check In" && (
+                                                          <Button
+                                                            color="danger"
+                                                            type="button"
+                                                            disabled={cancelLoader} // Disable button when loader is active
+                                                            style={{
+                                                              padding: "0px 5px",
+                                                            }}
+                                                            onClick={() =>
+                                                              updateStatus(
+                                                                card,
+                                                                "check_in",
+                                                                "canceled"
+                                                              )
+                                                            }
+                                                          >
+                                                            {cancelLoader &&
+                                                              selectedCard?.id ===
+                                                              card?.id && (
+                                                                <Spinner
+                                                                  size="sm"
+                                                                  className="me-2"
+                                                                >
+                                                                  Loading...
+                                                                </Spinner>
+                                                              )}
+                                                            Cancel
+                                                          </Button>
+                                                        )}
 
-                                                    {/* Button for "Complete" */}
-                                                    {line.nameAlias ===
-                                                      "In Salon" && (
-                                                      <Button
-                                                        color="success"
-                                                        type="button"
-                                                        style={{
-                                                          padding: "0px 5px",
-                                                          margin: "0 5px 0 0",
-                                                        }}
-                                                        onClick={() =>
-                                                          updateStatus(
-                                                            card,
-                                                            "in_salon",
-                                                            "completed"
-                                                          )
-                                                        }
-                                                        disabled={
-                                                          completedLoader
-                                                        } // Disable button when loader is active
-                                                      >
-                                                        {completedLoader &&
-                                                          selectedCard?.id ===
-                                                            card?.id && (
-                                                            <Spinner
-                                                              size="sm"
-                                                              className="me-2"
-                                                            >
-                                                              Loading...
-                                                            </Spinner>
-                                                          )}
-                                                        Complete
-                                                      </Button>
-                                                    )}
-                                                  </div>
-                                                )}
+                                                      {/* Button for "Complete" */}
+                                                      {line.nameAlias ===
+                                                        "In Salon" && (
+                                                          <Button
+                                                            color="success"
+                                                            type="button"
+                                                            style={{
+                                                              padding: "0px 5px",
+                                                              margin: "0 5px 0 0",
+                                                            }}
+                                                            onClick={() =>
+                                                              updateStatus(
+                                                                card,
+                                                                "in_salon",
+                                                                "completed"
+                                                              )
+                                                            }
+                                                            disabled={
+                                                              completedLoader
+                                                            } // Disable button when loader is active
+                                                          >
+                                                            {completedLoader &&
+                                                              selectedCard?.id ===
+                                                              card?.id && (
+                                                                <Spinner
+                                                                  size="sm"
+                                                                  className="me-2"
+                                                                >
+                                                                  Loading...
+                                                                </Spinner>
+                                                              )}
+                                                            Complete
+                                                          </Button>
+                                                        )}
+                                                    </div>
+                                                  )}
                                               </div>
                                               <div className="flex-shrink-0">
                                                 <div className="avatar-group">
@@ -2267,7 +2266,7 @@ const Board = () => {
                                                   card.paymentMode
                                                 )}
                                               </span>
-                                            </div> 
+                                            </div>
                                             <div className="flex-grow-1">
                                               <b>Payment:</b>
                                               <b
@@ -2275,7 +2274,7 @@ const Board = () => {
                                                 style={{
                                                   color:
                                                     card?.paymentStatus?.toLowerCase() ===
-                                                    "success"
+                                                      "success"
                                                       ? "green"
                                                       : "red",
                                                 }}
@@ -2286,7 +2285,7 @@ const Board = () => {
                                               {card?.paymentStatus?.toLowerCase() ===
                                                 "success" &&
                                                 card?.paymentMode !==
-                                                  "Pay_In_Person" && (
+                                                "Pay_In_Person" && (
                                                   <Link
                                                     to={
                                                       card.paymentDetails
@@ -2309,14 +2308,14 @@ const Board = () => {
                                               <b>Tip: </b>
                                               <span>
                                                 ${card.paymentDetails
-                                                        ?.tip ?? 0}
+                                                  ?.tip ?? 0}
                                               </span>
                                             </div>
                                             <div className="flex-grow-1">
                                               <b>Total amount: </b>
                                               <span>
                                                 ${card.paymentDetails
-                                                        ?.totalAmount ?? 0}
+                                                  ?.totalAmount ?? 0}
                                               </span>
                                             </div>
                                           </div>
@@ -2520,13 +2519,13 @@ const Board = () => {
                   value={waitTimValidation.values.additionalTime}
                   invalid={
                     waitTimValidation.touched.additionalTime &&
-                    waitTimValidation.errors.additionalTime
+                      waitTimValidation.errors.additionalTime
                       ? true
                       : false
                   }
                 />
                 {waitTimValidation.touched.additionalTime &&
-                waitTimValidation.errors.additionalTime ? (
+                  waitTimValidation.errors.additionalTime ? (
                   <FormFeedback type="invalid">
                     {waitTimValidation.errors.additionalTime}
                   </FormFeedback>
@@ -2651,13 +2650,12 @@ const Board = () => {
                             (!barber.start_time && !barber.end_time)
                           }
                         >
-                          {`${barber.name} - (${
-                            barber.start_time && barber.end_time
+                          {`${barber.name} - (${barber.start_time && barber.end_time
                               ? `${formatHours(
-                                  barber.start_time
-                                )} to ${formatHours(barber.end_time)}`
+                                barber.start_time
+                              )} to ${formatHours(barber.end_time)}`
                               : "Unavailable"
-                          })`}
+                            })`}
                         </option>
                       ))}
                     </select>
@@ -2692,13 +2690,13 @@ const Board = () => {
                   value={appointmentFormik.values.firstname || ""}
                   invalid={
                     appointmentFormik.touched.firstname &&
-                    appointmentFormik.errors.firstname
+                      appointmentFormik.errors.firstname
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.firstname &&
-                appointmentFormik.errors.firstname ? (
+                  appointmentFormik.errors.firstname ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.firstname}
                   </FormFeedback>
@@ -2727,13 +2725,13 @@ const Board = () => {
                   value={appointmentFormik.values.lastname || ""}
                   invalid={
                     appointmentFormik.touched.lastname &&
-                    appointmentFormik.errors.lastname
+                      appointmentFormik.errors.lastname
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.lastname &&
-                appointmentFormik.errors.lastname ? (
+                  appointmentFormik.errors.lastname ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.lastname}
                   </FormFeedback>
@@ -2756,13 +2754,13 @@ const Board = () => {
                   value={appointmentFormik.values.email || ""}
                   invalid={
                     appointmentFormik.touched.email &&
-                    appointmentFormik.errors.email
+                      appointmentFormik.errors.email
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.email &&
-                appointmentFormik.errors.email ? (
+                  appointmentFormik.errors.email ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.email}
                   </FormFeedback>
@@ -2786,13 +2784,13 @@ const Board = () => {
                   value={appointmentFormik.values.mobile_number || ""}
                   invalid={
                     appointmentFormik.touched.mobile_number &&
-                    appointmentFormik.errors.mobile_number
+                      appointmentFormik.errors.mobile_number
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.mobile_number &&
-                appointmentFormik.errors.mobile_number ? (
+                  appointmentFormik.errors.mobile_number ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.mobile_number}
                   </FormFeedback>
@@ -2803,9 +2801,8 @@ const Board = () => {
                 <div className="btn-group">
                   {/* None Option */}
                   <Label
-                    className={`btn btn-outline-primary ${
-                      tipPercentage === 0 ? "active" : ""
-                    }`}
+                    className={`btn btn-outline-primary ${tipPercentage === 0 ? "active" : ""
+                      }`}
                   >
                     <Input
                       type="radio"
@@ -2822,9 +2819,8 @@ const Board = () => {
                   {[20, 25, 30, 40].map((percentage) => (
                     <Label
                       key={percentage}
-                      className={`btn btn-outline-primary ${
-                        tipPercentage == percentage ? "active" : ""
-                      }`}
+                      className={`btn btn-outline-primary ${tipPercentage == percentage ? "active" : ""
+                        }`}
                     >
                       <Input
                         type="radio"
@@ -2840,9 +2836,8 @@ const Board = () => {
 
                   {/* Custom Tip Option */}
                   <Label
-                    className={`btn btn-outline-primary ${
-                      tipPercentage === "custom" ? "active" : ""
-                    }`}
+                    className={`btn btn-outline-primary ${tipPercentage === "custom" ? "active" : ""
+                      }`}
                   >
                     <Input
                       type="radio"
@@ -2880,7 +2875,7 @@ const Board = () => {
                     invalid={isInvalid}
                   />
                 )}
-              
+
               </Col>
 
               <Col
@@ -2959,7 +2954,7 @@ const Board = () => {
                           value={haircutFormik.values?.haircut_style}
                           className={
                             haircutFormik.touched?.haircut_style &&
-                            haircutFormik.errors?.haircut_style
+                              haircutFormik.errors?.haircut_style
                               ? "is-invalid"
                               : ""
                           }
@@ -2987,7 +2982,7 @@ const Board = () => {
                           value={haircutFormik.values?.customer_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.customer_notes &&
-                        haircutFormik.errors?.customer_notes ? (
+                          haircutFormik.errors?.customer_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.customer_notes}
                           </FormFeedback>
@@ -3007,7 +3002,7 @@ const Board = () => {
                           value={haircutFormik.values?.barber_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.barber_notes &&
-                        haircutFormik.errors?.barber_notes ? (
+                          haircutFormik.errors?.barber_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.barber_notes}
                           </FormFeedback>
@@ -3029,7 +3024,7 @@ const Board = () => {
                           onKeyDown={preventSpaceKey}
                           className={
                             haircutFormik.touched?.product_used &&
-                            haircutFormik.errors?.product_used
+                              haircutFormik.errors?.product_used
                               ? "is-invalid"
                               : ""
                           }
@@ -3235,8 +3230,8 @@ const Board = () => {
                   price = barberService.barber_price
                     ? barberService.barber_price
                     : barberService.min_price
-                    ? barberService.min_price
-                    : 0;
+                      ? barberService.min_price
+                      : 0;
                 }
                 return (
                   <li key={index}>

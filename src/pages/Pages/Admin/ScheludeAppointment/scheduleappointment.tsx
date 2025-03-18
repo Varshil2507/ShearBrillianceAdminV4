@@ -395,7 +395,8 @@ const Scheduleappointment = () => {
             formData.selectedSalon, 1
           );
           if (response?.length > 0) {
-            setSelectedBarber(response);
+            const availableBarbers = response.filter((barber: any) => barber.availability_status === "available");
+            setSelectedBarber(availableBarbers);
           }
           // if (response?.length === 0) {
           //   const timer = setTimeout(() => {

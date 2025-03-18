@@ -44,7 +44,8 @@ const SalonTransferBarber: React.FC = () => {
   const fetchBarbersList = async (page: any, search: any) => {
     try {
       const response: any = await fetchBarber(page === 0 ? 1 : page, null, search ?? null);
-      const barbers = response.barbers.map((barber: any) => {
+      const availableBarbers = response.barbers.filter((barber: any) => barber.availability_status === "available");
+      const barbers = availableBarbers.map((barber: any) => {
         return {
           ...barber,
           displayName: `${barber.name} (${barber.availability_status})`,
