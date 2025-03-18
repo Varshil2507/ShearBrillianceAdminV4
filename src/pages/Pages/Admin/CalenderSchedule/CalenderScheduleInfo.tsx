@@ -98,7 +98,6 @@ const CalenderScheduleInfo: React.FC = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [selectedHairCutDetails, setSelectedHairCutDetails] = useState<any>();
   const [visibleRange, setVisibleRange] = useState({ start: null, end: null });
-  const [isFetching, setIsFetching] = useState(false); // Add a flag to prevent multiple API calls
   const [currentView, setCurrentView] = useState("dayGridMonth"); // Track current date
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -139,7 +138,7 @@ const CalenderScheduleInfo: React.FC = () => {
     }
   }, []);
 
-  const filterAppointment = async (salonId?: any, barberId?: any) => {
+  const filterAppointment = async (salonId?: any, barberId?: any, updatedAppointmentId?: any, newStatus?: any) => {
     setShowSpinner(true);
     salonId = selectedSalonId ?? salonId;
     barberId = selectedBarberId ?? barberId;
@@ -150,7 +149,7 @@ const CalenderScheduleInfo: React.FC = () => {
     }
 
     try {
-      await fetchAppointments(salonId, barberId, startDate, endDate);
+      await fetchAppointments(salonId, barberId, startDate, endDate, updatedAppointmentId, newStatus);
       setIsSearchClicked(true); // Set the button click state to true
 
       // Pass both salonId and barberId
@@ -186,11 +185,12 @@ const CalenderScheduleInfo: React.FC = () => {
     salonId: number,
     barberId: number,
     startDate: string | null,
-    endDate: string | null
+    endDate: string | null,
+    updatedAppointmentId?: string | null,
+    newStatus?: string | null
   ) => {
     try {
       setShowLoader(true);
-      setIsFetching(true); // Set fetching flag
       const params = {
         salonId,
         barberId,
@@ -201,7 +201,6 @@ const CalenderScheduleInfo: React.FC = () => {
 
       const response: any = await fetchCalendarAppointments(params);
       if (response) {
-        setShowLoader(false);
         setShowSpinner(false);
         const formattedAppointments = response.map((appointment: any) => {
           const { appointment_date, time_slot, Services, User } = appointment;
@@ -253,13 +252,32 @@ const CalenderScheduleInfo: React.FC = () => {
         setAppointments(formattedAppointments);
         // Force FullCalendar to refresh after data update
         // Access FullCalendar's API using the ref
-        const calendarApi = calendarRef.current?.getApi();
-        if (calendarApi) {
-          calendarApi.refetchEvents(); // Ensure the calendar refreshes events
-        }
 
         setTimeout(() => {
-          setIsFetching(false); // Reset fetching flag
+          const calendarApi = calendarRef.current?.getApi();
+          if (calendarApi) {
+            if (updatedAppointmentId) {
+              let event = calendarApi.getEventById(updatedAppointmentId); // Find event by ID
+
+              if (event) {
+                event.setExtendedProp("status", newStatus); // Update status in event props
+                // Force UI update by removing & re-adding event
+                event.remove();
+                calendarApi.addEvent({
+                  id: event.id,
+                  title: event.title,
+                  start: event.start ? new Date(event.start) : new Date(), // Ensure valid Date
+                  end: event.end ? new Date(event.end) : undefined, // Use undefined instead of null
+                  extendedProps: { status: newStatus }, // Maintain status
+                  backgroundColor: getEventColor(newStatus),
+                  borderColor: getEventColor(newStatus),
+                });
+              }
+            }
+            calendarApi.refetchEvents(); // Ensure the calendar refreshes events
+
+          }
+          setShowLoader(false);; // Reset fetching flag
         }, 500);
       }
     } catch (error: any) {
@@ -271,6 +289,20 @@ const CalenderScheduleInfo: React.FC = () => {
         // Fallback for other types of errors
         toast.error(error.message || "Something went wrong");
       }
+    }
+  };
+
+  // Helper function to get color based on status
+  const getEventColor = (status: any) => {
+    switch (status) {
+      case "completed":
+        return "green";
+      case "canceled":
+        return "red";
+      case "appointment":
+        return "orange";
+      default:
+        return ""; // Default color
     }
   };
 
@@ -689,8 +721,8 @@ const CalenderScheduleInfo: React.FC = () => {
         }); // API call to update status
         setShowSpinner(false);
         toggle();
-        toggleModal(); // Close the modal
-        filterAppointment();
+        toggleModal(); // Close the modal 
+        filterAppointment(null, null, appointmentId, selectedStatus);
         toast.success("Status updated successfully", { autoClose: 2000 });
         // Update the specific appointment in local state after a successful API call
         // setAppointments((prevAppointments: any[]) => {
@@ -876,16 +908,9 @@ const CalenderScheduleInfo: React.FC = () => {
                   slotMinTime="08:00:00" // Start time at 8 AM
                   slotMaxTime="21:00:00" // End time at 9 PM
                   eventDidMount={(info) => {
-                    if (info?.event?._def?.extendedProps?.status === "completed") {
-                      info.el.style.backgroundColor = "green"; // Today's events - Blue
-                      info.el.style.borderColor = "green";
-                    } else if (info?.event?._def?.extendedProps?.status === "canceled") {
-                      info.el.style.backgroundColor = "red"; // Past events - Red
-                      info.el.style.borderColor = "red";
-                    } else if (info?.event?._def?.extendedProps?.status === "appointment") {
-                      info.el.style.backgroundColor = "orange"; // Future events - Green
-                      info.el.style.borderColor = "orange";
-                    }
+                    const status = info.event.extendedProps?.status;
+                    info.el.style.backgroundColor = getEventColor(status);
+                    info.el.style.borderColor = getEventColor(status);
                   }}
                 // contentHeight="auto" // Adjust height dynamically
                 />
@@ -1028,7 +1053,6 @@ const CalenderScheduleInfo: React.FC = () => {
                   <label htmlFor="statusSelect" className="mb-2">
                     Status
                   </label>
-
                   <select
                     id="statusSelect"
                     className="form-select ms-2"
