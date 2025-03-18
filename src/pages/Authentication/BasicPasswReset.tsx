@@ -80,7 +80,7 @@ const BasicPasswCreate = () => {
           toast.error(data.message); // Show the error message as a toast
           setLoader(false);
         } else {
-          toast.success("Password reset successfully!"); // Success case, optional
+          toast.success("Password reset successfully!", { autoClose: 2000 }); // Success case, optional
           setLoader(false);
           navigate("/signin");
         }

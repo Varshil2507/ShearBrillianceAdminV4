@@ -252,7 +252,7 @@ const BlogTable: React.FC = () => {
       try {
         await deleteBlog(deletingBlogId); // Call delete API
 
-        toast.success("Blog deleted successfully", { autoClose: 3000 });
+        toast.success("Blog deleted successfully", { autoClose: 2000 });
 
         setShowSpinner(false);
         fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -321,7 +321,7 @@ const BlogTable: React.FC = () => {
 
       const newBlogData = await addBlog(formData);
 
-      toast.success("Blog added successfully", { autoClose: 3000 });
+      toast.success("Blog added successfully", { autoClose: 2000 });
       // Update the state with the new blog
       // setBlogData((prevData) => [...prevData, newBlogData]);
       fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -361,7 +361,7 @@ const BlogTable: React.FC = () => {
 
         // Update blog API call
         const updatedBlogData = await updateBlog(newBlog.id, formData);
-        toast.success("Blog updated successfully", { autoClose: 3000 });
+        toast.success("Blog updated successfully", { autoClose: 2000 });
         setShowSpinner(false);
         // Fetch updated blogs filtered by title
         fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);

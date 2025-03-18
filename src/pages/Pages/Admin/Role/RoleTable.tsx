@@ -93,7 +93,7 @@ const RoleTable: React.FC = () => {
   const handleAddRole = async (values: Omit<Role, 'id' | 'created_at'>) => {
     try {
       const newRole = await addRole({ ...values, created_at: new Date().toISOString() });
-      toast.success("Role added successfully", { autoClose: 3000 });
+      toast.success("Role added successfully", { autoClose: 2000 });
       // setRoleData((prevData) => [...prevData, newRole]);
       fetchRoles();
       setShowSpinner(false);
@@ -128,7 +128,7 @@ const RoleTable: React.FC = () => {
 
       await updateRole(id, roleDataToUpdate);
 
-      toast.success("Role updated successfully", { autoClose: 3000 });
+      toast.success("Role updated successfully", { autoClose: 2000 });
       // setRoleData((prevData) =>
       //   prevData.map((role) => (role.id === id ? { ...role, ...values } : role))
       // );
@@ -138,7 +138,7 @@ const RoleTable: React.FC = () => {
     } catch (error: any) {
       // Capture the error message from the API response
       const errorMessage = error.response?.data?.message || "Error updating role, please try again later";
-      toast.error(errorMessage, { autoClose: 3000 });
+      toast.error(errorMessage, { autoClose: 2000 });
       console.error("Error updating role:", error);
     }
   };

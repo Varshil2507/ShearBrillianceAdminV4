@@ -108,7 +108,7 @@ const Settings: React.FC = () => {
                 setSelectedImage(file); // Save the file object directly
                 formik.setFieldValue('profile_photo', file);
             } else {
-                toast.warning("Invalid file type", { autoClose: 3000 });
+                toast.warning("Invalid file type", { autoClose: 2000 });
                 e.target.value = ''; // Clear the file input
             }
         }
@@ -140,8 +140,8 @@ const Settings: React.FC = () => {
                 newPassword: values.newpassword
             }
             const response = await changePassword(obj);
-            // toast.success("Password change successfully", { autoClose: 3000 });
-            toast.success(response?.message, { autoClose: 3000 });
+            // toast.success("Password change successfully", { autoClose: 2000 });
+            toast.success(response?.message, { autoClose: 2000 });
 
             passwordformik.resetForm();
         } catch (error: any) {
@@ -158,11 +158,11 @@ const Settings: React.FC = () => {
             //     console.error('Error Response:', errorMessage);
 
             //     // Show the error message using toast
-            //     toast.error(errorMessage, { autoClose: 3000 });
+            //     toast.error(errorMessage, { autoClose: 2000 });
             // } else {
             //     // Handle network or unexpected errors
             //     console.error('Unexpected Error:', error);
-            //     toast.error('An unexpected error occurred. Please try again later.', { autoClose: 3000 });
+            //     toast.error('An unexpected error occurred. Please try again later.', { autoClose: 2000 });
             // }
         }
     };
@@ -189,7 +189,7 @@ const Settings: React.FC = () => {
                     user: updatedUser.user
                 }
                 localStorage.setItem("authUser", JSON.stringify(obj));
-                toast.success("User updated successfully", { autoClose: 3000 });
+                toast.success("User updated successfully", { autoClose: 2000 });
                 // Make sure updatedUsers is of type User[]
                 setUser(updatedUser.user);
                 setUserPhoto(updatedUser.user.profile_photo);

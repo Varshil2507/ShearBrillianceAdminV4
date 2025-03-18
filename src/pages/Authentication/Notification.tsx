@@ -46,7 +46,7 @@ const Notification = () => {
 
     try {
       const response = await axios.post(NOTIFICATION_ENDPOINT, payload);
-      toast.success("Send Notification Successfully", { autoClose: 3000 });
+      toast.success("Send Notification Successfully", { autoClose: 2000 });
       setLoader(false);
     } catch (error: any) {
       setLoader(false);

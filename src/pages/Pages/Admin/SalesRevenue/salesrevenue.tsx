@@ -45,7 +45,7 @@ const Salesrevenue = () => {
   //     );
 
   //     if (response && response.downloadUrl) {
-  //       toast.success("PDF sales report generated successfully!");
+  //       toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
   //       window.open(response.downloadUrl, "_blank");
   //     } else {
   //       toast.error("Failed to generate PDF report.");
@@ -75,7 +75,7 @@ const Salesrevenue = () => {
       );
 
       if (response && response.downloadUrl) {
-        toast.success("PDF sales report generated successfully!");
+        toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
         window.open(response.downloadUrl, "_blank");
       } else {
         toast.error("Failed to generate PDF report.");

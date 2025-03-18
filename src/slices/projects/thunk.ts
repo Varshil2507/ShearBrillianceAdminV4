@@ -23,10 +23,10 @@ export const addProjectList = createAsyncThunk("projects/addProjectList", async 
     try {
         const response = addProjectListApi(project);
         const data = await response;
-        toast.success("project-list Added Successfully", { autoClose: 3000 });
+        toast.success("project-list Added Successfully", { autoClose: 2000 });
         return data;
     } catch (error) {
-        toast.error("project-list Added Failed", { autoClose: 3000 });
+        toast.error("project-list Added Failed", { autoClose: 2000 });
         return error;
     }
 });
@@ -35,10 +35,10 @@ export const updateProjectList = createAsyncThunk("projects/updateProjectList", 
     try {
         const response = updateProjectListApi(project);
         const data = await response;
-        toast.success("project-list Updated Successfully", { autoClose: 3000 });
+        toast.success("project-list Updated Successfully", { autoClose: 2000 });
         return data;
     } catch (error) {
-        toast.error("project-list Updated Failed", { autoClose: 3000 });
+        toast.error("project-list Updated Failed", { autoClose: 2000 });
         return error;
     }
 });
@@ -47,10 +47,10 @@ export const deleteProjectList = createAsyncThunk("projects/deleteProjectList", 
     try {
         const response = deleteProjectListApi(data);
         const newdata = await response;
-        toast.success("project-list Delete Successfully", { autoClose: 3000 });
+        toast.success("project-list Delete Successfully", { autoClose: 2000 });
         return newdata;
     } catch (error) {
-        toast.error("project-list Delete Failed", { autoClose: 3000 });
+        toast.error("project-list Delete Failed", { autoClose: 2000 });
         return error;
     }
 });

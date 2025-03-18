@@ -64,11 +64,11 @@ const Login = (props: any) => {
             try {
                 const response = await dispatch(loginAPI(values, navigate));
                 if (!response || response.error) {
-                    toast.error(response.error, { autoClose: 3000 });
+                    toast.error(response.error, { autoClose: 2000 });
                     setLoader(false);
                     // Handle error display if needed
                 } else if (response.token) {
-                    toast.success("Login Successfully", { autoClose: 3000 });
+                    toast.success("Login Successfully", { autoClose: 2000 });
                     dispatch(loginSuccess(response));
                     navigate('/dashboard');
                 } else {

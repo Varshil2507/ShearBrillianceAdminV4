@@ -44,7 +44,7 @@ const BarberStatusDropdown: React.FC<BarberStatusDropdownProps> = ({
       // Validate and update session storage
       if (response && response.barber) {
         sessionStorage.setItem("authBarberUser", JSON.stringify(response.barber));
-        toast.success("Status updated successfully", { autoClose: 3000 });
+        toast.success("Status updated successfully", { autoClose: 2000 });
       } 
     } catch (error: any) {
         // Check if the error has a response property (Axios errors usually have this)

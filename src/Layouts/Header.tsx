@@ -162,7 +162,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
       const response = await createBarberLeaveRequest(leaveData);
 
       if (response.status === 200) {
-        toast.success("Leave request submitted successfully!");
+        toast.success("Leave request submitted successfully!", { autoClose: 2000 });
         toggleModal();
       }
     } catch (error: any) {
@@ -188,7 +188,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
     }
     try {
       await updatePaymentConfig(obj);
-      toast.success("Payment mode updated successfully!");
+      toast.success("Payment mode updated successfully!", { autoClose: 2000 });
       setIsChecked(nextState); // Toggle the switch
       setShowModal(false); // Close modal
     } catch (error: any) {

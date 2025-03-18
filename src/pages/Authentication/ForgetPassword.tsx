@@ -43,13 +43,13 @@ const ForgetPasswordPage = (props: any) => {
         const response = await userForgetPassword(values.email);
 
         if (!response || response.error) {
-          toast.error(response.error, { autoClose: 3000 });
+          toast.error(response.error, { autoClose: 2000 });
           setLoader(false);
           return;
           // Handle error display if needed
         }
         validation.resetForm();
-        toast.success("Send email Successfully", { autoClose: 3000 });
+        toast.success("Send email Successfully", { autoClose: 2000 });
         setLoader(false);
       } catch (error: any) {
         if (error.response && error.response.data) {

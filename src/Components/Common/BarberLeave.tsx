@@ -105,7 +105,7 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
         formik.resetForm();
         setShowSpinner(false);
         // Pass the leaveData to the parent component
-        toast.success("Leave request submitted successfully!"); // Success toast
+        toast.success("Leave request submitted successfully!", { autoClose: 2000 }); // Success toast
       } catch (error) {
         toast.error("Something went wrong, please try again!"); // Error toast
       } finally {

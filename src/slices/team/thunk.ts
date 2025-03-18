@@ -22,10 +22,10 @@ export const getTeamData = createAsyncThunk("team/getTeamData", async () => {
 export const addTeamData = createAsyncThunk("team/addTeamData", async (team : any) => {
     try {
         const response = addTeamDataApi(team);
-        toast.success("Team Data Added Successfully", { autoClose: 3000 });
+        toast.success("Team Data Added Successfully", { autoClose: 2000 });
         return response;
     } catch (error) {
-        toast.error("Team Data Added Failed", { autoClose: 3000 });
+        toast.error("Team Data Added Failed", { autoClose: 2000 });
         return error;
     }
 });
@@ -33,10 +33,10 @@ export const addTeamData = createAsyncThunk("team/addTeamData", async (team : an
 export const updateTeamData = createAsyncThunk("team/updateTeamData", async (project : any) => {
     try {
         const response = updateTeamDataApi(project);
-        toast.success("Team Data Updated Successfully", { autoClose: 3000 });
+        toast.success("Team Data Updated Successfully", { autoClose: 2000 });
         return response;
     } catch (error) {
-        toast.error("Team Data Updated Failed", { autoClose: 3000 });
+        toast.error("Team Data Updated Failed", { autoClose: 2000 });
         return error;
     }
 });
@@ -44,10 +44,10 @@ export const updateTeamData = createAsyncThunk("team/updateTeamData", async (pro
 export const deleteTeamData = createAsyncThunk("team/deleteTeamData", async (team : any) => {
     try {
         const response = deleteTeamDataApi(team);
-        toast.success("Team Data Delete Successfully", { autoClose: 3000 });
+        toast.success("Team Data Delete Successfully", { autoClose: 2000 });
         return response;
     } catch (error) {
-        toast.error("Team Data Delete Failed", { autoClose: 3000 });
+        toast.error("Team Data Delete Failed", { autoClose: 2000 });
         return error;
     }
 });

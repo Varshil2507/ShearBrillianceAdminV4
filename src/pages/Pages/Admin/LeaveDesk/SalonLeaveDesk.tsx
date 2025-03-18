@@ -253,7 +253,7 @@ const RequestedLeavesTable: React.FC = () => {
         await updateLeaveStatus(selectedLeave.id, dataToUpdate);
 
         setModalOpen(false);
-        toast.success("Leave status updated successfully");
+        toast.success("Leave status updated successfully", { autoClose: 2000 });
       } catch (error) {
         toast.error("Error submitting leave status");
         console.error("Error submitting leave status:", error);
@@ -419,7 +419,7 @@ const RequestedLeavesTable: React.FC = () => {
     try {
       if (appointmentId) {
         await cancelAppointment(appointmentId); // API call with appointment ID
-        toast.success("Cancel appointment successfully");
+        toast.success("Cancel appointment successfully", { autoClose: 2000 });
         setAppointmentId(null);
         toggleConfirmModal(); // Close modal
         // Ensure selectedLeave and barber exist before modifying appointments
@@ -485,7 +485,7 @@ const RequestedLeavesTable: React.FC = () => {
       const data = await saveTransferAppointments(obj);
       setShowSpinner(false);
       setModalTransfer(!modalTransfer);
-      toast.success("Transfer barber successfully");
+      toast.success("Transfer barber successfully", { autoClose: 2000 });
       // Ensure selectedLeave and barber exist before modifying appointments
       if (selectedLeave && selectedLeave.barber && selectedLeave.barber.appointments) {
         const updatedAppointments = selectedLeave.barber.appointments.filter(

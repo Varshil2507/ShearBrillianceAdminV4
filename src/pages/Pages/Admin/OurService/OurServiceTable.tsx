@@ -99,7 +99,7 @@ const ServiceTable: React.FC = () => {
         )
       );
       setIsEditMode(false); // Enable edit mode
-      toast.success("Status updated successfully", { autoClose: 3000 });
+      toast.success("Status updated successfully", { autoClose: 2000 });
       fetchServices();
       toggleConfirmModal();
       setSelectedService(null);
@@ -160,7 +160,7 @@ const ServiceTable: React.FC = () => {
         created_at: new Date().toISOString(),
         isActive: setIsActive,
       });
-      toast.success("Service added successfully", { autoClose: 3000 });
+      toast.success("Service added successfully", { autoClose: 2000 });
       toggleModal();
       setServiceData((prevData) => [...prevData, newService]);
       setShowSpinner(false);
@@ -174,7 +174,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error adding service, please try again later";
-      toast.error(errorMessage, { autoClose: 3000 });
+      toast.error(errorMessage, { autoClose: 2000 });
       console.error("Error adding service:", error);
     }
   };
@@ -199,7 +199,7 @@ const ServiceTable: React.FC = () => {
 
       await updateService(id, serviceDataToUpdate);
 
-      toast.success("Service updated successfully", { autoClose: 3000 });
+      toast.success("Service updated successfully", { autoClose: 2000 });
       toggleModal();
       setShowSpinner(false);
       setMinPrice("");
@@ -218,7 +218,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error updating service, please try again later";
-      toast.error(errorMessage, { autoClose: 3000 });
+      toast.error(errorMessage, { autoClose: 2000 });
       console.error("Error updating service:", error);
     }
   };
@@ -324,7 +324,7 @@ const ServiceTable: React.FC = () => {
         prevData.filter((barber) => barber.id !== selectedService.id)
       );
 
-      toast.success("Barber deleted successfully", { autoClose: 3000 });
+      toast.success("Barber deleted successfully", { autoClose: 2000 });
       setShowSpinner(true);
       setDeleteModal(false); // Close the modal
       setSelectedService(null); // Reset selected service ID
@@ -372,7 +372,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error updating service, please try again later";
-      toast.error(errorMessage, { autoClose: 3000 });
+      toast.error(errorMessage, { autoClose: 2000 });
       setShowSpinner(false);
     }
   };

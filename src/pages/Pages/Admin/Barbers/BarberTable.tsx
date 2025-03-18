@@ -647,7 +647,7 @@ const BarberTable: React.FC = () => {
       if (newAdded) {
         // Fetch and update the salon list
         const message = "Barber added successfully.";
-        toast.success(message, { autoClose: 3000 });
+        toast.success(message, { autoClose: 2000 });
         setShowSpinner(false);
         fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
 
@@ -737,7 +737,7 @@ const BarberTable: React.FC = () => {
 
       await updateBarber(id, formData);
 
-      toast.success("Barber updated successfully", { autoClose: 3000 });
+      toast.success("Barber updated successfully", { autoClose: 2000 });
 
       setShowSpinner(false);
       fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -885,7 +885,7 @@ const BarberTable: React.FC = () => {
         //   prevData.filter((barber) => barber.id !== selectedBarberId)
         // );
 
-        toast.success("Barber deleted successfully", { autoClose: 3000 });
+        toast.success("Barber deleted successfully", { autoClose: 2000 });
         setShowSpinner(false);
         fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
         setDeleteModal(false); // Close the delete confirmation modal

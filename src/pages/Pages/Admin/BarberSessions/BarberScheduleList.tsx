@@ -427,7 +427,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
         updateBarberSession(values.id, values)
           .then((response) => {
             toast.success("Barber schedule updated successfully", {
-              autoClose: 3000,
+              autoClose: 2000,
             });
             setShowSpinner(false);
             if (onReload) {
@@ -464,7 +464,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
         addBarberSession(obj)
           .then((response) => {
             toast.success("Barber schedule added successfully", {
-              autoClose: 3000,
+              autoClose: 2000,
             });
             setShowSpinner(false);
             if (onReload) {
@@ -518,7 +518,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     try {
       if (appointmentId) {
         await cancelAppointment(appointmentId); // API call with appointment ID
-        toast.success("Cancel appointment successfully");
+        toast.success("Cancel appointment successfully", { autoClose: 2000 });
         setAppointmentId(null);
         if (onReload) {
           onReload(); // Trigger parent reload function
@@ -589,7 +589,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       setShowTransferSpinner(false);
       setModalTransfer(!modalTransfer);
       if (data) {
-        toast.success("Transfer barber successfully");
+        toast.success("Transfer barber successfully", { autoClose: 2000 });
       }
       // Ensure selectedLeave and barber exist before modifying appointments
       if (newBarberSession && newBarberSession?.appointments) {

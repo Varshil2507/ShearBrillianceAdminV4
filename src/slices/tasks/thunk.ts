@@ -19,30 +19,30 @@ export const getTaskList = createAsyncThunk("tasks/getTaskList", async () => {
 export const addNewTask = createAsyncThunk("tasks/addNewTask", async (task: any) => {
     try {
         const response = addNewTaskApi(task);
-        toast.success("Task Added Successfully", { autoClose: 3000 });
+        toast.success("Task Added Successfully", { autoClose: 2000 });
         return response;
     } catch (error) {
-        toast.error("Task Added Failed", { autoClose: 3000 });
+        toast.error("Task Added Failed", { autoClose: 2000 });
         return error;
     }
 });
 export const updateTask = createAsyncThunk("tasks/updateTask", async (task: any) => {
     try {
         const response = updateTaskApi(task);
-        toast.success("Task Updated Successfully", { autoClose: 3000 });
+        toast.success("Task Updated Successfully", { autoClose: 2000 });
         return response;
     } catch (error) {
-        toast.error("Task Updated Failed", { autoClose: 3000 });
+        toast.error("Task Updated Failed", { autoClose: 2000 });
         return error;
     }
 });
 export const deleteTask = createAsyncThunk("tasks/deleteTask", async (task: any) => {
     try {
         const response = deleteTaskApi(task);
-        toast.success("Task Updated Successfully", { autoClose: 3000 });
+        toast.success("Task Updated Successfully", { autoClose: 2000 });
         return { task, ...response };
     } catch (error) {
-        toast.error("Task Updated Failed", { autoClose: 3000 });
+        toast.error("Task Updated Failed", { autoClose: 2000 });
         return error;
     }
 });

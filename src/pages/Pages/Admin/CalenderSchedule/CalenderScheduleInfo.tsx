@@ -600,7 +600,7 @@ const CalenderScheduleInfo: React.FC = () => {
         haircutToggle();
         event?.haircutDetails.push(newHaircutDetails);
         toast.success("Haircut details added successfully", {
-          autoClose: 3000,
+          autoClose: 2000,
         });
       } catch (error: any) {
         // Check if the error has a response property (Axios errors usually have this)
@@ -691,7 +691,7 @@ const CalenderScheduleInfo: React.FC = () => {
         toggle();
         toggleModal(); // Close the modal
         filterAppointment();
-        toast.success("Status updated successfully", { autoClose: 3000 });
+        toast.success("Status updated successfully", { autoClose: 2000 });
         // Update the specific appointment in local state after a successful API call
         // setAppointments((prevAppointments: any[]) => {
         //   return prevAppointments.map((appointment) => {

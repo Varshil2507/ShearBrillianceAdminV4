@@ -296,7 +296,7 @@ const SalonTable: React.FC = () => {
       if (selectedSalon !== null) {
         await deleteSalon(selectedSalon.id);
 
-        toast.success("Salon deleted successfully", { autoClose: 3000 });
+        toast.success("Salon deleted successfully", { autoClose: 2000 });
         // setSalonData((prevSalons) =>
         //   prevSalons.filter((salon) => salon.id !== selectedSalonId)
         // );
@@ -457,7 +457,7 @@ const SalonTable: React.FC = () => {
 
       // setSalonData(salons);
       fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-      toast.success("Salon added successfully!", { autoClose: 3000 });
+      toast.success("Salon added successfully!", { autoClose: 2000 });
       setShowSpinner(false);
       toggleModal(); // Close the modal
     } catch (error: any) {
@@ -483,7 +483,7 @@ const SalonTable: React.FC = () => {
           });
         } else if (backendError.message) {
           // For other errors (non-validation related)
-          toast.error(backendError.message, { autoClose: 3000 });
+          toast.error(backendError.message, { autoClose: 2000 });
         }
       }
 
@@ -534,7 +534,7 @@ const SalonTable: React.FC = () => {
       // setSalonData(salons);
       fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
       // Show success toast
-      toast.success("Salon updated successfully", { autoClose: 3000 });
+      toast.success("Salon updated successfully", { autoClose: 2000 });
 
       setShowSpinner(false);
       // Close the modal

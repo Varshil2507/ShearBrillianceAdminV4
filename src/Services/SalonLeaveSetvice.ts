@@ -26,7 +26,7 @@ export const fetchRequestedLeaves = async (
     const response:any = await apiClient.get(REQUESTED_LEAVES_ENDPOINT, { params });
     return response; // Return only the data array
   } catch (error) {
-    toast.error('Error fetching requested leaves', { autoClose: 3000 });
+    toast.error('Error fetching requested leaves', { autoClose: 2000 });
     console.error('Error fetching requested leaves:', error);
     throw error; // Rethrow the error so that it can be handled in the component
   }

@@ -631,7 +631,7 @@ const AppointmentTable: React.FC = () => {
         };
         const response = await createAppointment(processedValues);
         toast.success("Appointment created successfully", {
-          autoClose: 3000,
+          autoClose: 2000,
         });
         setTotalPrice(0);
         setFinalAmount(0);

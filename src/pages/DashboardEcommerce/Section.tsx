@@ -69,7 +69,7 @@ const Section = (props: any) => {
       );
 
       if (response && response.downloadLink) {
-        toast.success("PDF sales report generated successfully!");
+        toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
         window.open(response.downloadLink, "_blank");
       } else {
         toast.error("Failed to generate PDF report.");

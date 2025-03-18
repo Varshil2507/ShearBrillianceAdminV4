@@ -277,7 +277,7 @@ const BarberSessionsTable: React.FC = () => {
       // if (isEditing) {
       //   updateBarberSession(values.id, processedValues).then((response) => {
       //     toast.success("Barber schedule updated successfully", {
-      //       autoClose: 3000,
+      //       autoClose: 2000,
       //     });
       //     getBarberSessionsData();
       //     setShowSpinner(false);
@@ -290,7 +290,7 @@ const BarberSessionsTable: React.FC = () => {
       //   addBarberSession(obj)
       //     .then((response) => {
       //       toast.success("Barber schedule created successfully", {
-      //         autoClose: 3000,
+      //         autoClose: 2000,
       //       });
       //       getBarberSessionsData();
       //       setShowSpinner(false);

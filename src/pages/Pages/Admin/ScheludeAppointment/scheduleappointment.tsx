@@ -324,7 +324,7 @@ const Scheduleappointment = () => {
       const mappedData = mapAppointmentData(appointmentData); // Map the data to match Swagger format
       const response = await createAppointment(mappedData); // Pass the mapped data to the API
       setShowSpinner(false);
-      toast.success("Appointment created successfully!");
+      toast.success("Appointment created successfully!", { autoClose: 2000 });
       // Move to the next step
       toggleArrowTab(activeArrowTab + 1); // Increment the active tab to navigate to the next step
     } catch (error: any) {

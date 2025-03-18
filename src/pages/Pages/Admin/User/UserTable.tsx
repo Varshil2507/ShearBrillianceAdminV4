@@ -397,7 +397,7 @@ const UserTable: React.FC = () => {
 
       // let tempUser = response;
       tempUser.fullname = tempUser.firstname + " " + tempUser.lastname;
-      toast.success("User added successfully", { autoClose: 3000 });
+      toast.success("User added successfully", { autoClose: 2000 });
       // Add new user to the local state
       // const users = response.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
@@ -455,7 +455,7 @@ const UserTable: React.FC = () => {
 
       await updateUser(id, formData);
 
-      toast.success("User updated successfully", { autoClose: 3000 });
+      toast.success("User updated successfully", { autoClose: 2000 });
       const updatedUsers = await fetchUsers(
         null,
         "user",
@@ -513,7 +513,7 @@ const UserTable: React.FC = () => {
           prevData.filter((user) => user.id !== selectedUser.id)
         );
         getUsers(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-        toast.success("User deleted successfully", { autoClose: 3000 });
+        toast.success("User deleted successfully", { autoClose: 2000 });
         setShowSpinner(false);
         setDeleteModal(false); // Close the delete confirmation modal
         setSelectedUser(null); // Reset selected user ID

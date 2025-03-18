@@ -32,7 +32,7 @@ const SalonStatusDropdown = ({ userInfo, salonUserInfo, showLoader }: SalonStatu
       const timer = setTimeout(() => {
         showLoader(false);
       }, 1000); // Hide loader after 5 seconds
-      toast.success("Status updated successfully", { autoClose: 3000 });
+      toast.success("Status updated successfully", { autoClose: 2000 });
     } catch (error: any) {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {

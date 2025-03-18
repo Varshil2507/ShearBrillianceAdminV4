@@ -198,7 +198,7 @@ const SalonTransferBarber: React.FC = () => {
     }
     const updatedCategory = await updateBarberCategory(parseInt(barberId), obj);
     if (updatedCategory) {
-      toast.success("Category updated successfully", { autoClose: 3000 });
+      toast.success("Category updated successfully", { autoClose: 2000 });
       // if (sourceCategory !== 'walkIn') {
       //   toggleConfirmModal();
       // }

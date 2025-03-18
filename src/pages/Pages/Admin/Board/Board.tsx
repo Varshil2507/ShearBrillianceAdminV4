@@ -825,7 +825,7 @@ const Board = () => {
     const statusData = { status: selectedCardNewStatus };
     await updateAppointmentStatus(parseInt(selectedCard?.id), statusData);
 
-    toast.success("Appointment updated successfully", { autoClose: 3000 });
+    toast.success("Appointment updated successfully", { autoClose: 2000 });
     if (selectedCardNewStatus === "canceled") {
       setCancelLoader(false);
     } else if (selectedCardNewStatus === "completed") {
@@ -1190,7 +1190,7 @@ const Board = () => {
         const timeData = { additionalTime: parseInt(values.additionalTime) };
         await updateAppointmentWaitTime(values.appointment_id, timeData);
         waitTimeToggle();
-        toast.success("Appointment updated successfully", { autoClose: 3000 });
+        toast.success("Appointment updated successfully", { autoClose: 2000 });
         const response: any = await fetchBoardAppointments(null, null);
         if (activeFilterBarber) {
           if (activeFilterBarber?.id === "all") {
@@ -1308,7 +1308,7 @@ const Board = () => {
         .then((response) => {
           fetchAppointments();
           toast.success("Appointment created successfully", {
-            autoClose: 3000,
+            autoClose: 2000,
           });
           setShowAppointmentSpinner(false);
           setTotalPrice(0);
@@ -1372,7 +1372,7 @@ const Board = () => {
       try {
         const newHaircutDetails = await addHaircutDetail({ ...values });
         toast.success("Haircut details added successfully", {
-          autoClose: 3000,
+          autoClose: 2000,
         });
         card.haircutDetails.push(newHaircutDetails);
         haircutFormik.resetForm();
@@ -1608,7 +1608,7 @@ const Board = () => {
 
           setShowLoader(true);
           toast.success("Appointment updated successfully", {
-            autoClose: 3000,
+            autoClose: 2000,
           });
           const response: any = await fetchBoardAppointments(null, null);
           if (activeFilterBarber) {
