@@ -175,7 +175,7 @@ const Widgets = (props: any) => {
                                     <span className="counter-value">
                                         <CountUp
                                             start={0}
-                                            end={props?.dashboard?.canceledAppointmentsCount}
+                                            end={props?.dashboard?.paymentTotals?.offline}
                                             // decimal={item.decimals}
                                             prefix="$"
                                             duration={3}
@@ -207,7 +207,7 @@ const Widgets = (props: any) => {
                                     <span className="counter-value">
                                         <CountUp
                                             start={0}
-                                            end={props?.dashboard?.canceledAppointmentsCount}
+                                            end={props?.dashboard?.paymentTotals?.online}
                                             // decimal={item.decimals}
                                             prefix="$"
                                             duration={3}
