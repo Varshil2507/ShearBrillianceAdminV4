@@ -17,7 +17,7 @@ const SalonTermsCondition = () => {
           <h1>END USER LICENSE AGREEMENT (EULA)</h1>
           <h3>{commonText.PROJECT_NAME} Terms Of Use</h3>
           <p>
-            <strong>Last updated: 10/22/2024</strong>
+            <strong>Last updated: 03/19/2025</strong>
           </p>
         </Col>
 

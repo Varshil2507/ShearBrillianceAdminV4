@@ -24,7 +24,7 @@ const PrivacyPolicy = () => {
               <h1 className="display-4 mt-5">{commonText.PROJECT_NAME}</h1>
               <h2 className="mt-2">Privacy Policy</h2>
               <p>
-                <strong>Last updated: 10/22/2024</strong>
+                <strong>Last updated: 03/19/2025</strong>
               </p>
             </Col>
           </Row>
