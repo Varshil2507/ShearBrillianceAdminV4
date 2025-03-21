@@ -65,6 +65,7 @@ const RequestedLeavesTable: React.FC = () => {
   const [selectedEndDate, setEndDate] = useState<any>(new Date());
   const [selectedSearchText, selectedSearch] = useState<null>();
   const [selectedStatus, setStatus] = useState<any>("pending");
+  const [selectedUpdatedStatus, setUpdatedStatus] = useState<any>("pending");
   const [appointmentId, setAppointmentId] = useState<any>();
   const [availableAppointmentBabrers, setAvailableAppointmentBabrers] = useState<any>();
   const [selectedAvailableBabrer, setSelectedAvailableBabrer] = useState<any>();
@@ -199,7 +200,7 @@ const RequestedLeavesTable: React.FC = () => {
     return formattedDate.replace(/\//g, '-');
   };
   const handleStatusChange = (event: any) => {
-    setStatus(event.target.value); // Apply the selected status locally
+    setUpdatedStatus(event.target.value); // Apply the selected status locally
     // You may also want to clear the deny reason when the status is approved
     if (event.target.value !== "denied") {
       setDenyReason(""); // Clear reason if the status is not 'denied'
@@ -237,7 +238,7 @@ const RequestedLeavesTable: React.FC = () => {
   const handleSubmit = async () => {
     if (selectedLeave) {
       // Pre-validation
-      if (selectedStatus === "denied" && !denyReason.trim()) {
+      if (selectedUpdatedStatus === "denied" && !denyReason.trim()) {
         toast.error("Please provide a reason for rejection.");
         return;
       }
@@ -246,13 +247,20 @@ const RequestedLeavesTable: React.FC = () => {
         setIsSubmitting(true); // Set loading state
 
         const dataToUpdate = {
-          status: selectedStatus,
-          response_reason: selectedStatus === "denied" ? denyReason : "",
+          status: selectedUpdatedStatus,
+          response_reason: selectedUpdatedStatus === "denied" ? denyReason : "",
         };
 
         await updateLeaveStatus(selectedLeave.id, dataToUpdate);
 
         setModalOpen(false);
+        fetchrequestedLeaveData(
+          1,
+          selectedStartDate,
+          selectedEndDate,
+          selectedStatus,
+          " ",
+        )
         toast.success("Leave status updated successfully", { autoClose: 2000 });
       } catch (error) {
         toast.error("Error submitting leave status");
@@ -518,8 +526,6 @@ const RequestedLeavesTable: React.FC = () => {
   }
 
   const handleFilterData = async (data: any) => {
-
-
     if (data) {
       setStartDate(data.dateRange[0]);
       setEndDate(data.dateRange[1]);
@@ -620,7 +626,7 @@ const RequestedLeavesTable: React.FC = () => {
                   <Input
                     type="select"
                     id="availability_status"
-                    value={selectedStatus}
+                    value={selectedUpdatedStatus}
                     onChange={handleStatusChange}
                   >
                     <option value="pending">Pending</option>
@@ -631,7 +637,7 @@ const RequestedLeavesTable: React.FC = () => {
               </Col>
             </Row>
             {/* Show rejection reason textarea only if status is 'denied' */}
-            {selectedStatus === "denied" && (
+            {selectedUpdatedStatus === "denied" && (
               <Row className="g-3">
                 <Col lg={12}>
                   <div>
@@ -711,7 +717,7 @@ const RequestedLeavesTable: React.FC = () => {
                 <Button
                   color="success"
                   onClick={handleSubmit}
-                  disabled={selectedStatus === "pending" && selectedLeave.barber.appointments?.length > 0} // Disable if status is not changed
+                  disabled={selectedUpdatedStatus === "pending" || selectedLeave.barber.appointments?.length > 0} // Disable if status is not changed
                 >
                   Submit
                 </Button>
