@@ -246,8 +246,8 @@ const Section = (props: any) => {
               userRole?.role_name === "Salon Manager" ||
               userRole?.role_name === "Salon Owner" ? (
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center">
-                {userRole?.role_name === "Salon Manager" ||
-                  userRole?.role_name === "Salon Owner" && (
+                {(userRole?.role_name === "Salon Manager" ||
+                  userRole?.role_name === "Salon Owner") && (
                     <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 mb-2 bg-light">
                       <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
                         Today's Avaialable Barber
