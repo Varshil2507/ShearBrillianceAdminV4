@@ -36,7 +36,7 @@ const TopBarber = ({ dataColors }: any) => {
           }, 500); // Hide loader after 5 seconds
           return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
         } else {
-          toast.error("No top barbers found");
+          // toast.error("No top barbers found");
           setShowLoader(false);
         }
       } catch (error) {
