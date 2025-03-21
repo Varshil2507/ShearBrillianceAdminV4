@@ -242,24 +242,27 @@ const Section = (props: any) => {
                 Tracking your salon’s story from day one!
               </p>
             </div>
-            { userRole?.role_name === "Salon Manager" ||
+            {userRole?.role_name === "Admin" ||
+              userRole?.role_name === "Salon Manager" ||
               userRole?.role_name === "Salon Owner" ? (
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center">
-
-                <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 mb-2 bg-light">
-                  <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
-                    Today's Avaialable Barber
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-soft-info btn-icon waves-effect waves-light"
-                    onClick={() => showBarber()}
-                    title="Select Date Range"
-                    aria-label="Select Date Range"
-                  >
-                    <i className="ri-file-list-line"></i>
-                  </button>
-                </div>
+                {userRole?.role_name === "Salon Manager" ||
+                  userRole?.role_name === "Salon Owner" && (
+                    <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 mb-2 bg-light">
+                      <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
+                        Today's Avaialable Barber
+                      </p>
+                      <button
+                        type="button"
+                        className="btn btn-soft-info btn-icon waves-effect waves-light"
+                        onClick={() => showBarber()}
+                        title="Select Date Range"
+                        aria-label="Select Date Range"
+                      >
+                        <i className="ri-file-list-line"></i>
+                      </button>
+                    </div>
+                  )}
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
                     Generate Report
@@ -422,30 +425,30 @@ const Section = (props: any) => {
       {
         storeUserInfo.salon && (userRole?.role_name === "Salon Manager" || userRole?.role_name === "Salon Owner") && (
           <Modal isOpen={isShowBarberModal} toggle={() => setIsShowBarberModal(!isShowBarberModal)} centered backdrop="static" size="xl">
-          <ModalHeader toggle={() => setIsShowBarberModal(!isShowBarberModal)}>
-            Today's Barber(s) Status
-          </ModalHeader>
-          <ModalBody className="modal-body">
-            <TodaysBarber rightClickBtn={toggleRightColumn} />
-          </ModalBody>
-          <div className="modal-footer">
-            <div className="gap-2 hstack justify-content-end w-100">
-              <div className="hstack gap-2 justify-content-end">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setIsShowBarberModal(false);
-                  }}
-                  className="btn-light"
-                >
-                  Close
-                </Button>
+            <ModalHeader toggle={() => setIsShowBarberModal(!isShowBarberModal)}>
+              Today's Barber(s) Status
+            </ModalHeader>
+            <ModalBody className="modal-body">
+              <TodaysBarber rightClickBtn={toggleRightColumn} />
+            </ModalBody>
+            <div className="modal-footer">
+              <div className="gap-2 hstack justify-content-end w-100">
+                <div className="hstack gap-2 justify-content-end">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsShowBarberModal(false);
+                    }}
+                    className="btn-light"
+                  >
+                    Close
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </Modal>
+          </Modal>
         )
-      } 
+      }
     </React.Fragment>
   );
 };
