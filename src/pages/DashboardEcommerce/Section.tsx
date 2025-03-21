@@ -242,8 +242,7 @@ const Section = (props: any) => {
                 Tracking your salon’s story from day one!
               </p>
             </div>
-            {userRole?.role_name === "Admin" ||
-              userRole?.role_name === "Salon Manager" ||
+            { userRole?.role_name === "Salon Manager" ||
               userRole?.role_name === "Salon Owner" ? (
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center">
 
