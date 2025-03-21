@@ -74,9 +74,11 @@ const TopSalon = ({ dataColors }: any) => {
                 <Loader />
             )}
             <ToastContainer />
-            {chartData.length > 0 && categories.length > 0 && (
+            {/* {chartData.length > 0 && categories.length > 0 ? ( */}
                 <ReactApexChart className="apex-charts" series={chartData} options={options} type="bar" height={350} />
-            )}
+            {/* ) : (
+                <div>No data available!!!</div>
+            )} */}
 
         </>
     );
