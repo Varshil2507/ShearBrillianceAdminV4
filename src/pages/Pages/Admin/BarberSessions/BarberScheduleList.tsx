@@ -745,7 +745,7 @@ useEffect(() => {
                                 ? "Current Week"
                                 : `Week ${weekIdx + 1}`}
                             </h5>
-                            <span className="badge bg-light text-dark">
+                            <span className="badge bg-info text-white">
                               Schedule Overview
                             </span>
                           </div>
