@@ -27,17 +27,11 @@ const AppointmentConfirmationModal = ({
 }) => {
   const [showTempSpinner, setShowSpinner] = useState<boolean>(false);
 
-  // Reset the spinner state only when the modal is opened
-  useEffect(() => {
-    if (showSpinner) {
-      setTimeout(() => {
-        setShowSpinner(false);
-      }, 1000);
-    }
-  }, [showSpinner]);
-  
-  const setConfirmData = (selectedAppointmentId: any) => {
+   const setConfirmData = (selectedAppointmentId: any) => {
     setShowSpinner(true);
+    setTimeout(() => {
+      setShowSpinner(false);
+    }, 2000); 
     onConfirm?.(selectedAppointmentId); // Invoke the onDeleteClick function if defined
   }
 

@@ -56,9 +56,12 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [showTransferSpinner, setShowTransferSpinner] =
     useState<boolean>(false);
+    
+  const [showCancelSpinner, setShowCancelSpinner] = useState<boolean>(false);
   const [modalTransfer, setModalTransfer] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isAvailableSchedule, setIsAvailableSchedule] = useState(false);
+  
   const [dateRange, setDateRange] = useState<Date[] | null>(null); // State for date range
 
   const [selectedBarberAppointment, setSelectedBarberAppointment] =
@@ -520,6 +523,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
         await cancelAppointment(appointmentId); // API call with appointment ID
         toast.success("Cancel appointment successfully", { autoClose: 2000 });
         setAppointmentId(null);
+        setShowCancelSpinner(false);
         if (onReload) {
           onReload(); // Trigger parent reload function
         }
@@ -545,6 +549,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
         }
       }
     } catch (error) {
+      setShowCancelSpinner(false);
       console.error("Failed to update status:", error);
     }
   };
