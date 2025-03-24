@@ -54,6 +54,7 @@ import {
 } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
 import { fetchBarber } from "Services/barberService";
+import { formatDateHours, formatHours } from "Components/Common/DateUtil";
 
 //Import Breadcrumb
 interface CardData {
@@ -293,7 +294,7 @@ const Board = () => {
             }
             grouped[status].cards = grouped[status].cards.map((item: any) => ({
               ...item,
-              botId: formatDate(item.botId),
+              botId: formatDateHours(item.botId),
             }));
             return { ...grouped[status], index: idx };
           } else {
@@ -366,7 +367,7 @@ const Board = () => {
           //   }
           //   grouped[status].cards = grouped[status].cards.map((item: any) => ({
           //     ...item,
-          //     botId: formatDate(item.botId)
+          //     botId: formatDateHours(item.botId)
           //   }));
           //   return { ...grouped[status], index: idx };
           // } else {
@@ -709,40 +710,40 @@ const Board = () => {
     ],
     [haircutDetailData]
   );
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+  // const formatDateHours = (dateString: string): string => {
+  //   const date = new Date(dateString);
 
-    const padZero = (num: number) => String(num).padStart(2, "0");
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
 
-    if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-    const day = String(date.getUTCDate()).padStart(2, "0");
+  //   if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
+  //   const year = date.getUTCFullYear();
+  //   const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  //   const day = String(date.getUTCDate()).padStart(2, "0");
 
-    let hours = date.getHours();
-    const minutes = padZero(date.getMinutes());
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = date.getHours();
+  //   const minutes = padZero(date.getMinutes());
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    hours = hours % 12 || 12; // Convert 0 hours to 12 for AM/PM
-    const formattedHours = padZero(hours);
+  //   hours = hours % 12 || 12; // Convert 0 hours to 12 for AM/PM
+  //   const formattedHours = padZero(hours);
 
-    return `${day}-${month}-${year} ${formattedHours}:${minutes} ${ampm}`;
-  };
+  //   return `${day}-${month}-${year} ${formattedHours}:${minutes} ${ampm}`;
+  // };
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString?.split(":");
+  // const formatHours = (timeString: string) => {
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
+  //   // Split the time string into hours, minutes, and seconds
+  //   const [hoursStr, minutesStr] = timeString?.split(":");
 
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = parseInt(hoursStr, 10);
+  //   const minutes = padZero(parseInt(minutesStr, 10));
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
+  //   // Convert to 12-hour format
+  //   hours = hours % 12 || 12;
 
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
+  //   return `${padZero(hours)}:${minutes} ${ampm}`;
+  // };
 
   const handleServiceChange = (selected: any) => {
     setSelectedOptions(selected);

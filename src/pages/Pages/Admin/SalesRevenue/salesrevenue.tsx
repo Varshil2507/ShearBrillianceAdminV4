@@ -8,6 +8,7 @@ import Loader from "Components/Common/Loader";
 import { generateSalesReport } from "Services/Insalonappointment";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
+import { formatDate } from "Components/Common/DateUtil";
 
 const Salesrevenue = () => {
   const [selectedStartDate, setStartDate] = useState<any>(new Date());
@@ -31,37 +32,7 @@ const Salesrevenue = () => {
     userRole = storeUserInfo.user.role;
   }
 
-  // const applyDateFilter = async () => {
-  //   setShowSpinner(true);
-  //   setShowLoader(true);
-
-  //   try {
-  //     const response = await generateSalesReport(
-  //       formatDate(selectedStartDate),
-  //       formatDate(selectedEndDate),
-  //       selectedSalonId === "all" ? undefined : selectedSalonId, // Pass undefined for "All"
-  //       // selectedSalonId || undefined, // Pass salonId if selected, else undefined
-  //       selectedBarberId || undefined // Pass barberId if selected, else undefined
-  //     );
-
-  //     if (response && response.downloadUrl) {
-  //       toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
-  //       window.open(response.downloadUrl, "_blank");
-  //     } else {
-  //       toast.error("Failed to generate PDF report.");
-  //     }
-  //   } catch (error: any) {
-  //     if (error.response?.data?.message) {
-  //       toast.error(error.response.data.message);
-  //     } else {
-  //       toast.error(error.message || "Something went wrong");
-  //     }
-  //   } finally {
-  //     setShowSpinner(false);
-  //     setShowLoader(false);
-  //     setShowDatePicker(false);
-  //   }
-  // };
+  
   const applyDateFilter = async () => {
     setShowSpinner(true);
     setShowLoader(true);
@@ -96,27 +67,27 @@ const Salesrevenue = () => {
     toast.warning(message); // Display warning toast message
   };
 
-  const formatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
-    const date = new Date(dateString);
-    // Get the user's current timezone
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   // Get the user's current timezone
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      timeZone: userTimeZone, // Automatically adapts to the user's location
-    };
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     year: "numeric",
+  //     month: "2-digit",
+  //     day: "2-digit",
+  //     timeZone: userTimeZone, // Automatically adapts to the user's location
+  //   };
 
-    // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat("en-CA", options).format(
-      date
-    ); // en-CA ensures YYYY-MM-DD format
+  //   // Get formatted date
+  //   const formattedDate = new Intl.DateTimeFormat("en-CA", options).format(
+  //     date
+  //   ); // en-CA ensures YYYY-MM-DD format
 
-    // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, "-");
-  };
+  //   // Replace slashes with dashes to ensure YYYY-MM-DD format
+  //   return formattedDate.replace(/\//g, "-");
+  // };
   //  const userRole = localStorage.getItem("userRole");
   //   let storeRoleInfo: any;
   //   if (userRole) {

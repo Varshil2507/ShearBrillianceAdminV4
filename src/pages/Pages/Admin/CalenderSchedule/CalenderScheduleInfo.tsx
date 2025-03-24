@@ -43,6 +43,7 @@ import AppointmentConfirmationModal from "Components/Common/AppointmentStatusCha
 import Loader from "Components/Common/Loader";
 import { Link } from "react-router-dom";
 import { format, isAfter, isBefore, isToday } from "date-fns";
+import { formatTime } from "Components/Common/DateUtil";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -466,12 +467,12 @@ const CalenderScheduleInfo: React.FC = () => {
     }
   };
 
-  const formatTime = (time: string): string => {
-    const [hour, minute] = time.split(":").map(Number);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-  };
+  // const formatTime = (time: string): string => {
+  //   const [hour, minute] = time.split(":").map(Number);
+  //   const ampm = hour >= 12 ? "PM" : "AM";
+  //   const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+  //   return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  // };
 
   // Stop all background processes when closing modal
   const stopAllProcesses = () => {

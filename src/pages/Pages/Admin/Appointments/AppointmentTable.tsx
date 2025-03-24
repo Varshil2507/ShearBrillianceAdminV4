@@ -10,27 +10,7 @@ import {
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Col,
-  Modal,
-  ModalBody,
-  Row,
-  Label,
-  Input,
-  Button,
-  ModalHeader,
-  FormFeedback,
-  Form,
-  Spinner,
-} from "reactstrap";
-
-// import {
-//   getTaskList,
-//   addNewTask,
-//   updateTask,
-//   deleteTask,
-// } from "../../../../slices/thunks";
-
+import {Col,Modal,ModalBody,Row,Label,Input,Button,ModalHeader,FormFeedback,Form,Spinner} from "reactstrap";
 import { Status } from "./AppointmentListCol";
 
 // Formik
@@ -57,6 +37,7 @@ import {
   getBarberSessionByBarber,
 } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
+import { formatDate, otherFormatDate } from "Components/Common/DateUtil";
 
 const Assigned = [
   { id: 1, imgId: "anna-adame", img: avatar1, name: "Anna Adame" },
@@ -254,45 +235,37 @@ const AppointmentTable: React.FC = () => {
     profile_photo?: string;
   }
 
-  const formatDate = (dateString: any) => {
-    // if (!dateString) return ""; // Return an empty string if dateString is invalid
-    // const date = new Date(dateString);
-    // if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
-    // const year = date.getUTCFullYear();
-    // const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-    // const day = String(date.getUTCDate()).padStart(2, "0");
-    // return `${day}-${month}-${year}`;
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
-    const date = new Date(dateString);
-    // Get the user's current timezone
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   // Get the user's current timezone
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      timeZone: userTimeZone, // Automatically adapts to the user's location
-    };
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     year: 'numeric',
+  //     day: '2-digit',
+  //     month: '2-digit',
+  //     timeZone: userTimeZone, // Automatically adapts to the user's location
+  //   };
 
-    // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
+  //   // Get formatted date
+  //   const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
 
-    // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, '-');
-  };
+  //   // Replace slashes with dashes to ensure YYYY-MM-DD format
+  //   return formattedDate.replace(/\//g, '-');
+  // };
+  // const otherFormatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
 
-  const otherFormatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
 
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
+  //   return `${year}-${month}-${day}`;
+  // };
   const formatHours = (timeString: string) => {
     const padZero = (num: number) => String(num).padStart(2, "0");
 

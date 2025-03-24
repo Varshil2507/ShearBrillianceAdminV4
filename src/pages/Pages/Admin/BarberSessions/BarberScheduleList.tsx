@@ -40,6 +40,7 @@ import {
 } from "Services/barberService";
 import { cancelAppointment } from "Services/AppointmentService";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
+import { formatDateShort, formatTime } from "Components/Common/DateUtil";
 const today = format(new Date(), "yyyy-MM-dd");
 
 const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
@@ -224,27 +225,17 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     setFilteredData(filteredSchedules);
   }, [filteredSchedules]);
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    };
-    return date.toLocaleDateString("en-US", options);
-  };
 
-  const formatDateShort = (date: string | Date): string => {
-    const parsedDate = date instanceof Date ? date : new Date(date);
-    return parsedDate.toISOString().split("T")[0];
-  };
-  const formatTime = (time: string): string => {
-    const [hour, minute] = time.split(":").map(Number);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-  };
+  // const formatDateShort = (date: string | Date): string => {
+  //   const parsedDate = date instanceof Date ? date : new Date(date);
+  //   return parsedDate.toISOString().split("T")[0];
+  // };
+  // const formatTime = (time: string): string => {
+  //   const [hour, minute] = time.split(":").map(Number);
+  //   const ampm = hour >= 12 ? "PM" : "AM";
+  //   const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+  //   return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  // };
 
   const setScheduleData = (data: any, barberInfo: any, isAdd?: any) => {
     setIsAddNew(isAdd);

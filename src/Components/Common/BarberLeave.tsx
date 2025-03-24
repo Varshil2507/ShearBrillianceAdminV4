@@ -19,6 +19,7 @@ import * as Yup from "yup";
 import Flatpickr from "react-flatpickr";
 import { toast, ToastContainer } from "react-toastify"; // Import Toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for Toastify
+import {formatDate}  from  "./DateUtil"
 
 interface BarberLeaveModalProps {
   isOpen: boolean;
@@ -115,25 +116,25 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
     },
   });
 
-  const formatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
-    const date = new Date(dateString);
-    // Get the user's current timezone
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   // Get the user's current timezone
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      timeZone: userTimeZone, // Automatically adapts to the user's location
-    };
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     year: 'numeric',
+  //     month: '2-digit',
+  //     day: '2-digit',
+  //     timeZone: userTimeZone, // Automatically adapts to the user's location
+  //   };
 
-    // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
+  //   // Get formatted date
+  //   const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
 
-    // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, '-');
-  };
+  //   // Replace slashes with dashes to ensure YYYY-MM-DD format
+  //   return formattedDate.replace(/\//g, '-');
+  // };
 
 
   return (

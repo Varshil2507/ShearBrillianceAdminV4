@@ -28,6 +28,7 @@ import { fetchRequestedLeaves } from "../../../../Services/SalonLeaveSetvice"; /
 import { updateLeaveStatus } from "../../../../Services/LeaveStatusService"; // Import your API function
 import { cancelAppointment } from "Services/AppointmentService";
 import { fetchAvailableBarber, saveTransferAppointments } from "Services/barberService";
+import { formatDate, otherFormatDate } from "Components/Common/DateUtil";
 
 interface RequestedLeave {
   id: number;
@@ -166,39 +167,39 @@ const RequestedLeavesTable: React.FC = () => {
     setAppointmentId(appointment.id);
     toggleConfirmModal(); // Open the confirmation modal
   }
-  const otherFormatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
+  // const otherFormatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
 
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
+  //   const date = new Date(dateString);
+  //   if (isNaN(date.getTime())) return ""; // Return an empty string if date is invalid
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
-  };
+  //   return `${year}-${month}-${day}`;
+  // };
 
   // Helper function to format a date
-  const formatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
-    const date = new Date(dateString);
-    // Get the user's current timezone
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   // Get the user's current timezone
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      timeZone: userTimeZone, // Automatically adapts to the user's location
-    };
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     day: '2-digit',
+  //     month: '2-digit',
+  //     year: 'numeric',
+  //     timeZone: userTimeZone, // Automatically adapts to the user's location
+  //   };
 
-    // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
+  //   // Get formatted date
+  //   const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
 
-    // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, '-');
-  };
+  //   // Replace slashes with dashes to ensure YYYY-MM-DD format
+  //   return formattedDate.replace(/\//g, '-');
+  // };
   const handleStatusChange = (event: any) => {
     setUpdatedStatus(event.target.value); // Apply the selected status locally
     // You may also want to clear the deny reason when the status is approved

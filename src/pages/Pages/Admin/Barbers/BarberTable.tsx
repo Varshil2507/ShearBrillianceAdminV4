@@ -29,6 +29,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchServices } from "Services/Service";
+import {formatDate} from "Components/Common/DateUtil";
 
 // Define the User type based on your database structure
 interface Barber {
@@ -904,25 +905,25 @@ const BarberTable: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: any) => {
-    if (!dateString) return ""; // Return an empty string if dateString is invalid
-    const date = new Date(dateString);
-    // Get the user's current timezone
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const formatDate = (dateString: any) => {
+  //   if (!dateString) return ""; // Return an empty string if dateString is invalid
+  //   const date = new Date(dateString);
+  //   // Get the user's current timezone
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      timeZone: userTimeZone, // Automatically adapts to the user's location
-    };
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     year: 'numeric',
+  //     month: '2-digit',
+  //     day: '2-digit',
+  //     timeZone: userTimeZone, // Automatically adapts to the user's location
+  //   };
 
-    // Get formatted date
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
+  //   // Get formatted date
+  //   const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date); // en-CA ensures YYYY-MM-DD format
 
-    // Replace slashes with dashes to ensure YYYY-MM-DD format
-    return formattedDate.replace(/\//g, '-');
-  };
+  //   // Replace slashes with dashes to ensure YYYY-MM-DD format
+  //   return formattedDate.replace(/\//g, '-');
+  // };
 
   const formatHours = (timeString: string) => {
     const padZero = (num: number) => String(num).padStart(2, "0");
