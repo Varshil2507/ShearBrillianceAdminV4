@@ -513,7 +513,7 @@ const ServiceTable: React.FC = () => {
           data={serviceData}
           isGlobalFilter={false}
           totalItems={selectedTotalItems ?? 0}
-          customPageSize={10}
+          customPageSize={50}
           divClass="table-responsive table-card"
           SearchPlaceholder="Search..."
         />
