@@ -459,6 +459,7 @@ const SalonTable: React.FC = () => {
       fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
       toast.success("Salon added successfully!", { autoClose: 2000 });
       setShowSpinner(false);
+      formik.resetForm();
       toggleModal(); // Close the modal
     } catch (error: any) {
       let errorMessage = "Failed to add salon.";
@@ -538,6 +539,8 @@ const SalonTable: React.FC = () => {
 
       setShowSpinner(false);
       // Close the modal
+      formik.resetForm();
+
       toggleModal();
     } catch (error: any) {
       setShowSpinner(false);

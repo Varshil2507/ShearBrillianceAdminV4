@@ -27,8 +27,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { fetchRequestedLeaves } from "../../../../Services/SalonLeaveSetvice"; // Adjust the path as necessary
 import { updateLeaveStatus } from "../../../../Services/LeaveStatusService"; // Import your API function
 import { cancelAppointment } from "Services/AppointmentService";
-import { fetchAvailableBarber, saveTransferAppointments } from "Services/barberService";
-import { formatDate, otherFormatDate } from "Components/Common/DateUtil";
+import {
+  fetchAvailableBarber,
+  saveTransferAppointments,
+} from "Services/barberService";
+import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
 
 interface RequestedLeave {
   id: number;
@@ -55,8 +58,11 @@ export const REQUESTED_LEAVES_ENDPOINT = "/barber-leave/all";
 const RequestedLeavesTable: React.FC = () => {
   const [leaveData, setLeaveData] = useState<RequestedLeave[]>([]);
   const [showLoader, setShowLoader] = useState(true);
-  const [selectedLeave, setSelectedLeave] = useState<RequestedLeave | null>(null);
-  const [selectedBarberAppointment, setSelectedBarberAppointment] = useState<any>(null);
+  const [selectedLeave, setSelectedLeave] = useState<RequestedLeave | null>(
+    null
+  );
+  const [selectedBarberAppointment, setSelectedBarberAppointment] =
+    useState<any>(null);
   const [denyReason, setDenyReason] = useState<string>("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTransfer, setModalTransfer] = useState(false);
@@ -68,7 +74,8 @@ const RequestedLeavesTable: React.FC = () => {
   const [selectedStatus, setStatus] = useState<any>("pending");
   const [selectedUpdatedStatus, setUpdatedStatus] = useState<any>("pending");
   const [appointmentId, setAppointmentId] = useState<any>();
-  const [availableAppointmentBabrers, setAvailableAppointmentBabrers] = useState<any>();
+  const [availableAppointmentBabrers, setAvailableAppointmentBabrers] =
+    useState<any>();
   const [selectedAvailableBabrer, setSelectedAvailableBabrer] = useState<any>();
   const [selectedCurrentPage, setCurrentPage] = useState<any | null>(0);
   const [selectedTotalPages, setTotalPages] = useState<number | null>(0);
@@ -119,19 +126,18 @@ const RequestedLeavesTable: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     fetchrequestedLeaveData(
       1,
       selectedStartDate,
       selectedEndDate,
       selectedStatus,
-      " ",
+      " "
     ); // Trigger fetch with current page
   }, []); // Dependencies trigger re-fetch
 
   const handleDetailsClick = (leave: any) => {
-    const { start_date, end_date } = leave;
+    const { start_date, end_date, status, response_reason } = leave;
 
     // Check if both dates are the same or if end_date is missing
     if (!end_date || start_date === end_date) {
@@ -139,11 +145,17 @@ const RequestedLeavesTable: React.FC = () => {
     }
 
     // Otherwise, show the range
-    leave.selectedLeaveDate = `${formatDate(start_date)} To ${formatDate(end_date)}`;
+    leave.selectedLeaveDate = `${formatDate(start_date)} To ${formatDate(
+      end_date
+    )}`;
     setSelectedLeave(leave);
-    setStatus(leave?.status || "pending"); // Set status from leave or default to 'pending'
+    setUpdatedStatus("pending");
+    setDenyReason(status === "denied" ? response_reason || "" : "");
+
+    // setStatus(leave?.status || "pending"); // Set status from leave or default to 'pending'
     setModalOpen(true);
   };
+
 
   const handleAppointmentDetails = async (appointment: any) => {
     try {
@@ -166,7 +178,7 @@ const RequestedLeavesTable: React.FC = () => {
   const cancelAppointmentDetails = async (appointment: any) => {
     setAppointmentId(appointment.id);
     toggleConfirmModal(); // Open the confirmation modal
-  }
+  };
   // const otherFormatDate = (dateString: any) => {
   //   if (!dateString) return ""; // Return an empty string if dateString is invalid
 
@@ -209,7 +221,7 @@ const RequestedLeavesTable: React.FC = () => {
   };
   const handleDeny = () => {
     if (selectedLeave) {
-      setSelectedLeave({ ...selectedLeave, status: 'denied' });
+      setSelectedLeave({ ...selectedLeave, status: "denied" });
     }
   };
   // const handleApprove = async () => {
@@ -260,9 +272,10 @@ const RequestedLeavesTable: React.FC = () => {
           selectedStartDate,
           selectedEndDate,
           selectedStatus,
-          " ",
-        )
+          " "
+        );
         toast.success("Leave status updated successfully", { autoClose: 2000 });
+        
       } catch (error) {
         toast.error("Error submitting leave status");
         console.error("Error submitting leave status:", error);
@@ -273,10 +286,10 @@ const RequestedLeavesTable: React.FC = () => {
   };
 
   const formatTime = (time: string): string => {
-    const [hour, minute] = time.split(':').map(Number);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const [hour, minute] = time.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
     const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-    return `${formattedHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
   const columns = useMemo(
@@ -336,7 +349,7 @@ const RequestedLeavesTable: React.FC = () => {
         cell: ({ getValue }: { getValue: () => string }) => {
           const value = getValue();
           // Remove all non-alphabetic characters and convert to uppercase
-          return value.replace(/[^a-zA-Z\s]/g, ' ').toUpperCase();
+          return value.replace(/[^a-zA-Z\s]/g, " ").toUpperCase();
         },
       },
       {
@@ -349,8 +362,9 @@ const RequestedLeavesTable: React.FC = () => {
           row: { original: { start_time: string; end_time: string } };
         }) => {
           const { start_time, end_time } = row.original;
-          return `${start_time ? formatHours(start_time) : "-"} - ${end_time ? formatHours(end_time) : ""
-            }`;
+          return `${start_time ? formatHours(start_time) : "-"} - ${
+            end_time ? formatHours(end_time) : ""
+          }`;
         },
       },
       {
@@ -381,7 +395,7 @@ const RequestedLeavesTable: React.FC = () => {
             color="btn btn-sm btn-light"
             size="sm"
             onClick={() => handleDetailsClick(info.row.original)}
-            disabled={info.row.original.status !== 'pending'}
+            disabled={info.row.original.status !== "pending"}
           >
             Details
           </Button>
@@ -404,25 +418,25 @@ const RequestedLeavesTable: React.FC = () => {
     );
   };
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
+  // const formatHours = (timeString: string) => {
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
 
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString.split(":");
+  //   // Split the time string into hours, minutes, and seconds
+  //   const [hoursStr, minutesStr] = timeString.split(":");
 
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = parseInt(hoursStr, 10);
+  //   const minutes = padZero(parseInt(minutesStr, 10));
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
+  //   // Convert to 12-hour format
+  //   hours = hours % 12 || 12;
 
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
+  //   return `${padZero(hours)}:${minutes} ${ampm}`;
+  // };
 
   const toggleConfirmModal = () => {
     setConfirmModalOpen(!confirmModalOpen);
-  }
+  };
 
   const confirmAppointmentChange = async () => {
     try {
@@ -432,7 +446,11 @@ const RequestedLeavesTable: React.FC = () => {
         setAppointmentId(null);
         toggleConfirmModal(); // Close modal
         // Ensure selectedLeave and barber exist before modifying appointments
-        if (selectedLeave && selectedLeave.barber && selectedLeave.barber.appointments) {
+        if (
+          selectedLeave &&
+          selectedLeave.barber &&
+          selectedLeave.barber.appointments
+        ) {
           const updatedAppointments = selectedLeave.barber.appointments.filter(
             (appointment: any) => appointment.id !== appointmentId
           );
@@ -457,7 +475,6 @@ const RequestedLeavesTable: React.FC = () => {
   };
 
   const handleSearchText = (search: any) => {
-
     selectedSearch(search);
     if (search) {
       fetchrequestedLeaveData(
@@ -465,7 +482,7 @@ const RequestedLeavesTable: React.FC = () => {
         selectedStartDate,
         selectedEndDate,
         selectedStatus,
-        search,
+        search
       );
     } else {
       fetchrequestedLeaveData(
@@ -473,7 +490,7 @@ const RequestedLeavesTable: React.FC = () => {
         selectedStartDate,
         selectedEndDate,
         selectedStatus,
-        search,
+        search
       );
     }
 
@@ -482,21 +499,25 @@ const RequestedLeavesTable: React.FC = () => {
 
   const handleAvailableBarberChange = (event: any) => {
     setSelectedAvailableBabrer(event.target.value);
-  }
+  };
 
   const appointmentTransfer = async () => {
     try {
       setShowSpinner(true);
       const obj = {
         appointmentId: selectedBarberAppointment.id,
-        newBarberId: parseInt(selectedAvailableBabrer)
-      }
+        newBarberId: parseInt(selectedAvailableBabrer),
+      };
       const data = await saveTransferAppointments(obj);
       setShowSpinner(false);
       setModalTransfer(!modalTransfer);
       toast.success("Transfer barber successfully", { autoClose: 2000 });
       // Ensure selectedLeave and barber exist before modifying appointments
-      if (selectedLeave && selectedLeave.barber && selectedLeave.barber.appointments) {
+      if (
+        selectedLeave &&
+        selectedLeave.barber &&
+        selectedLeave.barber.appointments
+      ) {
         const updatedAppointments = selectedLeave.barber.appointments.filter(
           (appointment: any) => appointment.id !== selectedBarberAppointment.id
         );
@@ -524,7 +545,7 @@ const RequestedLeavesTable: React.FC = () => {
         toast.error(error.message || "Something went wrong");
       }
     }
-  }
+  };
 
   const handleFilterData = async (data: any) => {
     if (data) {
@@ -581,7 +602,13 @@ const RequestedLeavesTable: React.FC = () => {
 
       {/* Leave Details Modal */}
       {selectedLeave && (
-        <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)} centered backdrop="static" size="lg">
+        <Modal
+          isOpen={modalOpen}
+          toggle={() => setModalOpen(!modalOpen)}
+          centered
+          backdrop="static"
+          size="lg"
+        >
           <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
             Leave Details
           </ModalHeader>
@@ -590,14 +617,22 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Barber: <b className="text-muted"> {selectedLeave?.barber?.name} </b>
+                    Barber:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {selectedLeave?.barber?.name}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Salon: <b className="text-muted"> {selectedLeave?.barber?.salon?.name}</b>
+                    Salon:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {selectedLeave?.barber?.salon?.name}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -606,14 +641,19 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Reason: <b className="text-muted"> {selectedLeave?.reason} </b>
+                    Reason:{" "}
+                    <b className="text-muted"> {selectedLeave?.reason} </b>
                   </Label>
                 </div>
               </Col>
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Laeve Date: <b className="text-muted"> {selectedLeave?.selectedLeaveDate} </b>
+                    Laeve Date:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {selectedLeave?.selectedLeaveDate}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -701,10 +741,7 @@ const RequestedLeavesTable: React.FC = () => {
                         })
                       ) : (
                         <tr>
-                          <td
-                            colSpan={5}
-                            className="text-center py-3"
-                          >
+                          <td colSpan={5} className="text-center py-3">
                             No Data Available
                           </td>
                         </tr>
@@ -718,7 +755,10 @@ const RequestedLeavesTable: React.FC = () => {
                 <Button
                   color="success"
                   onClick={handleSubmit}
-                  disabled={selectedUpdatedStatus === "pending" || selectedLeave.barber.appointments?.length > 0} // Disable if status is not changed
+                  disabled={
+                    selectedUpdatedStatus === "pending" ||
+                    selectedLeave.barber.appointments?.length > 0
+                  } // Disable if status is not changed
                 >
                   Submit
                 </Button>
@@ -728,7 +768,13 @@ const RequestedLeavesTable: React.FC = () => {
         </Modal>
       )}
       {modalTransfer && (
-        <Modal isOpen={modalTransfer} toggle={() => setModalTransfer(!modalTransfer)} centered backdrop="static" size="lg">
+        <Modal
+          isOpen={modalTransfer}
+          toggle={() => setModalTransfer(!modalTransfer)}
+          centered
+          backdrop="static"
+          size="lg"
+        >
           <ModalHeader toggle={() => setModalTransfer(!modalTransfer)}>
             Transfer Appointment
           </ModalHeader>
@@ -737,7 +783,11 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Salon: <b className="text-muted"> {selectedLeave?.barber?.salon?.name}</b>
+                    Salon:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {selectedLeave?.barber?.salon?.name}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -745,7 +795,11 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Barber: <b className="text-muted"> {selectedLeave?.barber?.name} </b>
+                    Barber:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {selectedLeave?.barber?.name}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -754,7 +808,13 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Appointment Start Time: <b className="text-muted"> {formatTime(selectedBarberAppointment?.appointment_start_time)}</b>
+                    Appointment Start Time:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {formatTime(
+                        selectedBarberAppointment?.appointment_start_time
+                      )}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -762,7 +822,13 @@ const RequestedLeavesTable: React.FC = () => {
               <Col lg={6}>
                 <div>
                   <Label htmlFor="salon" className="form-label">
-                    Appointment End Time: <b className="text-muted"> {formatTime(selectedBarberAppointment?.appointment_end_time)} </b>
+                    Appointment End Time:{" "}
+                    <b className="text-muted">
+                      {" "}
+                      {formatTime(
+                        selectedBarberAppointment?.appointment_end_time
+                      )}{" "}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -782,11 +848,13 @@ const RequestedLeavesTable: React.FC = () => {
                       onChange={handleAvailableBarberChange}
                     >
                       <option value="">Select Barber</option>
-                      {availableAppointmentBabrers.availableBarbers.map((appointment: any, index: any) => (
-                        <option key={index} value={appointment.id}>
-                          {appointment.name}
-                        </option>
-                      ))}
+                      {availableAppointmentBabrers.availableBarbers.map(
+                        (appointment: any, index: any) => (
+                          <option key={index} value={appointment.id}>
+                            {appointment.name}
+                          </option>
+                        )
+                      )}
                     </Input>
                   ) : (
                     <p>No barber available</p>
@@ -832,12 +900,12 @@ const RequestedLeavesTable: React.FC = () => {
       <AppointmentConfirmationModal
         isOpen={confirmModalOpen}
         toggle={toggleConfirmModal}
-        onConfirm={confirmAppointmentChange}  // Pass the confirm function with appointmentId
-        status={''}
+        onConfirm={confirmAppointmentChange} // Pass the confirm function with appointmentId
+        status={""}
         isAppointment={true}
         isTransferBarber={false}
         isService={false}
-        appointmentId={appointmentId}  // Pass appointmentId to modal
+        appointmentId={appointmentId} // Pass appointmentId to modal
       />
       <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>

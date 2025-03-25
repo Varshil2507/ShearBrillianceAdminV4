@@ -53,7 +53,7 @@ import {
   getBarberSessionByBarber,
 } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
-import { fetchBarber } from "Services/barberService";
+import { deleteBarber, fetchBarber } from "Services/barberService";
 import { formatDateHours, formatHours } from "Components/Common/DateUtil";
 
 //Import Breadcrumb
@@ -1341,6 +1341,23 @@ const Board = () => {
         .catch((error) => {
           setShowAppointmentSpinner(false);
           console.error("Error creating appointment:", error);
+          // Check for the specific error code
+      if (error.response && error.response.status === 400) {
+        if (error.response.data.code === 400) {
+          toast.error(error.response.data.message, {
+            autoClose: 3000,
+          });
+        } else {
+          toast.error("Failed to create an appointment.", {
+            autoClose: 3000,
+          });
+        }
+      } else {
+        toast.error("Something went wrong. Please try again later.", {
+          autoClose: 3000,
+        });
+      }
+          
         });
     },
   });

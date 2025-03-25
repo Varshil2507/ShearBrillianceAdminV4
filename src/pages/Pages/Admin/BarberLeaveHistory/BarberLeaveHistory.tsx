@@ -14,7 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchLeaveHistory } from "../../../../Services/BarberLeaveHistoryService"; // Update the path to your service file
 import { Cell } from "@tanstack/react-table";
-import { formatDate, otherFormatDate } from "Components/Common/DateUtil";
+import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
 
 interface LeaveHistory {
   id: number;
@@ -224,21 +224,21 @@ const LeaveHistoryTable: React.FC = () => {
     []
   );
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
+  // const formatHours = (timeString: string) => {
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
 
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString.split(":");
+  //   // Split the time string into hours, minutes, and seconds
+  //   const [hoursStr, minutesStr] = timeString.split(":");
 
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = parseInt(hoursStr, 10);
+  //   const minutes = padZero(parseInt(minutesStr, 10));
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
+  //   // Convert to 12-hour format
+  //   hours = hours % 12 || 12;
 
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
+  //   return `${padZero(hours)}:${minutes} ${ampm}`;
+  // };
   const handleFilterData = async (data: any) => {
     if (data) {
       setStartDate(data.dateRange[0]);

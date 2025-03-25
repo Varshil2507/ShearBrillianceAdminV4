@@ -925,21 +925,6 @@ const BarberTable: React.FC = () => {
   //   return formattedDate.replace(/\//g, '-');
   // };
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
-
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString.split(":");
-
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
-
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
 
   const columns = useMemo(
     () => [
@@ -1010,43 +995,7 @@ const BarberTable: React.FC = () => {
         accessorKey: "position",
         enableColumnFilter: false,
       },
-      // {
-      //   header: "Available Time",
-      //   accessorKey: "availabe_time",
-      //   enableColumnFilter: false,
-      //   cell: ({ row }: { row: { original: { default_start_time: string; default_end_time: string } } }) => {
-      //     const { default_start_time, default_end_time } = row.original; // Access start_time and end_time
-      //     return `${default_start_time ? formatHours(default_start_time) : 'null'} - ${default_end_time ? formatHours(default_end_time) : 'null'}`; // Combine and display
-      //   },
-      // },
-      // {
-      //   header: "Color Code",
-      //   accessorKey: "background_color",
-      //   enableColumnFilter: false,
-
-      //   cell: (cell: { getValue: () => number; row: { original: Barber } }) => (
-      //     <div
-      //       style={{
-      //         backgroundColor: cell.row.original.background_color,
-      //         height: "20px",
-      //         width: "50px",
-      //       }}
-      //     >
-      //     </div>
-      //   ),
-      // },
-      // {
-      //   header: "Cutting Since",
-      //   accessorKey: "cutting_since",
-      //   enableColumnFilter: false,
-      //   cell: (cell: { getValue: () => string }) => formatDate(cell.getValue()),
-      // },
-      // {
-      //   header: "Join Date",
-      //   accessorKey: "organization_join_date",
-      //   enableColumnFilter: false,
-      //   cell: (cell: { getValue: () => string }) => formatDate(cell.getValue()),
-      // },
+     
       {
         header: "Actions",
         accessorKey: "id",

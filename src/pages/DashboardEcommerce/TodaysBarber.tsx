@@ -9,6 +9,7 @@ import { getTodaysBarber } from "Services/BarberSessionService";
 import TableContainer from "Components/Common/TableContainer";
 import Profile from "../../assets/images/users/avatar-8.jpg";
 import Loader from "Components/Common/Loader";
+import { formatHours } from "Components/Common/DateUtil";
 
 const TodaysBarber = (props: any) => {
   const [salonBarberData, setSalonBarberData] = useState<any>(); // Barbers filtered by selected salon
@@ -62,21 +63,21 @@ const TodaysBarber = (props: any) => {
     getAvailableBarber(); // Fetch barbers when the component mounts
   }, []);
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
+  // const formatHours = (timeString: string) => {
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
 
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString.split(":");
+  //   // Split the time string into hours, minutes, and seconds
+  //   const [hoursStr, minutesStr] = timeString.split(":");
 
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = parseInt(hoursStr, 10);
+  //   const minutes = padZero(parseInt(minutesStr, 10));
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
+  //   // Convert to 12-hour format
+  //   hours = hours % 12 || 12;
 
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
+  //   return `${padZero(hours)}:${minutes} ${ampm}`;
+  // };
 
   return (
     <React.Fragment>
