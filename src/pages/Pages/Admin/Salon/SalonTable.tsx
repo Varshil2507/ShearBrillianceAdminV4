@@ -26,6 +26,7 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Loader from "Components/Common/Loader";
+import { formatTime } from "Components/Common/DateUtil";
 // Define the Salon type based on your database structure
 interface Salon {
   id: number;
@@ -111,17 +112,17 @@ const SalonTable: React.FC = () => {
     }
   };
 
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
-    const date = new Date();
-    date.setHours(hour, minute);
+  // const formatTime = (time: string) => {
+  //   const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
+  //   const date = new Date();
+  //   date.setHours(hour, minute);
 
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }).format(date); // Format as 'hh:mm AM/PM'
-  };
+  //   return new Intl.DateTimeFormat("en-US", {
+  //     hour: "numeric",
+  //     minute: "numeric",
+  //     hour12: true,
+  //   }).format(date); // Format as 'hh:mm AM/PM'
+  // };
 
   const columns = useMemo(
     () => [

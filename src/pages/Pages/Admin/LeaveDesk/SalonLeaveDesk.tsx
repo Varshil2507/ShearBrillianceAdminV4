@@ -31,7 +31,7 @@ import {
   fetchAvailableBarber,
   saveTransferAppointments,
 } from "Services/barberService";
-import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
+import { formatDate, formatHours, formatTime, otherFormatDate } from "Components/Common/DateUtil";
 
 interface RequestedLeave {
   id: number;
@@ -285,12 +285,12 @@ const RequestedLeavesTable: React.FC = () => {
     }
   };
 
-  const formatTime = (time: string): string => {
-    const [hour, minute] = time.split(":").map(Number);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-  };
+  // const formatTime = (time: string): string => {
+  //   const [hour, minute] = time.split(":").map(Number);
+  //   const ampm = hour >= 12 ? "PM" : "AM";
+  //   const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+  //   return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  // };
 
   const columns = useMemo(
     () => [

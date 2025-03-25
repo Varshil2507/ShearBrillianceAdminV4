@@ -29,6 +29,7 @@ import { fetchBarber } from "Services/barberService";
 import { fetchBarberSession } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
 import BarberScheduleList from "./BarberScheduleList";
+import { formatHours, formatTime } from "Components/Common/DateUtil";
 
 
 const BarberSessionsTable: React.FC = () => {
@@ -107,21 +108,21 @@ const BarberSessionsTable: React.FC = () => {
     // salon: object | null; // Add this line
   }
 
-  const formatHours = (timeString: string) => {
-    const padZero = (num: number) => String(num).padStart(2, "0");
+  // const formatHours = (timeString: string) => {
+  //   const padZero = (num: number) => String(num).padStart(2, "0");
 
-    // Split the time string into hours, minutes, and seconds
-    const [hoursStr, minutesStr] = timeString.split(":");
+  //   // Split the time string into hours, minutes, and seconds
+  //   const [hoursStr, minutesStr] = timeString.split(":");
 
-    let hours = parseInt(hoursStr, 10);
-    const minutes = padZero(parseInt(minutesStr, 10));
-    const ampm = hours >= 12 ? "PM" : "AM";
+  //   let hours = parseInt(hoursStr, 10);
+  //   const minutes = padZero(parseInt(minutesStr, 10));
+  //   const ampm = hours >= 12 ? "PM" : "AM";
 
-    // Convert to 12-hour format
-    hours = hours % 12 || 12;
+  //   // Convert to 12-hour format
+  //   hours = hours % 12 || 12;
 
-    return `${padZero(hours)}:${minutes} ${ampm}`;
-  };
+  //   return `${padZero(hours)}:${minutes} ${ampm}`;
+  // };
 
   useEffect(() => {
 
@@ -175,17 +176,17 @@ const BarberSessionsTable: React.FC = () => {
     setOpenPlusIcon(openPlusIcon === id ? "" : id);
   };
 
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
-    const date = new Date();
-    date.setHours(hour, minute);
+  // const formatTime = (time: string) => {
+  //   const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
+  //   const date = new Date();
+  //   date.setHours(hour, minute);
 
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }).format(date); // Format as 'hh:mm AM/PM'
-  };
+  //   return new Intl.DateTimeFormat("en-US", {
+  //     hour: "numeric",
+  //     minute: "numeric",
+  //     hour12: true,
+  //   }).format(date); // Format as 'hh:mm AM/PM'
+  // };
   
   // Convert time string "HH:mm" to a Date object for proper comparison
   const parseTime = (time: any) => {

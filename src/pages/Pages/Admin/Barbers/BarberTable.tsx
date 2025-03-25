@@ -29,7 +29,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchServices } from "Services/Service";
-import {formatDate} from "Components/Common/DateUtil";
+import { formatDate, formatTime } from "Components/Common/DateUtil";
 
 // Define the User type based on your database structure
 interface Barber {
@@ -101,11 +101,14 @@ const BarberTable: React.FC = () => {
   const [selectedSalonOpenTime, setSalonOpenTime] = useState<any>(null); // State for the user to delete
   const [selectedSalonCloseTime, setSalonCloseTime] = useState<any>(null); // State for the user to delete
   const [selectedSalonOpenTimeAMPM, setSalonOpenTimeAMPM] = useState<any>(null); // State for the user to delete
-  const [selectedSalonCloseTimeAMPM, setSalonCloseTimeAMPM] = useState<any>(null); // State for the user to delete
+  const [selectedSalonCloseTimeAMPM, setSalonCloseTimeAMPM] =
+    useState<any>(null); // State for the user to delete
 
   const [selectedSalonId, setSelectedSalonId] = useState<number>();
   const [selectedOption, setSelectedOption] = useState<any | null>(null);
-  const [selectedPositionOption, setSelectedPositionOption] = useState<any | null>(null);
+  const [selectedPositionOption, setSelectedPositionOption] = useState<
+    any | null
+  >(null);
   const [passwordShow, setPasswordShow] = useState(false);
   const selectedSalonOpenTimeRef = useRef<any>(null);
   const selectedSalonCloseTimeRef = useRef<any>(null);
@@ -121,9 +124,23 @@ const BarberTable: React.FC = () => {
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [selectedDays, setSelectedDays] = useState<OptionType[]>([]);
   const [errors, setErrors] = useState<Record<number, string>>({}); // To track errors for each service
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
   const [schedule, setSchedule] = useState(
-    daysOfWeek.map(day => ({ day, isChecked: false, startTime: '', endTime: '', isReadonly: false }))
+    daysOfWeek.map((day) => ({
+      day,
+      isChecked: false,
+      startTime: "",
+      endTime: "",
+      isReadonly: false,
+    }))
   );
   const authTUser = localStorage.getItem("authUser");
   let storeUserInfo: any;
@@ -137,13 +154,13 @@ const BarberTable: React.FC = () => {
   }
 
   const days = [
-    { value: 1, label: 'Monday' },
-    { value: 2, label: 'Tuesday' },
-    { value: 3, label: 'Wednesday' },
-    { value: 4, label: 'Thursday' },
-    { value: 5, label: 'Friday' },
-    { value: 6, label: 'Saturday' },
-    { value: 7, label: 'Sunday' },
+    { value: 1, label: "Monday" },
+    { value: 2, label: "Tuesday" },
+    { value: 3, label: "Wednesday" },
+    { value: 4, label: "Thursday" },
+    { value: 5, label: "Friday" },
+    { value: 6, label: "Saturday" },
+    { value: 7, label: "Sunday" },
   ];
 
   // Get today's date in 'YYYY-MM-DD' format
@@ -155,17 +172,20 @@ const BarberTable: React.FC = () => {
   const toggleModal = () => {
     setModal(!modal);
     formik.resetForm();
-  }
+  };
 
   // Toggle modal visibility
   const closeModal = () => {
     setIsEditing(false);
     setSelectedDays([]);
     toggleModal();
-  }
+  };
 
   useEffect(() => {
-    if (storeRoleInfo.role_name === "Salon Manager" || storeRoleInfo.role_name === "Salon Owner") {
+    if (
+      storeRoleInfo.role_name === "Salon Manager" ||
+      storeRoleInfo.role_name === "Salon Owner"
+    ) {
       setSelectedSalonId(storeUserInfo.salon.id);
       formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
     }
@@ -174,7 +194,10 @@ const BarberTable: React.FC = () => {
         const response: any = await fetchSalons(1, null, null);
         setSalonData(response?.salons);
 
-        fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+        fetchBarbersList(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null
+        );
       } catch (error: any) {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
@@ -187,16 +210,17 @@ const BarberTable: React.FC = () => {
       }
     };
 
-
     fetchServiceList();
     fetchSalonsList();
   }, []);
 
   const fetchBarbersList = async (page: any, search: any) => {
-
     try {
-
-      const response: any = await fetchBarber(page === 0 ? 1 : page, limit, search ?? null);
+      const response: any = await fetchBarber(
+        page === 0 ? 1 : page,
+        limit,
+        search ?? null
+      );
       setTotalItems(response?.totalItems);
       setTotalPages(response?.totalPages);
       const barbers = response.barbers.map((barber: any) => {
@@ -225,12 +249,14 @@ const BarberTable: React.FC = () => {
         toast.error(error.message || "Something went wrong");
       }
     }
-  }
+  };
 
   const fetchServiceList = async () => {
     try {
       const response: any = await fetchServices();
-      const activeServiceData = response.filter((serv: any) => serv.isActive === true);
+      const activeServiceData = response.filter(
+        (serv: any) => serv.isActive === true
+      );
       setServiceData(activeServiceData);
       if (activeServiceData?.length > 0) {
         // Initialize barberServices with default state
@@ -268,64 +294,75 @@ const BarberTable: React.FC = () => {
     const updatedSchedule = [...schedule];
     updatedSchedule[index].isChecked = !updatedSchedule[index].isChecked;
     if (!updatedSchedule[index].isChecked) {
-      updatedSchedule[index].startTime = '';
-      updatedSchedule[index].endTime = '';
+      updatedSchedule[index].startTime = "";
+      updatedSchedule[index].endTime = "";
       updatedSchedule[index].isReadonly = false;
     }
     setSchedule(updatedSchedule);
   };
 
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
-    const date = new Date();
-    date.setHours(hour, minute);
+  // const formatTime = (time: string) => {
+  //   const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
+  //   const date = new Date();
+  //   date.setHours(hour, minute);
 
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    }).format(date); // Format as 'hh:mm AM/PM'
-  };
-  const handleTimeChange = (index: number, type: 'startTime' | 'endTime', value: string) => {
+  //   return new Intl.DateTimeFormat("en-US", {
+  //     hour: "numeric",
+  //     minute: "numeric",
+  //     hour12: true,
+  //   }).format(date); // Format as 'hh:mm AM/PM'
+  // };
+  const handleTimeChange = (
+    index: number,
+    type: "startTime" | "endTime",
+    value: string
+  ) => {
     const updatedSchedule = [...schedule];
     updatedSchedule[index][type] = value;
     setSchedule(updatedSchedule);
   };
 
-
   const validateStartTime = (startTime: any, endTime: any, index: any) => {
-    if (startTime && (startTime < selectedSalonOpenTime || startTime > selectedSalonCloseTime)) {
-      toast.error(`Start time must be later than ${selectedSalonOpenTimeAMPM} and later than end time`, {
-        autoClose: 3000,
-      });
+    if (
+      startTime &&
+      (startTime < selectedSalonOpenTime || startTime > selectedSalonCloseTime)
+    ) {
+      toast.error(
+        `Start time must be later than ${selectedSalonOpenTimeAMPM} and later than end time`,
+        {
+          autoClose: 3000,
+        }
+      );
       // Optionally reset invalid time back to a valid value
       const updatedSchedule = [...schedule];
-      updatedSchedule[index].startTime = '';
+      updatedSchedule[index].startTime = "";
       setSchedule(updatedSchedule);
     }
   };
 
   const validateEndTime = (endTime: any, startTime: any, index: any) => {
     if (endTime && (endTime > selectedSalonCloseTime || endTime < startTime)) {
-      toast.error(`End time must be earlier than ${selectedSalonCloseTimeAMPM} and later than start time`, {
-        autoClose: 3000,
-      });
+      toast.error(
+        `End time must be earlier than ${selectedSalonCloseTimeAMPM} and later than start time`,
+        {
+          autoClose: 3000,
+        }
+      );
       // Optionally reset invalid time back to a valid value
       const updatedSchedule = [...schedule];
-      updatedSchedule[index].endTime = '';
+      updatedSchedule[index].endTime = "";
       setSchedule(updatedSchedule);
     }
   };
 
   const handleTimeBlur = (index: any, timeType: any) => {
     const dayItem = schedule[index];
-    if (timeType === 'startTime') {
+    if (timeType === "startTime") {
       validateStartTime(dayItem.startTime, dayItem.endTime, index);
-    } else if (timeType === 'endTime') {
+    } else if (timeType === "endTime") {
       validateEndTime(dayItem.endTime, dayItem.startTime, index);
     }
   };
-
 
   const handlePhoneChange = (e: any) => {
     // Remove non-digit characters and limit to 10 digits
@@ -371,9 +408,17 @@ const BarberTable: React.FC = () => {
     setErrors((prev) => {
       const updatedErrors = { ...prev };
       if (numericValue === null || numericValue <= 0) {
-        updatedErrors[serviceId] = "Price is required and must be greater than 0";
-      } else if (numericValue < serviceMinPrice || numericValue > serviceMaxPrice) {
-        updatedErrors[serviceId] = "set price must be in between $" + serviceMinPrice + " - $" + serviceMaxPrice;;
+        updatedErrors[serviceId] =
+          "Price is required and must be greater than 0";
+      } else if (
+        numericValue < serviceMinPrice ||
+        numericValue > serviceMaxPrice
+      ) {
+        updatedErrors[serviceId] =
+          "set price must be in between $" +
+          serviceMinPrice +
+          " - $" +
+          serviceMaxPrice;
       } else {
         delete updatedErrors[serviceId];
       }
@@ -395,18 +440,27 @@ const BarberTable: React.FC = () => {
 
   const handleDayChange = (selectedOptions: any) => {
     setSelectedDays(selectedOptions);
-    let updatedSchedule = schedule.map(item => ({
+    let updatedSchedule = schedule.map((item) => ({
       ...item,
-      isChecked: true, // Reset all checkboxes 
+      isChecked: true, // Reset all checkboxes
       startTime: selectedSalonOpenTime,
-      endTime: selectedSalonCloseTime, isReadonly: false
+      endTime: selectedSalonCloseTime,
+      isReadonly: false,
     }));
 
     setSchedule(updatedSchedule); // Ensure to update the state
-    updatedSchedule = updatedSchedule.map(item => {
+    updatedSchedule = updatedSchedule.map((item) => {
       // If the day is selected, set the startTime and endTime to null
-      if (selectedOptions.some((selected: any) => selected.label === item.day)) {
-        return { ...item, isChecked: false, startTime: '', endTime: '', isReadonly: true };
+      if (
+        selectedOptions.some((selected: any) => selected.label === item.day)
+      ) {
+        return {
+          ...item,
+          isChecked: false,
+          startTime: "",
+          endTime: "",
+          isReadonly: true,
+        };
       } else {
         return { ...item, isReadonly: false };
       }
@@ -426,7 +480,6 @@ const BarberTable: React.FC = () => {
     //   }
     //   return item;
     // });
-
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -452,12 +505,13 @@ const BarberTable: React.FC = () => {
       event.preventDefault();
     }
   };
-  const emailValidationRegex = /^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]{3,}\.[a-zA-Z]{2,}$/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const emailValidationRegex =
+    /^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]{3,}\.[a-zA-Z]{2,}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const barberSchema = (isEdit = false) =>
     Yup.object().shape({
-      firstname: Yup.string()
-        .required("First name is required"), // Add this line
+      firstname: Yup.string().required("First name is required"), // Add this line
       lastname: Yup.string().required("Last name is required"), // Add this line
       mobile_number: Yup.string()
         .matches(
@@ -466,14 +520,19 @@ const BarberTable: React.FC = () => {
         ) // Validation for digits only
         .required("Mobile number is required"), // Add this line
       email: isEdit
-        ? Yup.string() : Yup.string().matches(emailValidationRegex, "Enter valid email!!")
-          .email("Invalid email format")
-          .required("Email is required"),
+        ? Yup.string()
+        : Yup.string()
+            .matches(emailValidationRegex, "Enter valid email!!")
+            .email("Invalid email format")
+            .required("Email is required"),
       password: isEdit
         ? Yup.string()
         : Yup.string()
-          .matches(passwordRegex, "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!")
-          .required("Password is required"), // Add this line
+            .matches(
+              passwordRegex,
+              "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
+            )
+            .required("Password is required"), // Add this line
       // address: Yup.string().required("Address is required"), // Add this line
       availability_status: Yup.string().required("Status is required"),
       // created_at: Yup.date().required("Creation date is required"),
@@ -486,7 +545,6 @@ const BarberTable: React.FC = () => {
       position: Yup.string().required("Position is required"),
     });
 
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -498,8 +556,12 @@ const BarberTable: React.FC = () => {
       address: newBarber?.user?.address || "",
       password: newBarber?.user?.password ?? "",
       availability_status: newBarber?.availability_status || "",
-      cutting_since: newBarber?.cutting_since ? new Date(newBarber.cutting_since).toISOString().split("T")[0] : "",
-      organization_join_date: newBarber?.organization_join_date ? new Date(newBarber.organization_join_date).toISOString().split("T")[0] : "",
+      cutting_since: newBarber?.cutting_since
+        ? new Date(newBarber.cutting_since).toISOString().split("T")[0]
+        : "",
+      organization_join_date: newBarber?.organization_join_date
+        ? new Date(newBarber.organization_join_date).toISOString().split("T")[0]
+        : "",
       photo: newBarber?.photo ?? Profile,
       SalonId: newBarber?.SalonId ?? "",
       category: newBarber?.category ?? "",
@@ -511,15 +573,19 @@ const BarberTable: React.FC = () => {
     onSubmit: (values) => {
       setShowSpinner(true);
       // e.preventDefault();
-      const valid = schedule.every(item => {
+      const valid = schedule.every((item) => {
         if (item.isChecked) {
-          return item.startTime && item.endTime && item.startTime < item.endTime;
+          return (
+            item.startTime && item.endTime && item.startTime < item.endTime
+          );
         }
         return true;
       });
 
       if (!valid) {
-        alert('Please ensure start time is before end time and both are selected.');
+        alert(
+          "Please ensure start time is before end time and both are selected."
+        );
         return;
       }
 
@@ -530,11 +596,14 @@ const BarberTable: React.FC = () => {
 
       // Validate required fields before saving
       barberServices.forEach((service) => {
-        const matchedService = serviceData.find((s: any) => s.id === service.ServiceId);
+        const matchedService = serviceData.find(
+          (s: any) => s.id === service.ServiceId
+        );
         if (service.isChecked) {
           // Check for empty or invalid price
           if (!service.price || parseFloat(service.price) <= 0) {
-            newErrors[service.ServiceId] = "Price is required and must be greater than 0";
+            newErrors[service.ServiceId] =
+              "Price is required and must be greater than 0";
             setShowSpinner(false);
           }
           // Check if price is below minPrice or above maxPrice
@@ -543,8 +612,9 @@ const BarberTable: React.FC = () => {
             (parseFloat(service.price) < matchedService.min_price || // Compare directly with min_price
               parseFloat(service.price) > matchedService.max_price) // Compare directly with max_price
           ) {
-            newErrors[service.ServiceId] = `Price must be between ${matchedService.min_price
-              } and ${matchedService.max_price}`;
+            newErrors[
+              service.ServiceId
+            ] = `Price must be between ${matchedService.min_price} and ${matchedService.max_price}`;
             setShowSpinner(false);
           }
         }
@@ -553,14 +623,18 @@ const BarberTable: React.FC = () => {
       setErrors(newErrors);
       if (Object.keys(newErrors).length === 0) {
         // Proceed with the appropriate action
-        const assignedServices = barberServices.filter((service) => service.isChecked);
+        const assignedServices = barberServices.filter(
+          (service) => service.isChecked
+        );
 
         // Create new array with only ServiceId and Price properties
         const transformedServices = assignedServices.map((service) => ({
           ServiceId: service.ServiceId,
           price: service.price || 0, // Default to 0 if customPrice is null
         }));
-        values.servicesWithPrices = transformedServices ? JSON.stringify(transformedServices) : '';
+        values.servicesWithPrices = transformedServices
+          ? JSON.stringify(transformedServices)
+          : "";
         if (values.id !== null) {
           handleUpdateBarber(values.id, values);
         } else {
@@ -573,13 +647,15 @@ const BarberTable: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
-        e.target.value = ''; // Clear the file input
+        toast.error(
+          "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
+        );
+        e.target.value = ""; // Clear the file input
       }
     }
   };
@@ -600,7 +676,8 @@ const BarberTable: React.FC = () => {
     } else {
       fetchBarbersList(
         selectedCurrentPage ? selectedCurrentPage + 1 : 1,
-        search);
+        search
+      );
     }
     // Handle page change logic here
   };
@@ -610,15 +687,18 @@ const BarberTable: React.FC = () => {
       const formData = new FormData();
       // Transform data to expected JSON format
       const checkedSchedule = schedule.filter((item) => item.isChecked); // Only keep checked items
-      const formattedSchedule = checkedSchedule.reduce((acc: any, item: any) => {
-        acc[item.day.toLowerCase()] = item.isChecked
-          ? { start_time: item.startTime, end_time: item.endTime }
-          : { start_time: null, end_time: null };
-        return acc;
-      }, {});
+      const formattedSchedule = checkedSchedule.reduce(
+        (acc: any, item: any) => {
+          acc[item.day.toLowerCase()] = item.isChecked
+            ? { start_time: item.startTime, end_time: item.endTime }
+            : { start_time: null, end_time: null };
+          return acc;
+        },
+        {}
+      );
       // Prepare the selected days for form submission
       const selectedValues = selectedDays.map((option: any) => option.value);
-      const selectedDaysString = selectedValues.join(','); // Convert array to comma-separated string
+      const selectedDaysString = selectedValues.join(","); // Convert array to comma-separated string
       // Append form values to FormData
       // formData.append("photo", selectedImage || Profile);
       formData.append("firstname", values.firstname);
@@ -629,7 +709,10 @@ const BarberTable: React.FC = () => {
       formData.append("password", values.password);
       formData.append("availability_status", values.availability_status);
       formData.append("cutting_since", values.cutting_since || "");
-      formData.append("organization_join_date", values.organization_join_date || "");
+      formData.append(
+        "organization_join_date",
+        values.organization_join_date || ""
+      );
       formData.append("background_color", values.background_color);
       formData.append("servicesWithPrices", values.servicesWithPrices);
       formData.append("weekly_schedule", JSON.stringify(formattedSchedule));
@@ -641,7 +724,7 @@ const BarberTable: React.FC = () => {
       // if (selectedImage instanceof File) {
       //   formData.append("photo", selectedImage);
       // }
-      formData.append("SalonId", (values.SalonId).toString());
+      formData.append("SalonId", values.SalonId.toString());
 
       // API call to add barber
       const newAdded = await addBarber(formData);
@@ -650,7 +733,10 @@ const BarberTable: React.FC = () => {
         const message = "Barber added successfully.";
         toast.success(message, { autoClose: 2000 });
         setShowSpinner(false);
-        fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+        fetchBarbersList(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null
+        );
 
         toggleModal();
         setSelectedDays([]);
@@ -673,7 +759,6 @@ const BarberTable: React.FC = () => {
         // Fallback for other types of errors
         toast.error(error.message || "Something went wrong");
       }
-
     }
   };
 
@@ -703,14 +788,17 @@ const BarberTable: React.FC = () => {
       const formData = new FormData();
       // Prepare the selected days for form submission
       const checkedSchedule = schedule.filter((item) => item.isChecked); // Only keep checked items
-      const formattedSchedule = checkedSchedule.reduce((acc: any, item: any) => {
-        acc[item.day.toLowerCase()] = item.isChecked
-          ? { start_time: item.startTime, end_time: item.endTime }
-          : { start_time: null, end_time: null };
-        return acc;
-      }, {});
+      const formattedSchedule = checkedSchedule.reduce(
+        (acc: any, item: any) => {
+          acc[item.day.toLowerCase()] = item.isChecked
+            ? { start_time: item.startTime, end_time: item.endTime }
+            : { start_time: null, end_time: null };
+          return acc;
+        },
+        {}
+      );
       const selectedValues = selectedDays.map((option: any) => option.value);
-      const selectedDaysString = selectedValues.join(','); // Convert array to comma-separated string
+      const selectedDaysString = selectedValues.join(","); // Convert array to comma-separated string
       formData.append("photo", selectedImage ?? Profile); // If a new image is selected
       formData.append("id", updatedBarberData.id.toString());
       formData.append("firstname", updatedBarberData.firstname);
@@ -722,18 +810,24 @@ const BarberTable: React.FC = () => {
       formData.append("category", updatedBarberData.category);
       formData.append("position", updatedBarberData.position);
       formData.append("background_color", updatedBarberData.background_color);
-      formData.append("servicesWithPrices", updatedBarberData.servicesWithPrices);
+      formData.append(
+        "servicesWithPrices",
+        updatedBarberData.servicesWithPrices
+      );
       formData.append(
         "availability_status",
         updatedBarberData.availability_status
       );
-      formData.append("cutting_since", formatDate(updatedBarberData.cutting_since));
-      formData.append("organization_join_date", formatDate(updatedBarberData.organization_join_date));
-      formData.append("weekly_schedule", JSON.stringify(formattedSchedule));
       formData.append(
-        "SalonId",
-        (updatedBarberData.SalonId).toString()
+        "cutting_since",
+        formatDate(updatedBarberData.cutting_since)
       );
+      formData.append(
+        "organization_join_date",
+        formatDate(updatedBarberData.organization_join_date)
+      );
+      formData.append("weekly_schedule", JSON.stringify(formattedSchedule));
+      formData.append("SalonId", updatedBarberData.SalonId.toString());
       formData.append("non_working_days", selectedDaysString ?? null); // If a new image is selected
 
       await updateBarber(id, formData);
@@ -742,7 +836,7 @@ const BarberTable: React.FC = () => {
 
       setShowSpinner(false);
       fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-      // 
+      //
       toggleModal();
       setSelectedDays([]);
       setIsEditing(false);
@@ -778,7 +872,9 @@ const BarberTable: React.FC = () => {
   const parseTime = (time: any) => {
     if (!time) return null;
     const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
-    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+    return `${hour.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Set user data for editing
@@ -789,43 +885,90 @@ const BarberTable: React.FC = () => {
       isChecked: false,
     }));
     setBarberServices(initialBarberServices);
-    setSchedule(daysOfWeek.map(day => ({ day, isChecked: false, startTime: '', endTime: '', isReadonly: false })));
+    setSchedule(
+      daysOfWeek.map((day) => ({
+        day,
+        isChecked: false,
+        startTime: "",
+        endTime: "",
+        isReadonly: false,
+      }))
+    );
     setSalonOpenTime(null);
     setSalonCloseTime(null);
     setSalonOpenTimeAMPM(null);
     setSalonCloseTimeAMPM(null);
     setSelectedSalonId(barber.SalonId);
     formik.setFieldValue("SalonId", barber.SalonId);
-    const salonInfo = salonData.find((salon: any) => salon.salon_id === barber.SalonId);
-    const openTime: any = salonInfo ? parseTime(salonInfo.salon.open_time) : null;
-    const closeTime: any = salonInfo ? parseTime(salonInfo.salon.close_time) : null;
+    const salonInfo = salonData.find(
+      (salon: any) => salon.salon_id === barber.SalonId
+    );
+    const openTime: any = salonInfo
+      ? parseTime(salonInfo.salon.open_time)
+      : null;
+    const closeTime: any = salonInfo
+      ? parseTime(salonInfo.salon.close_time)
+      : null;
     setSalonOpenTime(openTime);
     setSalonCloseTime(closeTime);
-    setSalonOpenTimeAMPM(salonInfo ? formatTime(salonInfo.salon.open_time) : null);
-    setSalonCloseTimeAMPM(salonInfo ? formatTime(salonInfo.salon.close_time) : null);
+    setSalonOpenTimeAMPM(
+      salonInfo ? formatTime(salonInfo.salon.open_time) : null
+    );
+    setSalonCloseTimeAMPM(
+      salonInfo ? formatTime(salonInfo.salon.close_time) : null
+    );
     if (barber.weekly_schedule) {
       // Convert object to an array format
-      const scheduleArray = Object.keys(barber.weekly_schedule).map((day: any) => ({
-        day,
-        isChecked: true, // Assuming all days are checked, modify as needed
-        startTime: barber.weekly_schedule[day].start_time,
-        endTime: barber.weekly_schedule[day].end_time
-      }));
+      const scheduleArray = Object.keys(barber.weekly_schedule).map(
+        (day: any) => ({
+          day,
+          isChecked: true, // Assuming all days are checked, modify as needed
+          startTime: barber.weekly_schedule[day].start_time,
+          endTime: barber.weekly_schedule[day].end_time,
+        })
+      );
       // Use reduce to format as required
 
       let updatedSchedule = [...schedule];
-      updatedSchedule = schedule.map(item => {
+      updatedSchedule = schedule.map((item) => {
         // If the day is selected, set the startTime and endTime to null
-        if (scheduleArray.some((selected: any) => selected.day.toLowerCase() === item.day.toLowerCase())) {
-          const info = scheduleArray.find((selected: any) => selected.day.toLowerCase() === item.day.toLowerCase());
+        if (
+          scheduleArray.some(
+            (selected: any) =>
+              selected.day.toLowerCase() === item.day.toLowerCase()
+          )
+        ) {
+          const info = scheduleArray.find(
+            (selected: any) =>
+              selected.day.toLowerCase() === item.day.toLowerCase()
+          );
 
           // Filter days to get non-working days
-          const nonWorkingDaysData = days.filter(day => barber.non_working_days.includes(day.value));
+          const nonWorkingDaysData = days.filter((day) =>
+            barber.non_working_days.includes(day.value)
+          );
           if (info) {
-            if (nonWorkingDaysData.some((selected: any) => selected.label.toLowerCase() !== info.day.toLowerCase())) {
-              return { ...item, isChecked: true, startTime: info ? info.startTime : '', endTime: info ? info.endTime : '', isReadonly: false };
+            if (
+              nonWorkingDaysData.some(
+                (selected: any) =>
+                  selected.label.toLowerCase() !== info.day.toLowerCase()
+              )
+            ) {
+              return {
+                ...item,
+                isChecked: true,
+                startTime: info ? info.startTime : "",
+                endTime: info ? info.endTime : "",
+                isReadonly: false,
+              };
             } else {
-              return { ...item, isChecked: false, startTime: '', endTime: '', isReadonly: true };
+              return {
+                ...item,
+                isChecked: false,
+                startTime: "",
+                endTime: "",
+                isReadonly: true,
+              };
             }
           }
         } else {
@@ -843,7 +986,6 @@ const BarberTable: React.FC = () => {
     // setSalonOpenTimeAMPM(salonInfo ? formatTime(salonInfo.salon.open_time) : null);
     // setSalonCloseTimeAMPM(salonInfo ? formatTime(salonInfo.salon.close_time) : null);
 
-
     // updatedSchedule = schedule.map(item => {
     //   if ()
     //     return { ...item, isChecked: true, startTime: openTime, endTime: closeTime, isReadonly: false };
@@ -859,13 +1001,15 @@ const BarberTable: React.FC = () => {
               : service
           )
         );
-      })
+      });
     }
     if (barber.non_working_days && barber.non_working_days.length > 0) {
-      const selectedDaysList = barber.non_working_days.map((day: any) => {
-        const dayObj = days.find((d) => d.value === day);
-        return dayObj ? { value: dayObj.value, label: dayObj.label } : null;
-      }).filter(Boolean) as OptionType[]; // Filter out any null values
+      const selectedDaysList = barber.non_working_days
+        .map((day: any) => {
+          const dayObj = days.find((d) => d.value === day);
+          return dayObj ? { value: dayObj.value, label: dayObj.label } : null;
+        })
+        .filter(Boolean) as OptionType[]; // Filter out any null values
       setSelectedDays(selectedDaysList);
     }
     setSelectedImage(barber.photo ?? Profile); // Use user's profile image or default
@@ -888,7 +1032,10 @@ const BarberTable: React.FC = () => {
 
         toast.success("Barber deleted successfully", { autoClose: 2000 });
         setShowSpinner(false);
-        fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+        fetchBarbersList(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null
+        );
         setDeleteModal(false); // Close the delete confirmation modal
         setSelectedBarber(null); // Reset selected user ID
       } catch (error: any) {
@@ -925,7 +1072,6 @@ const BarberTable: React.FC = () => {
   //   return formattedDate.replace(/\//g, '-');
   // };
 
-
   const columns = useMemo(
     () => [
       {
@@ -955,7 +1101,7 @@ const BarberTable: React.FC = () => {
         header: "Status",
         accessorKey: "availability_status",
         enableColumnFilter: false,
-        cell: (cell: { getValue: () => number; row: { original: Barber } }) => (
+        cell: (cell: { getValue: () => number; row: { original: Barber } }) =>
           cell.row.original.availability_status === "available" ? (
             <span
               className="btn btn-info cursor-auto"
@@ -974,8 +1120,7 @@ const BarberTable: React.FC = () => {
             >
               Unavailable
             </span>
-          )
-        ),
+          ),
       },
       // {
       //   header: "Last Name",
@@ -987,7 +1132,7 @@ const BarberTable: React.FC = () => {
         accessorKey: "category",
         enableColumnFilter: false,
         cell: (cell: { getValue: () => number }) => (
-          <span> {cell.getValue() === 2 ? 'Walk-In' : 'Appointment'} </span>
+          <span> {cell.getValue() === 2 ? "Walk-In" : "Appointment"} </span>
         ),
       },
       {
@@ -995,7 +1140,7 @@ const BarberTable: React.FC = () => {
         accessorKey: "position",
         enableColumnFilter: false,
       },
-     
+
       {
         header: "Actions",
         accessorKey: "id",
@@ -1027,7 +1172,15 @@ const BarberTable: React.FC = () => {
 
   const handleAddButtonClick = () => {
     setNewBarber(null);
-    setSchedule(daysOfWeek.map(day => ({ day, isChecked: false, startTime: '', endTime: '', isReadonly: false })));
+    setSchedule(
+      daysOfWeek.map((day) => ({
+        day,
+        isChecked: false,
+        startTime: "",
+        endTime: "",
+        isReadonly: false,
+      }))
+    );
     const initialBarberServices = serviceData.map((service: any) => ({
       ServiceId: service.id,
       price: null,
@@ -1043,26 +1196,43 @@ const BarberTable: React.FC = () => {
   };
 
   const setSalonInformation = () => {
-    if (storeRoleInfo.role_name === "Salon Manager" || storeRoleInfo.role_name === "Salon Owner") {
+    if (
+      storeRoleInfo.role_name === "Salon Manager" ||
+      storeRoleInfo.role_name === "Salon Owner"
+    ) {
       setSelectedSalonId(storeUserInfo.salon.id);
       formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
-      const openTime: any = storeUserInfo ? parseTime(storeUserInfo.salon.open_time) : null;
-      const closeTime: any = storeUserInfo ? parseTime(storeUserInfo.salon.close_time) : null;
+      const openTime: any = storeUserInfo
+        ? parseTime(storeUserInfo.salon.open_time)
+        : null;
+      const closeTime: any = storeUserInfo
+        ? parseTime(storeUserInfo.salon.close_time)
+        : null;
       selectedSalonOpenTimeRef.current = openTime;
       selectedSalonCloseTimeRef.current = closeTime;
-      selectedSalonOpenTimeAMPMRef.current = storeUserInfo.salon ? formatTime(storeUserInfo.salon.open_time) : null;
-      selectedSalonCloseTimeAMPMRef.current = storeUserInfo.salon ? formatTime(storeUserInfo.salon.close_time) : null;
+      selectedSalonOpenTimeAMPMRef.current = storeUserInfo.salon
+        ? formatTime(storeUserInfo.salon.open_time)
+        : null;
+      selectedSalonCloseTimeAMPMRef.current = storeUserInfo.salon
+        ? formatTime(storeUserInfo.salon.close_time)
+        : null;
       setSalonOpenTime(openTime);
       setSalonCloseTime(closeTime);
       setSalonOpenTimeAMPM(selectedSalonOpenTimeAMPMRef.current);
       setSalonCloseTimeAMPM(selectedSalonCloseTimeAMPMRef.current);
       let updatedSchedule = [...schedule];
-      updatedSchedule = schedule.map(item => {
-        return { ...item, isChecked: true, startTime: openTime, endTime: closeTime, isReadonly: false };
+      updatedSchedule = schedule.map((item) => {
+        return {
+          ...item,
+          isChecked: true,
+          startTime: openTime,
+          endTime: closeTime,
+          isReadonly: false,
+        };
       });
       setSchedule(updatedSchedule);
     }
-  }
+  };
   const toggleDeleteModal = () => {
     setDeleteModal(!deleteModal); // Toggle the delete modal visibility
   };
@@ -1076,16 +1246,32 @@ const BarberTable: React.FC = () => {
     if (event.target.value) {
       const salonId = Number(event.target.value);
       formik.setFieldValue("SalonId", salonId);
-      const salonInfo = salonData.find((salon: any) => salon.salon_id === salonId);
-      const openTime: any = salonInfo ? parseTime(salonInfo.salon.open_time) : null;
-      const closeTime: any = salonInfo ? parseTime(salonInfo.salon.close_time) : null;
+      const salonInfo = salonData.find(
+        (salon: any) => salon.salon_id === salonId
+      );
+      const openTime: any = salonInfo
+        ? parseTime(salonInfo.salon.open_time)
+        : null;
+      const closeTime: any = salonInfo
+        ? parseTime(salonInfo.salon.close_time)
+        : null;
       setSalonOpenTime(openTime);
       setSalonCloseTime(closeTime);
-      setSalonOpenTimeAMPM(salonInfo ? formatTime(salonInfo.salon.open_time) : null);
-      setSalonCloseTimeAMPM(salonInfo ? formatTime(salonInfo.salon.close_time) : null);
+      setSalonOpenTimeAMPM(
+        salonInfo ? formatTime(salonInfo.salon.open_time) : null
+      );
+      setSalonCloseTimeAMPM(
+        salonInfo ? formatTime(salonInfo.salon.close_time) : null
+      );
       let updatedSchedule = [...schedule];
-      updatedSchedule = schedule.map(item => {
-        return { ...item, isChecked: true, startTime: openTime, endTime: closeTime, isReadonly: false };
+      updatedSchedule = schedule.map((item) => {
+        return {
+          ...item,
+          isChecked: true,
+          startTime: openTime,
+          endTime: closeTime,
+          isReadonly: false,
+        };
       });
       setSchedule(updatedSchedule);
       // setSelectedSalonId(salonId);
@@ -1202,8 +1388,8 @@ const BarberTable: React.FC = () => {
                             selectedImage instanceof File
                               ? URL.createObjectURL(selectedImage)
                               : newBarber?.photo
-                                ? newBarber?.photo
-                                : Profile
+                              ? newBarber?.photo
+                              : Profile
                           }
                           alt="Profile"
                           className="img-fluid"
@@ -1285,35 +1471,35 @@ const BarberTable: React.FC = () => {
               </Col>
 
               {/* Salon ID */}
-              {storeRoleInfo.role_name !== "Salon Manager" && storeRoleInfo.role_name !== "Salon Owner" && (
-                <Col lg={4}>
-                  <div className="mb-3">
-                    <Label htmlFor="salon" className="form-label">
-                      Salon Name
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={formik.values.SalonId}
-                      onChange={handleSalonChange}
-                    >
-                      <option value="">Select a salon</option>
-                      {salonData.map((salon) => (
-                        <option key={salon.salon_id} value={salon.salon_id}>
-                          {salon.salon_name}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.SalonId &&
-                      formik.errors.SalonId && (
+              {storeRoleInfo.role_name !== "Salon Manager" &&
+                storeRoleInfo.role_name !== "Salon Owner" && (
+                  <Col lg={4}>
+                    <div className="mb-3">
+                      <Label htmlFor="salon" className="form-label">
+                        Salon Name
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={formik.values.SalonId}
+                        onChange={handleSalonChange}
+                      >
+                        <option value="">Select a salon</option>
+                        {salonData.map((salon) => (
+                          <option key={salon.salon_id} value={salon.salon_id}>
+                            {salon.salon_name}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.SalonId && formik.errors.SalonId && (
                         <div className="invalid-feedback">
                           {typeof formik.errors.SalonId === "string"
                             ? formik.errors.SalonId
                             : ""}
                         </div>
                       )}
-                  </div>
-                </Col>
-              )}
+                    </div>
+                  </Col>
+                )}
 
               {/* Email */}
               <Col lg={4}>
@@ -1357,10 +1543,11 @@ const BarberTable: React.FC = () => {
                     <div className="position-relative auth-pass-inputgroup mb-3">
                       <Input
                         type={passwordShow ? "text" : "password"}
-                        className={`form-control ${formik.touched.password && formik.errors.password
-                          ? "is-invalid"
-                          : ""
-                          }`}
+                        className={`form-control ${
+                          formik.touched.password && formik.errors.password
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         id="password"
                         placeholder="Enter your password"
                         value={formik.values.password}
@@ -1404,7 +1591,7 @@ const BarberTable: React.FC = () => {
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.mobile_number &&
-                        formik.errors.mobile_number
+                      formik.errors.mobile_number
                         ? "is-invalid"
                         : ""
                     }
@@ -1432,7 +1619,7 @@ const BarberTable: React.FC = () => {
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.availability_status &&
-                        formik.errors.availability_status
+                      formik.errors.availability_status
                         ? "is-invalid"
                         : ""
                     }
@@ -1463,8 +1650,7 @@ const BarberTable: React.FC = () => {
                     onChange={handleCategoryChange}
                     onBlur={formik.handleBlur}
                     className={
-                      formik.touched.category &&
-                        formik.errors.category
+                      formik.touched.category && formik.errors.category
                         ? "is-invalid"
                         : ""
                     }
@@ -1473,14 +1659,13 @@ const BarberTable: React.FC = () => {
                     <option value="1">Appointment</option>
                     <option value="2">Walk-In</option>
                   </Input>
-                  {formik.touched.category &&
-                    formik.errors.category && (
-                      <div className="invalid-feedback">
-                        {typeof formik.errors.category === "string"
-                          ? formik.errors.category
-                          : ""}
-                      </div>
-                    )}
+                  {formik.touched.category && formik.errors.category && (
+                    <div className="invalid-feedback">
+                      {typeof formik.errors.category === "string"
+                        ? formik.errors.category
+                        : ""}
+                    </div>
+                  )}
                 </div>
               </Col>
 
@@ -1496,8 +1681,7 @@ const BarberTable: React.FC = () => {
                     onChange={handlePositionChange}
                     onBlur={formik.handleBlur}
                     className={
-                      formik.touched.position &&
-                        formik.errors.position
+                      formik.touched.position && formik.errors.position
                         ? "is-invalid"
                         : ""
                     }
@@ -1511,14 +1695,13 @@ const BarberTable: React.FC = () => {
                     <option value="Trainee">Trainee</option>
                     <option value="Student">Student</option>
                   </Input>
-                  {formik.touched.position &&
-                    formik.errors.position && (
-                      <div className="invalid-feedback">
-                        {typeof formik.errors.position === "string"
-                          ? formik.errors.position
-                          : ""}
-                      </div>
-                    )}
+                  {formik.touched.position && formik.errors.position && (
+                    <div className="invalid-feedback">
+                      {typeof formik.errors.position === "string"
+                        ? formik.errors.position
+                        : ""}
+                    </div>
+                  )}
                 </div>
               </Col>
               <Col lg={4}>
@@ -1535,7 +1718,7 @@ const BarberTable: React.FC = () => {
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.background_color &&
-                        formik.errors.background_color
+                      formik.errors.background_color
                         ? "is-invalid"
                         : ""
                     }
@@ -1566,7 +1749,7 @@ const BarberTable: React.FC = () => {
                     max={today} // Disable future dates
                     className={
                       formik.touched.cutting_since &&
-                        formik.errors.cutting_since
+                      formik.errors.cutting_since
                         ? "is-invalid"
                         : ""
                     }
@@ -1600,7 +1783,7 @@ const BarberTable: React.FC = () => {
                     max={today} // Disable future dates
                     className={
                       formik.touched.organization_join_date &&
-                        formik.errors.organization_join_date
+                      formik.errors.organization_join_date
                         ? "is-invalid"
                         : ""
                     }
@@ -1609,7 +1792,7 @@ const BarberTable: React.FC = () => {
                     formik.errors.organization_join_date && (
                       <div className="invalid-feedback">
                         {typeof formik.errors.organization_join_date ===
-                          "string"
+                        "string"
                           ? formik.errors.organization_join_date
                           : ""}
                       </div>
@@ -1633,10 +1816,12 @@ const BarberTable: React.FC = () => {
                     styles={customStyles} // Apply custom styles
                     onChange={handleDayChange}
                     getOptionLabel={(e: any) => (
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
                         <input
                           type="checkbox"
-                          checked={selectedDays.some((day: any) => day.value === e.value)}
+                          checked={selectedDays.some(
+                            (day: any) => day.value === e.value
+                          )}
                           readOnly
                         />
                         &nbsp; {e.label}
@@ -1673,13 +1858,44 @@ const BarberTable: React.FC = () => {
             </Row>
             <Row className="mt-4 align-items-center">
               <Col xs={6}>
-                <h5 className="text-center">Weekly Schedule <span className="text-success"> (Salon time: {selectedSalonOpenTimeAMPMRef.current ? selectedSalonOpenTimeAMPMRef.current : selectedSalonOpenTimeAMPM} - {selectedSalonCloseTimeAMPMRef.current ? selectedSalonCloseTimeAMPMRef.current : selectedSalonCloseTimeAMPM})</span></h5>
+                <h5 className="text-center">
+                  Weekly Schedule{" "}
+                  <span className="text-success">
+                    {" "}
+                    (Salon time:{" "}
+                    {selectedSalonOpenTimeAMPMRef.current
+                      ? selectedSalonOpenTimeAMPMRef.current
+                      : selectedSalonOpenTimeAMPM}{" "}
+                    -{" "}
+                    {selectedSalonCloseTimeAMPMRef.current
+                      ? selectedSalonCloseTimeAMPMRef.current
+                      : selectedSalonCloseTimeAMPM}
+                    )
+                  </span>
+                </h5>
               </Col>
               <Col xs={6}>
-                <p className="badge bg-warning text-wrap text-start" style={{ lineHeight: "1.5", fontSize: "14px" }}><span style={{ fontSize: "16px", fontWeight: 800 }}>Note: </span>If you change the non-working day from the below weekday list, then you can select a day from the Non-Working Days dropdown. Also, the changed weekly schedule will apply from next week.</p>
+                <p
+                  className="badge bg-warning text-wrap text-start"
+                  style={{ lineHeight: "1.5", fontSize: "14px" }}
+                >
+                  <span style={{ fontSize: "16px", fontWeight: 800 }}>
+                    Note:{" "}
+                  </span>
+                  If you change the non-working day from the below weekday list,
+                  then you can select a day from the Non-Working Days dropdown.
+                  Also, the changed weekly schedule will apply from next week.
+                </p>
               </Col>
               {schedule.map((dayItem, index) => (
-                <Col lg={3} md={4} sm={6} xs={12} key={dayItem.day} className="mb-4">
+                <Col
+                  lg={3}
+                  md={4}
+                  sm={6}
+                  xs={12}
+                  key={dayItem.day}
+                  className="mb-4"
+                >
                   <div className="d-flex flex-column align-items-start p-3 border rounded shadow-sm">
                     <div className="d-flex justify-content-between w-100">
                       <div className="d-flex align-items-center">
@@ -1698,8 +1914,14 @@ const BarberTable: React.FC = () => {
                           <Input
                             type="time"
                             value={dayItem.startTime}
-                            onChange={e => handleTimeChange(index, 'startTime', e.target.value)}
-                            onBlur={() => handleTimeBlur(index, 'startTime')}
+                            onChange={(e) =>
+                              handleTimeChange(
+                                index,
+                                "startTime",
+                                e.target.value
+                              )
+                            }
+                            onBlur={() => handleTimeBlur(index, "startTime")}
                             disabled={dayItem.isReadonly}
                             required
                             className="form-control form-control-sm"
@@ -1709,14 +1931,17 @@ const BarberTable: React.FC = () => {
                           <Input
                             type="time"
                             value={dayItem.endTime}
-                            onChange={e => handleTimeChange(index, 'endTime', e.target.value)}
-                            onBlur={() => handleTimeBlur(index, 'endTime')}
+                            onChange={(e) =>
+                              handleTimeChange(index, "endTime", e.target.value)
+                            }
+                            onBlur={() => handleTimeBlur(index, "endTime")}
                             disabled={dayItem.isReadonly}
                             required
                             className="form-control form-control-sm"
                           />
                         </div>
                       </div>
+                    ) : (
                       // <div className="d-flex flex-column gap-2 mt-3 w-100">
                       //   <div className="d-flex gap-2 flex-md-wrap flex-sm-wrap flex-lg-nowrap flex-xl-nowrap flex-xxl-nowrap w-100">
                       //     <Input
@@ -1740,13 +1965,13 @@ const BarberTable: React.FC = () => {
                       //   </div>
                       // </div>
 
-                    ) : (
-                      <p className="text-muted text-center mb-0 mt-2">Unavailable</p>
+                      <p className="text-muted text-center mb-0 mt-2">
+                        Unavailable
+                      </p>
                     )}
                   </div>
                 </Col>
-              )
-              )}
+              ))}
             </Row>
             <div className="mt-4">
               <h5>Assign Services</h5>
@@ -1779,7 +2004,6 @@ const BarberTable: React.FC = () => {
                           <td>{service.description}</td>
                           <td>
                             <div className="flex flex-col items-end">
-
                               <div className="input-group">
                                 <span className="input-group-text">$</span>
                                 <input
@@ -1793,12 +2017,22 @@ const BarberTable: React.FC = () => {
                                     setBarberServices((prev) =>
                                       prev.map((barberService) =>
                                         barberService.ServiceId === service.id // Use serviceId instead of id
-                                          ? { ...barberService, price: value ? parseFloat(value) : null }
+                                          ? {
+                                              ...barberService,
+                                              price: value
+                                                ? parseFloat(value)
+                                                : null,
+                                            }
                                           : barberService
                                       )
                                     );
                                   }}
-                                  onBlur={(e) => handlepriceChange(service.id, e.target.value)} // Validation and formatting on blur
+                                  onBlur={(e) =>
+                                    handlepriceChange(
+                                      service.id,
+                                      e.target.value
+                                    )
+                                  } // Validation and formatting on blur
                                   disabled={!barberService?.isChecked}
                                   placeholder="Enter custom price"
                                 />
@@ -1816,7 +2050,13 @@ const BarberTable: React.FC = () => {
                   </tbody>
                 </table>
               ) : (
-                <p style={{ textAlign: "center", color: "grey", marginTop: "20px" }}>
+                <p
+                  style={{
+                    textAlign: "center",
+                    color: "grey",
+                    marginTop: "20px",
+                  }}
+                >
                   No Data Found
                 </p>
               )}
@@ -1826,16 +2066,14 @@ const BarberTable: React.FC = () => {
               <Button color="light" onClick={closeModal}>
                 Cancel
               </Button>
-              <Button type="submit" color="success" className="ms-2"
-                disabled={
-                  showSpinner || !formik.values.SalonId
-                } // Disable button when loader is active
+              <Button
+                type="submit"
+                color="success"
+                className="ms-2"
+                disabled={showSpinner || !formik.values.SalonId} // Disable button when loader is active
               >
                 {showSpinner && (
-                  <Spinner
-                    size="sm"
-                    className="me-2"
-                  >
+                  <Spinner size="sm" className="me-2">
                     Loading...
                   </Spinner>
                 )}
@@ -1854,7 +2092,7 @@ const BarberTable: React.FC = () => {
           selectedBarber !== null ? selectedBarber.name.toString() : undefined
         }
         subTitle="the barber"
-      // Convert to string or undefined
+        // Convert to string or undefined
       />
       <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>

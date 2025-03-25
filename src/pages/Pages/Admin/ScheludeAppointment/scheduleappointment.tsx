@@ -35,6 +35,7 @@ import { addDays, isAfter, isBefore, isSameDay, parse } from "date-fns";
 import SelectBarberModal from "../../../../Components/Common/SelectedServiceModal"; // Import the modal
 import config from "config";
 import "./Scheduleappointment.css"
+import { formatTime } from "Components/Common/DateUtil";
 
 interface Service {
   id: number;
@@ -1072,18 +1073,18 @@ const Scheduleappointment = () => {
   };
 
   // ---------------------------------
-  function formatTime(time: string) {
-    const [hours, minutes] = time.split(":").map(Number); // Split time and convert to number
-    const date = new Date();
-    date.setHours(hours);
-    date.setMinutes(minutes);
+  // function formatTime(time: string) {
+  //   const [hours, minutes] = time.split(":").map(Number); // Split time and convert to number
+  //   const date = new Date();
+  //   date.setHours(hours);
+  //   date.setMinutes(minutes);
 
-    return date.toLocaleString("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-  }
+  //   return date.toLocaleString("en-US", {
+  //     hour: "numeric",
+  //     minute: "numeric",
+  //     hour12: true,
+  //   });
+  // }
 
   const timeSlot = (slot: any) => {
     if (Array.isArray(slot)) {

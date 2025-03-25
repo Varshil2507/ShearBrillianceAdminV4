@@ -34,11 +34,16 @@ export const formatDateShort = (date: string | Date): string => {
   return parsedDate.toISOString().split("T")[0];
 };
 
-export const formatTime = (time: string): string => {
-  const [hour, minute] = time.split(":").map(Number);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
-  return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+export  const formatTime = (time: string) => {
+  const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
+  const date = new Date();
+  date.setHours(hour, minute);
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date); // Format as 'hh:mm AM/PM'
 };
 
 export  const formatDateHours = (dateString: string): string => {
