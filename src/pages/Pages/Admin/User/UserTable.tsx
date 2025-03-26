@@ -88,7 +88,6 @@ const UserTable: React.FC = () => {
   // const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
   const [selectedSalonId, setSelectedSalonId] = useState<number>();
 
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedRoleId, setSelectedRoleId] = useState<any>();
   const [isEditing, setIsEditing] = useState(false); // Track if we are editing
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
@@ -98,6 +97,9 @@ const UserTable: React.FC = () => {
   const [selectedCurrentPage, setCurrentPage] = useState<number | null>(0);
   const [selectedTotalItems, setTotalItems] = useState<number | null>(null);
   const [selectedTotalPages, setTotalPages] = useState<number | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [userSelectedRole, setUserSelectedRole] = useState<any>(null);
+
   const limit = 10; // Items per page
   const userRole = localStorage.getItem("userRole");
   let storeRoleInfo: any;
@@ -160,43 +162,44 @@ const UserTable: React.FC = () => {
     fetchRoleList();
   }, []);
 
-  const getUsers = async (page: any, search: any) => {
+  const getUsers = async (page: any, search: any, role?: string) => {
     try {
+      debugger;
       const response: any = await fetchUsers(
         null,
         "user",
         page === 0 ? 1 : page,
         limit,
-        search ?? null
+        search ?? null,
+        role ?? undefined // ✅ Use undefined instead of null
       );
-      // setCurrentPage(response?.currentPage ? parseInt(response?.currentPage) : 1);
+
       setTotalItems(response?.totalItems);
       setTotalPages(response?.totalPages);
-      const users = response.users.map((usr: any) => {
-        usr.fullname = usr.firstname + " " + usr.lastname;
-        return usr;
-      });
+
+      const users = response.users.map((usr: any) => ({
+        ...usr,
+        fullname: `${usr.firstname} ${usr.lastname}`,
+      }));
+
       setUserData(users);
-      if (userData?.length === 0) {
+
+      if (users.length === 0) {
         const timer = setTimeout(() => {
           setShowLoader(false);
-        }, 500); // Hide loader after 5 seconds
-        return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
+        }, 500);
+        return () => clearTimeout(timer);
       } else {
-        setShowLoader(false); // Immediately hide loader if data is available
+        setShowLoader(false);
       }
     } catch (error: any) {
-      // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
-        const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        toast.error(error.response.data.message || "An error occurred");
       } else {
-        // Fallback for other types of errors
         toast.error(error.message || "Something went wrong");
       }
     }
   };
-
   const handlePhoneChange = (e: any) => {
     // Remove non-digit characters and limit to 10 digits
     const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -265,17 +268,17 @@ const UserTable: React.FC = () => {
       email: isEdit
         ? Yup.string()
         : Yup.string()
-          .matches(emailValidationRegex, "Enter valid email!!")
-          .email("Invalid email")
-          .required("Email is required"),
+            .matches(emailValidationRegex, "Enter valid email!!")
+            .email("Invalid email")
+            .required("Email is required"),
       password: isEdit
         ? Yup.string()
         : Yup.string()
-          .matches(
-            passwordRegex,
-            "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
-          )
-          .required("Password is required"),
+            .matches(
+              passwordRegex,
+              "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
+            )
+            .required("Password is required"),
       RoleId: Yup.string().required("Role ID is required"),
       salonId:
         selectedRole?.role_name !== "Salon Manager"
@@ -314,39 +317,18 @@ const UserTable: React.FC = () => {
       }
     },
   });
-
-  // // Search functionality
-  // const searchList = (searchTerm: string) => {
-  //   const filtered = userData.filter(
-  //     (user) =>
-  //       user.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       user.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       user.username.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
-  //   setFilteredData(filtered);
-  // };
-
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setSelectedImage(reader.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
-        e.target.value = ''; // Clear the file input
+        toast.error(
+          "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
+        );
+        e.target.value = ""; // Clear the file input
       }
       // formik.setFieldValue('profile_photo', file);
     }
@@ -356,16 +338,20 @@ const UserTable: React.FC = () => {
     const total = pageIndex + 1;
     setCurrentPage(pageIndex);
     setShowLoader(true);
-    getUsers(total, selectedSearchText);
+    getUsers(total, selectedSearchText, userSelectedRole);
     // Handle page change logic here
   };
 
   const handleSearchText = (search: any) => {
     selectedSearch(search);
     if (search) {
-      getUsers(1, search);
+      getUsers(1, search, userSelectedRole);
     } else {
-      getUsers(selectedCurrentPage ? selectedCurrentPage + 1 : 1, search);
+      getUsers(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        search,
+        userSelectedRole
+      );
     }
     // Handle page change logic here
   };
@@ -403,7 +389,11 @@ const UserTable: React.FC = () => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
       //   return usr;
       // })
-      getUsers(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+      getUsers(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        null,
+        userSelectedRole
+      );
       // setUserData((prevData) => [...prevData, tempUser]);
       setShowSpinner(false);
       // fetchUsers(null, 'user', 1, 100);
@@ -423,6 +413,7 @@ const UserTable: React.FC = () => {
   };
 
   const handleUpdateUser = async (id: number, updatedUserData: any) => {
+    debugger;
     try {
       const formData = new FormData();
 
@@ -446,30 +437,20 @@ const UserTable: React.FC = () => {
       formData.append("email", updatedUserData.email);
       formData.append("mobile_number", updatedUserData.mobile_number);
       formData.append("password", updatedUserData.password);
-
-      // for (const key in updatedUserData) {
-      //   if (updatedUserData[key] !== undefined) {
-      //     formData.append(key, updatedUserData[key]);
-      //   }
-      // }
-
       await updateUser(id, formData);
 
       toast.success("User updated successfully", { autoClose: 2000 });
-      const updatedUsers = await fetchUsers(
-        null,
-        "user",
-        1,
-        limit,
-        selectedSearchText
-      );
       // const users = updatedUsers.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
       //   return usr;
       // })
       // // Make sure updatedUsers is of type User[]
       // setUserData(users); // Ensure this matches User[] type
-      getUsers(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+      getUsers(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        null,
+        userSelectedRole
+      );
       setShowSpinner(false);
       toggleModal(); // Close the modal
     } catch (error: any) {
@@ -490,7 +471,11 @@ const UserTable: React.FC = () => {
     setSelectedSalonId(user.salonId);
     setSelectedRoleId(user.RoleId);
     const selectedRoleData = roleData.find((role) => role.id === user.RoleId);
-    if (selectedRoleData) {
+    if (
+      selectedRoleData &&
+      (user.role?.role_name !== "Barber" ||
+        user.role?.role_name !== "Salon Owner")
+    ) {
       selectedRoleData.requiresSalonId = true; // Assign value only if selectedRoleData is defined
     } else {
       // Handle case where selectedRoleData is undefined, if necessary
@@ -501,6 +486,7 @@ const UserTable: React.FC = () => {
     setIsEditing(true); // Toggle edit mode
     toggleModal(); // Open the modal for editing
   };
+
   // Delete user function
   const handleDeleteUser = async () => {
     setShowSpinner(true);
@@ -512,7 +498,11 @@ const UserTable: React.FC = () => {
         setUserData((prevData) =>
           prevData.filter((user) => user.id !== selectedUser.id)
         );
-        getUsers(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+        getUsers(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null,
+          userSelectedRole
+        );
         toast.success("User deleted successfully", { autoClose: 2000 });
         setShowSpinner(false);
         setDeleteModal(false); // Close the delete confirmation modal
@@ -602,11 +592,29 @@ const UserTable: React.FC = () => {
               }}
               onClick={() => handleEditUser(cell.row.original)} // Pass the entire user object
             ></i>
-            <i
+            {/* <i
               className=" ri-delete-bin-fill"
               style={{ cursor: "pointer", color: "grey", fontSize: "20px" }}
               onClick={() => onClickDelete(cell.row.original)} // Pass the user ID
-            ></i>
+            ></i> */}
+            {/* Delete Icon - Hide or Disable for Admin */}
+            {userSelectedRole !== "Admin" ? (
+              <i
+                className="ri-delete-bin-fill"
+                style={{ cursor: "pointer", color: "grey", fontSize: "20px" }}
+                onClick={() => onClickDelete(cell.row.original)} // Pass the user object
+              ></i>
+            ) : (
+              <i
+                className="ri-delete-bin-fill"
+                style={{
+                  color: "lightgrey",
+                  fontSize: "20px",
+                  cursor: "not-allowed",
+                  opacity: 0.5,
+                }}
+              ></i>
+            )}
           </div>
         ),
       },
@@ -640,6 +648,7 @@ const UserTable: React.FC = () => {
   };
 
   const handleRoleChange = (event: any) => {
+    debugger;
     if (event.target.value) {
       // const roleId = Number(event.target.value);
       const roleId = event.target.value;
@@ -671,25 +680,96 @@ const UserTable: React.FC = () => {
     } else {
       formik.setFieldValue("RoleId", null);
       setSelectedRoleId(null);
-      setSelectedRole(null);
     }
     // Perform any additional logic here based on the selected option
   };
 
   return (
     <React.Fragment>
-      <Row className="g-2 mb-4">
+      <Row>
+        {/* User Management Title */}
         <Col sm={4}>
           <div className="d-flex justify-content-between mb-4">
             <h5>User Management</h5>
           </div>
         </Col>
-        <Col className="col-sm-auto ms-auto align-botto">
+
+        {/* Add User Button */}
+        <Col className="col-sm-auto ms-auto align-bottom">
           <div className="list-grid-nav hstack gap-3">
             <Button color="success" onClick={handleAddButtonClick}>
               <i className="ri-add-fill me-1 align-bottom"></i> Add User
             </Button>
           </div>
+        </Col>
+      </Row>
+
+      {/* Filter Buttons BELOW Search Bar */}
+      <Row className="mb-3">
+        <Col sm={12} className="d-flex justify-content-center">
+          <ul className="nav nav-pills">
+            <li className="nav-item">
+              <Button
+                color={userSelectedRole === null ? "primary" : "light"}
+                onClick={() => {
+                  setUserSelectedRole(null);
+                  getUsers(1, selectedSearchText, undefined); // Fetch all users
+                }}
+              >
+                <i className="ri-group-fill me-1"></i> All
+              </Button>
+            </li>
+
+            <li className="nav-item">
+              <Button
+                color={userSelectedRole === "Admin" ? "primary" : "light"}
+                onClick={() => {
+                  setUserSelectedRole("Admin");
+                  getUsers(1, selectedSearchText, "Admin"); // Fetch only Admins
+                }}
+              >
+                <i className="ri-admin-fill me-1"></i> Admin
+              </Button>
+            </li>
+
+            <li className="nav-item">
+              <Button
+                color={
+                  userSelectedRole === "Salon Manager" ? "primary" : "light"
+                }
+                onClick={() => {
+                  setUserSelectedRole("Salon Manager");
+                  getUsers(1, selectedSearchText, "Salon Manager"); // Fetch only Salon Managers
+                }}
+              >
+                <i className="ri-store-2-fill me-1"></i> Salon Manager
+              </Button>
+            </li>
+
+            <li className="nav-item">
+              <Button
+                color={userSelectedRole === "Salon Owner" ? "primary" : "light"}
+                onClick={() => {
+                  setUserSelectedRole("Salon Owner");
+                  getUsers(1, selectedSearchText, "Salon Owner");
+                }}
+              >
+                <i className="ri-user-star-fill me-1"></i> Salon Owner
+              </Button>
+            </li>
+
+            <li className="nav-item">
+              <Button
+                color={userSelectedRole === "Barber" ? "primary" : "light"}
+                onClick={() => {
+                  setUserSelectedRole("Barber");
+                  getUsers(1, selectedSearchText, "Barber"); // Fetch only Barbers
+                }}
+              >
+                <i className="ri-scissors-fill me-1"></i> Barber
+              </Button>
+            </li>
+          </ul>
         </Col>
       </Row>
       {showLoader ? (
@@ -760,8 +840,8 @@ const UserTable: React.FC = () => {
                             selectedImage instanceof File
                               ? URL.createObjectURL(selectedImage)
                               : newUser?.profile_photo
-                                ? newUser?.profile_photo
-                                : Profile
+                              ? newUser?.profile_photo
+                              : Profile
                           }
                           alt="Profile"
                           className="img-fluid"
@@ -929,7 +1009,7 @@ const UserTable: React.FC = () => {
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.mobile_number &&
-                        formik.errors.mobile_number
+                      formik.errors.mobile_number
                         ? "is-invalid"
                         : ""
                     }
@@ -953,10 +1033,11 @@ const UserTable: React.FC = () => {
                     <div className="position-relative auth-pass-inputgroup mb-3">
                       <Input
                         type={passwordShow ? "text" : "password"}
-                        className={`form-control ${formik.touched.password && formik.errors.password
-                          ? "is-invalid"
-                          : ""
-                          }`}
+                        className={`form-control ${
+                          formik.touched.password && formik.errors.password
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         id="password"
                         placeholder="Enter your password"
                         value={formik.values.password}
@@ -982,33 +1063,39 @@ const UserTable: React.FC = () => {
                 </Col>
               )}
               {/* Role ID */}
-              {(storeRoleInfo.role_name === "Admin" || storeRoleInfo.role_name === "Salon Manager") && (
-                <Col lg={6}>
-                  <div className="mb-3">
-                    <Label htmlFor="role" className="form-label">
-                      Role
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={formik.values.RoleId}
-                      onChange={handleRoleChange}
-                      required
-                    >
-                      <option value="">Select a role</option>
-                      {roleData.map((role) => (
-                        <option key={role.id} value={role.id}>
-                          {role.role_name}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.RoleId && formik.errors.RoleId && (
-                      <div className="invalid-feedback">
-                        {formik.errors.RoleId}
-                      </div>
-                    )}
-                  </div>
-                </Col>
-              )}
+              {(storeRoleInfo.role_name === "Admin" ||
+                storeRoleInfo.role_name === "Salon Manager") &&
+                (!isEditing ||
+                  (isEditing &&
+                    selectedRole &&
+                    selectedRole.role_name !== "Barber" &&
+                    selectedRole.role_name !== "Salon Owner")) && (
+                  <Col lg={6}>
+                    <div className="mb-3">
+                      <Label htmlFor="role" className="form-label">
+                        Role
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={formik.values.RoleId}
+                        onChange={handleRoleChange}
+                        required
+                      >
+                        <option value="">Select a role</option>
+                        {roleData.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.role_name}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.RoleId && formik.errors.RoleId && (
+                        <div className="invalid-feedback">
+                          {formik.errors.RoleId}
+                        </div>
+                      )}
+                    </div>
+                  </Col>
+                )}
 
               {/* Salon ID */}
               {selectedRole?.role_name === "Salon Manager" && (
@@ -1069,7 +1156,7 @@ const UserTable: React.FC = () => {
         title={
           selectedUser !== null ? selectedUser.username.toString() : undefined
         }
-      // Convert to string or undefined
+        // Convert to string or undefined
       />
       <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
