@@ -34,7 +34,7 @@ const PayrollDownloadButton = ({
     <>
       {/* Main Button to Trigger PDF Download */}
       <button
-        className="btn btn-primary"
+        className="btn btn-primary mb-3"
         onClick={handleDownload}
         disabled={!isReady || loading}
       >
