@@ -110,6 +110,38 @@ const Notification = () => {
               </div>
             </Col>
           </Row>
+          <div className="d-flex align-items-start justify-content-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-200">
+            <div className="bg-white rounded-3xl shadow-lg max-w-lg text-center border border-gray-200 px-4 py-2">
+              {/* Notification Icon */}
+              <div className="text-5xl mb-3">🔔</div>
+
+              {/* Title */}
+              <h2 className="text-3xl font-extrabold text-gray-800 mb-3">
+                Stay Updated with <span className="text-blue-600">Important Alerts!</span>
+              </h2>
+
+              {/* Message Content */}
+              <p className="text-gray-600 mb-6 text-lg">
+                We have something exciting for you! Whether it’s <strong>exclusive deals</strong>,
+                important updates, or <strong>special announcements</strong>, we ensure you never miss out.
+              </p>
+
+              {/* Benefits Section */}
+              <div className="bg-blue-50 p-5 rounded-xl text-left shadow-sm">
+                <h3 className="text-xl font-semibold text-blue-700 d-flex align-items-center gap-2">
+                  ✨ Why Notifications?
+                </h3>
+                <ul className="mt-3 space-y-2">
+                  <li className="d-flex align-items-start gap-2">
+                    ✅ <span className="text-gray-700">Get real-time updates on offers & features</span>
+                  </li>
+                  <li className="d-flex align-items-start gap-2">
+                    ✅ <span className="text-gray-700">Stay informed about system improvements & alerts</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Modal */}

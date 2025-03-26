@@ -67,3 +67,15 @@ export const fetchCustomerYearlyStatus = async (
     throw error; // Rethrow for handling in calling function
   }
 };
+
+export const fetchBarberPayroll = async (
+  filterData:  Omit<any, 'id'>
+): Promise<any> => {
+  try {
+    const response = await apiClient.create(`${DASHBOARD_ENDPOINT}/payroll`, filterData);
+    return response;
+  } catch (error) {
+    console.error("Error fetching customer yearly status:", error);
+    throw error; // Rethrow for handling in calling function
+  }
+};

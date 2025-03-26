@@ -313,6 +313,7 @@ const SalonTable: React.FC = () => {
 
   const toggleModal = () => {
     setModal(!modal);
+    formik.resetForm();
   };
 
   // Toggle modal visibility

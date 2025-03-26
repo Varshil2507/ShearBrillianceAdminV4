@@ -226,9 +226,20 @@ const Navdata = () => {
             allowedRoles: ['Admin', 'Salon Manager'] // All roles can see this
         },
         {
+            id: "payroll",
+            label: "Payroll",
+            icon: "ri-line-chart-line",
+            link: "/payroll",
+            click: function (e: any) {
+                e.preventDefault();
+                setIscurrentState('Blog');
+            },
+            allowedRoles: ['Admin', 'Salon Manager'] // All roles can see this
+        },
+        {
             id: "role",
             label: "User Roles",
-            icon: "ri-user-2-fill",
+            icon: "ri-file-list-fill",
             link: "/roles",
             click: function (e: any) {
                 e.preventDefault();
