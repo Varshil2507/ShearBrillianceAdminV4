@@ -70,6 +70,10 @@ const Payroll = () => {
     const [barberDisabled, setBarberDisabled] = useState(true); // Initially disabled
     const [barberError, setBarberError] = useState(false);
     const [salonError, setSalonError] = useState(false);
+
+    const [isReady, setIsReady] = useState(false);
+
+
     const customStyles = {
         multiValue: (provided: any) => ({
             ...provided,
@@ -143,6 +147,11 @@ const Payroll = () => {
                     };
                     payrollData.push(payrollObj);
                 });
+                setIsReady(true); // Enable Download Button
+
+            }else {
+                setPayrollData([]); // No Data, Keep Button Disabled
+                setIsReady(false);
             }
 
             // if (response && response.downloadUrl) {
@@ -551,7 +560,7 @@ const Payroll = () => {
                     </div>
                 </div>
                 {/* Add Payroll Download Button */}
-                <PayrollDownloadButton payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
+                <PayrollDownloadButton  isReady={isReady} payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
                     selectedStartDate={selectedStartDate}
                     selectedEndDate={selectedEndDate} />
                 <Accordion open={openEmployee} toggle={toggleEmployee}>
