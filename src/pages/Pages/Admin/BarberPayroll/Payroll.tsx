@@ -59,6 +59,7 @@ const Payroll = () => {
     const [showReportSpinner, setShowReportSpinner] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showSpinner, setShowSpinner] = useState<boolean>(false);
+    const [showDownload, setShowDownload] = useState<boolean>(false);
     const [salonData, setSalonData] = useState<any[]>([]); // List of all barbers
     const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
     const [payrollData, setPayrollData] = useState<any[]>([]); // Barbers filtered by selected salon
@@ -130,7 +131,10 @@ const Payroll = () => {
         }
         try {
             const response = await fetchBarberPayroll(obj);
+            setPayrollData([]);
+            setShowDownload(true);
             if (response?.length > 0) {
+                const payRollArray: any = [];
                 response.forEach((element: any, index: any) => {
                     const payrollObj = {
                         id: index,
@@ -145,11 +149,12 @@ const Payroll = () => {
                         grandTotal: element.GrandTotal,
                         details: element.DateWiseBreakdown,
                     };
-                    payrollData.push(payrollObj);
+                    payRollArray.push(payrollObj);
                 });
+                setPayrollData(payRollArray);
                 setIsReady(true); // Enable Download Button
 
-            }else {
+            } else {
                 setPayrollData([]); // No Data, Keep Button Disabled
                 setIsReady(false);
             }
@@ -314,107 +319,6 @@ const Payroll = () => {
         setOpenSubDetail((prev) => (prev === id ? "" : id));
     };
 
-    // const payrollData = [
-    //     {
-    //         id: "1",
-    //         name: "John",
-    //         totalHours: 40,
-    //         workingHours: 28,
-    //         appointments: 15,
-    //         servicesAmount: 1150,
-    //         tips: 120,
-    //         tax: 10,
-    //         grandTotal: 1270,
-    //         details: [
-    //             {
-    //                 id: "1-1",
-    //                 date: "Mar 17 2025",
-    //                 day: "Mon",
-    //                 totalHours: 8,
-    //                 workingHours: 7,
-    //                 appointments: 5,
-    //                 servicesAmount: 100,
-    //                 tips: 50,
-    //                 tax: 10,
-    //                 grandTotal: 150,
-    //                 subDetails: [
-    //                     {
-    //                         id: "1-1-1",
-    //                         info: "Additional Info A",
-    //                     },
-    //                 ],
-    //             },
-    //             {
-    //                 id: "1-2",
-    //                 date: "Mar 18 2025",
-    //                 day: "Mon",
-    //                 totalHours: 8,
-    //                 workingHours: 7,
-    //                 appointments: 5,
-    //                 servicesAmount: 100,
-    //                 tips: 50,
-    //                 tax: 10,
-    //                 grandTotal: 150,
-    //                 subDetails: [
-    //                     {
-    //                         id: "1-1-1",
-    //                         info: "Additional Info A",
-    //                     },
-    //                 ],
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         id: "1",
-    //         name: "John",
-    //         totalHours: 40,
-    //         workingHours: 28,
-    //         appointments: 15,
-    //         servicesAmount: 1150,
-    //         tips: 120,
-    //         tax: 10,
-    //         grandTotal: 1270,
-    //         details: [
-    //             {
-    //                 id: "1-1",
-    //                 date: "Mar 17 2025",
-    //                 day: "Mon",
-    //                 totalHours: 8,
-    //                 workingHours: 7,
-    //                 appointments: 5,
-    //                 servicesAmount: 100,
-    //                 tips: 50,
-    //                 tax: 10,
-    //                 grandTotal: 150,
-    //                 subDetails: [
-    //                     {
-    //                         id: "1-1-1",
-    //                         info: "Additional Info A",
-    //                     },
-    //                 ],
-    //             },
-    //             {
-    //                 id: "1-2",
-    //                 date: "Mar 18 2025",
-    //                 day: "Mon",
-    //                 totalHours: 8,
-    //                 workingHours: 7,
-    //                 appointments: 5,
-    //                 servicesAmount: 100,
-    //                 tips: 50,
-    //                 tax: 10,
-    //                 grandTotal: 150,
-    //                 subDetails: [
-    //                     {
-    //                         id: "1-1-1",
-    //                         info: "Additional Info A",
-    //                     },
-    //                 ],
-    //             },
-    //         ],
-    //     },
-    //     // Additional employee records can be added here.
-    // ];
     return (
         <React.Fragment>
             <Row className="mb-3 pb-1">
@@ -555,21 +459,23 @@ const Payroll = () => {
             <div className="p-4">
                 <div className="d-flex justify-content-between">
                     <h2 className="text-xl font-bold mb-4">PAYROLL REPORT - TOTALS</h2>
-                    <div>
-                        <b>Salon:</b> {selectedSalonInfo?.name}{"  |  "} <b>Date:</b> {formatDate(selectedStartDate)}  &nbsp; - &nbsp; {formatDate(selectedEndDate)}
-                    </div>
+                    {selectedSalonInfo && (
+                        <div>
+                            <b>Salon:</b> {selectedSalonInfo?.name}{"  |  "} <b>Date:</b> {formatDate(selectedStartDate)}  &nbsp; - &nbsp; {formatDate(selectedEndDate)}
+                        </div>
+                    )}
                 </div>
                 {/* Add Payroll Download Button */}
-                <PayrollDownloadButton  isReady={isReady} payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
+                <PayrollDownloadButton isReady={isReady} payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
                     selectedStartDate={selectedStartDate}
                     selectedEndDate={selectedEndDate} />
                 <Accordion open={openEmployee} toggle={toggleEmployee}>
                     {payrollData.map((employee) => (
-                        <AccordionItem key={employee.id} itemID={employee.id}>
-                            <AccordionHeader targetId={employee.id}>
+                        <AccordionItem key={employee.id} itemID={String(employee.id)}>
+                            <AccordionHeader targetId={String(employee.id)}>
                                 {employee.name} - Total: {employee.grandTotal}
                             </AccordionHeader>
-                            <AccordionBody accordionId={employee.id}>
+                            <AccordionBody accordionId={String(employee.id)}>
                                 <Card className="p-3 mb-3">
                                     <table className="table">
                                         <thead>
@@ -600,11 +506,11 @@ const Payroll = () => {
                                     {employee.details && employee.details.length > 0 && (
                                         <Accordion open={openDetail} toggle={toggleDetail}>
                                             {employee.details.map((detail: any, index: any) => (
-                                                <AccordionItem key={index} itemID={index}>
-                                                    <AccordionHeader targetId={index}>
+                                                <AccordionItem key={index} itemID={String(index)}>
+                                                    <AccordionHeader targetId={String(index)}>
                                                         {detail.Date} - {detail.Day}
                                                     </AccordionHeader>
-                                                    <AccordionBody accordionId={index}>
+                                                    <AccordionBody accordionId={String(index)}>
                                                         <table className="table">
                                                             <thead>
                                                                 <tr>
@@ -668,8 +574,6 @@ const Payroll = () => {
                                                                     <tr>
                                                                         <th>Date</th>
                                                                         <th>Time</th>
-                                                                        <th>Amount</th>
-                                                                        <th>Tips</th>
                                                                         <th>Tax</th>
                                                                         <th>Grand Total</th>
                                                                     </tr>
@@ -679,8 +583,6 @@ const Payroll = () => {
                                                                         <tr>
                                                                             <td>{cancelledAppointments.AppointmentDate}</td>
                                                                             <td>{formatHours(cancelledAppointments.CancelTime)}</td>
-                                                                            <td>${cancelledAppointments.ServicesAmount}</td>
-                                                                            <td>${cancelledAppointments.Tips}</td>
                                                                             <td>${cancelledAppointments.Tax}</td>
                                                                             <td>${cancelledAppointments.GrandTotal}</td>
                                                                         </tr>

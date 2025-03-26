@@ -100,13 +100,13 @@ const PayrollPDF = ({
                                             <Text style={styles.detailtitle}>Cancelled Appointments</Text>
                                             <View style={styles.table}>
                                                 <View style={styles.row}>
-                                                    {['Date', 'Time', 'Amount', 'Tips', 'Tax', 'Grand Total'].map((header) => (
+                                                    {['Date', 'Time', 'Tax', 'Grand Total'].map((header) => (
                                                         <Text key={header} style={styles.headerCell}>{header}</Text>
                                                     ))}
                                                 </View>
                                                 {detail.CancelledAppointments.map((appointment: any, idx: any) => (
                                                     <View key={idx} style={styles.row}>
-                                                        {[appointment.AppointmentDate, formatHours(appointment.CancelTime), `$${appointment.ServicesAmount}`, `$${appointment.Tips}`, `$${appointment.Tax}`, `$${appointment.GrandTotal}`].map((value, i) => (
+                                                        {[appointment.AppointmentDate, formatHours(appointment.CancelTime), `$${appointment.Tax}`, `$${appointment.GrandTotal}`].map((value, i) => (
                                                             <Text key={i} style={styles.cell}>{value}</Text>
                                                         ))}
                                                     </View>
