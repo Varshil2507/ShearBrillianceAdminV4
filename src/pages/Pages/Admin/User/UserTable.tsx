@@ -164,7 +164,6 @@ const UserTable: React.FC = () => {
 
   const getUsers = async (page: any, search: any, role?: string) => {
     try {
-      debugger;
       const response: any = await fetchUsers(
         null,
         "user",
@@ -413,7 +412,6 @@ const UserTable: React.FC = () => {
   };
 
   const handleUpdateUser = async (id: number, updatedUserData: any) => {
-    debugger;
     try {
       const formData = new FormData();
 
@@ -648,7 +646,6 @@ const UserTable: React.FC = () => {
   };
 
   const handleRoleChange = (event: any) => {
-    debugger;
     if (event.target.value) {
       // const roleId = Number(event.target.value);
       const roleId = event.target.value;
