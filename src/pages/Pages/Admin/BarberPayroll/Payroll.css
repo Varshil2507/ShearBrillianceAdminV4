@@ -1,0 +1,50 @@
+.report-title {
+    font-size: 1.75rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .download-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .download-btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    background-color: #3498db;
+    border: none;
+  }
+  
+  .download-btn:hover {
+    background-color: #2980b9;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .styled-table th,
+  .styled-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .styled-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .subdetail-info {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
+  }

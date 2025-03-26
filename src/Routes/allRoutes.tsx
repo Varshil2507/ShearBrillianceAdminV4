@@ -63,6 +63,7 @@ import SalonTransferBarber from "pages/Pages/Admin/TransferBarber";
 import Salesrevenueindex from "pages/Pages/Admin/SalesRevenue";
 import CalenderScheduleInfo from "pages/Pages/Admin/CalenderSchedule";
 import BasicPasswReset from "pages/Authentication/BasicPasswReset";
+import BarberPayroll from "pages/Pages/Admin/BarberPayroll";
 
 
 const authProtectedRoutes = [
@@ -110,6 +111,7 @@ const authProtectedRoutes = [
   { path: "/profile", component: <UserProfile />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
   { path: "/dashboard", component: <DashboardEcommerce />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
   { path: "/notification", component: < Notification />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
+  { path: "/payroll", component: <BarberPayroll />, allowedRoles: ["Admin", "Salon Manager"] },
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name
   {
