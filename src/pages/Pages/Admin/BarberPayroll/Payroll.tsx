@@ -496,10 +496,10 @@ const Payroll = () => {
                                                 <td>{employee.totalHours}</td>
                                                 <td>{employee.workingHours}</td>
                                                 <td>{employee.appointments}</td>
-                                                <td>{employee.services} ({employee.servicesAmount})</td>
-                                                <td>{employee.tips}</td>
-                                                <td>{employee.tax}</td>
-                                                <td>{employee.grandTotal}</td>
+                                                <td>{employee.services} (${employee.servicesAmount})</td>
+                                                <td>${employee.tips}</td>
+                                                <td>${employee.tax}</td>
+                                                <td>${employee.grandTotal}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -548,22 +548,29 @@ const Payroll = () => {
                                                                         <th>Date</th>
                                                                         <th>Time</th>
                                                                         <th>Amount</th>
+                                                                        <th>Payment Mode</th>
                                                                         <th>Tips</th>
                                                                         <th>Tax</th>
                                                                         <th>Grand Total</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    {detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
+                                                                    {detail.CompletedAppointments.length > 0 ? (
+                                                                        detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
                                                                         <tr>
                                                                             <td>{completedAppointments.AppointmentDate}</td>
                                                                             <td>{formatHours(completedAppointments.CompleteTime)}</td>
                                                                             <td>${completedAppointments.ServicesAmount}</td>
+                                                                            <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
                                                                             <td>${completedAppointments.Tips}</td>
                                                                             <td>${completedAppointments.Tax}</td>
                                                                             <td>${completedAppointments.GrandTotal}</td>
                                                                         </tr>
-                                                                    ))}
+                                                                    ))) : (
+                                                                        <tr>
+                                                                            <td colSpan={7} className="text-center">No completed appointments available</td>
+                                                                        </tr>
+                                                                    )}
                                                                 </tbody>
                                                             </table>
 
@@ -574,19 +581,27 @@ const Payroll = () => {
                                                                     <tr>
                                                                         <th>Date</th>
                                                                         <th>Time</th>
+                                                                        <th>Payment Mode</th>
                                                                         <th>Tax</th>
                                                                         <th>Grand Total</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    {detail.CancelledAppointments.map((cancelledAppointments: any, index: any) => (
+                                                                    {detail.CancelledAppointments.length > 0 ? (
+                                                                        detail.CancelledAppointments.map((cancelledAppointments: any, index: any) => (
+                                                                            <tr key={index}>
+                                                                                <td>{cancelledAppointments.AppointmentDate}</td>
+                                                                                <td>{formatHours(cancelledAppointments.CancelTime)}</td>
+                                                                                <td>{cancelledAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
+                                                                                <td>${cancelledAppointments.Tax}</td>
+                                                                                <td>${cancelledAppointments.GrandTotal}</td>
+                                                                            </tr>
+                                                                        ))
+                                                                    ) : (
                                                                         <tr>
-                                                                            <td>{cancelledAppointments.AppointmentDate}</td>
-                                                                            <td>{formatHours(cancelledAppointments.CancelTime)}</td>
-                                                                            <td>${cancelledAppointments.Tax}</td>
-                                                                            <td>${cancelledAppointments.GrandTotal}</td>
+                                                                            <td colSpan={5} className="text-center">No cancelled appointments available</td>
                                                                         </tr>
-                                                                    ))}
+                                                                    )}
                                                                 </tbody>
                                                             </table>
                                                         </div>
