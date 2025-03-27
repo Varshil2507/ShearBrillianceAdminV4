@@ -161,7 +161,7 @@ const Navdata = () => {
         },
         {
             id: "ourservice",
-            label: "Your Services",
+            label: "Our Services",
             icon: "ri-service-line",
             link: "/services",
             click: function (e: any) {
