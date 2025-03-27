@@ -49,29 +49,29 @@ const PayrollPDF = ({
                     <Text style={styles.detailtitle}>{employee.name} - Total: ${employee.grandTotal}</Text>
                     <View style={styles.table}>
                         <View style={styles.row}>
-                            {['Total Hours', 'Working Hours', 'Appointments', 'Services', 'Tips', 'Tax', 'Grand Total'].map((header) => (
+                            {['Total Hours', 'Working Hours', 'Appointments', 'Services', 'Tips', 'Tax', 'Total (with Tax)', 'Total (without Tax)'].map((header) => (
                                 <Text key={header} style={styles.headerCell}>{header}</Text>
                             ))}
                         </View>
                         <View style={styles.row}>
-                            {[employee.totalHours, employee.workingHours, employee.appointments, `$${employee.servicesAmount}`, `$${employee.tips}`, `$${employee.tax}`, `$${employee.grandTotal}`].map((value, index) => (
+                            {[employee.totalHours, employee.workingHours, employee.appointments, `$${employee.servicesAmount}`, `$${employee.tips}`, `$${employee.tax}`, `$${employee.grandTotal}`, `$${employee.grandTotalWithoutTax}`].map((value, index) => (
                                 <Text key={index} style={styles.cell}>{value}</Text>
                             ))}
                         </View>
                     </View>
-                    {employee.details && employee.details.length > 0 && (
+                    {employee?.details && employee?.details?.length > 0 && (
                         <View style={styles.subSection}>
                             {employee.details.map((detail: any, index: any) => (
                                 <View key={index} style={styles.section}>
                                     <Text style={styles.detailtitle}>{detail.Date} - {detail.Day}</Text>
                                     <View style={styles.table}>
                                         <View style={styles.row}>
-                                            {['Total Hours', 'Working Hours', 'Appointments', 'Services', 'Tips', 'Tax', 'Grand Total'].map((header) => (
+                                            {['Total Hours', 'Working Hours', 'Appointments', 'Services', 'Tips', 'Tax', 'Total (with Tax)', 'Total (without Tax)'].map((header) => (
                                                 <Text key={header} style={styles.headerCell}>{header}</Text>
                                             ))}
                                         </View>
                                         <View style={styles.row}>
-                                            {[detail.TotalHours, detail.WorkingHours, detail.Appointments, `$${detail.ServicesAmount}`, `$${detail.Tips}`, `$${detail.Tax}`, `$${detail.GrandTotal}`].map((value, idx) => (
+                                            {[detail.TotalHours, detail.WorkingHours, detail.Appointments, `$${detail.ServicesAmount}`, `$${detail.Tips}`, `$${detail.Tax}`, `$${detail.GrandTotal}`, `$${detail.GrandTotalWithoutTax}`].map((value, idx) => (
                                                 <Text key={idx} style={styles.cell}>{value}</Text>
                                             ))}
                                         </View>
@@ -88,25 +88,6 @@ const PayrollPDF = ({
                                                 {detail.CompletedAppointments.map((appointment: any, idx: any) => (
                                                     <View key={idx} style={styles.row}>
                                                         {[appointment.WorkingHours, `$${appointment.ServicesAmount}`, `${appointment.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}`, `$${appointment.Tips}`, `$${appointment.Tax}`, `$${appointment.GrandTotal}`].map((value, i) => (
-                                                            <Text key={i} style={styles.cell}>{value}</Text>
-                                                        ))}
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    )}
-                                    {detail.CancelledAppointments.length > 0 && (
-                                        <View style={styles.subSection}>
-                                            <Text style={styles.detailtitle}>Cancelled Appointments</Text>
-                                            <View style={styles.table}>
-                                                <View style={styles.row}>
-                                                    {['Time', 'Payment Mode', 'Tax', 'Grand Total'].map((header) => (
-                                                        <Text key={header} style={styles.headerCell}>{header}</Text>
-                                                    ))}
-                                                </View>
-                                                {detail.CancelledAppointments.map((appointment: any, idx: any) => (
-                                                    <View key={idx} style={styles.row}>
-                                                        {[formatHours(appointment.CancelTime), `${appointment.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}`, `$${appointment.Tax}`, `$${appointment.GrandTotal}`].map((value, i) => (
                                                             <Text key={i} style={styles.cell}>{value}</Text>
                                                         ))}
                                                     </View>

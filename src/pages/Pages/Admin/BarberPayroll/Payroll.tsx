@@ -147,10 +147,13 @@ const Payroll = () => {
                         tips: element.Tips,
                         tax: element.Tax,
                         grandTotal: element.GrandTotal,
+                        grandTotalWithoutTax: element.GrandTotalWithoutTax,
                         details: element.DateWiseBreakdown,
                     };
                     payRollArray.push(payrollObj);
                 });
+                setOpenEmployee(payRollArray?.length > 0 ? String(payRollArray[0].id) : "");
+                setOpenDetail(payRollArray?.length > 0 ? payRollArray[0].details.length > 0 ? "0" : "" : "");
                 setPayrollData(payRollArray);
                 setIsReady(true); // Enable Download Button
 
@@ -469,6 +472,7 @@ const Payroll = () => {
                 <PayrollDownloadButton isReady={isReady} payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
                     selectedStartDate={selectedStartDate}
                     selectedEndDate={selectedEndDate} />
+                {openEmployee}
                 <Accordion open={openEmployee} toggle={toggleEmployee}>
                     {payrollData.map((employee) => (
                         <AccordionItem key={employee.id} itemID={String(employee.id)}>
@@ -486,7 +490,8 @@ const Payroll = () => {
                                                 <th>Services</th>
                                                 <th>Tips</th>
                                                 <th>Tax</th>
-                                                <th>Grand Total</th>
+                                                <th>Total (with Tax)</th>
+                                                <th>Total (without Tax)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -498,10 +503,11 @@ const Payroll = () => {
                                                 <td>${employee.tips}</td>
                                                 <td>${employee.tax}</td>
                                                 <td>${employee.grandTotal}</td>
+                                                <td>${employee.grandTotalWithoutTax}</td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                    {employee.details && employee.details.length > 0 && (
+                                    {employee.details && employee.details?.length > 0 && (
                                         <Accordion open={openDetail} toggle={toggleDetail}>
                                             {employee.details.map((detail: any, index: any) => (
                                                 <AccordionItem key={index} itemID={String(index)}>
@@ -518,7 +524,8 @@ const Payroll = () => {
                                                                     <th>Services</th>
                                                                     <th>Tips</th>
                                                                     <th>Tax</th>
-                                                                    <th>Grand Total</th>
+                                                                    <th>Total (with Tax)</th>
+                                                                    <th>Total (without Tax)</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -530,6 +537,7 @@ const Payroll = () => {
                                                                     <td>${detail.Tips}</td>
                                                                     <td>${detail.Tax}</td>
                                                                     <td>${detail.GrandTotal}</td>
+                                                                    <td>${detail.GrandTotalWithoutTax}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -548,48 +556,19 @@ const Payroll = () => {
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    {detail.CompletedAppointments.length > 0 ? (
+                                                                    {detail.CompletedAppointments?.length > 0 ? (
                                                                         detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
-                                                                        <tr>
-                                                                            <td>{completedAppointments.WorkingHours}</td>
-                                                                            <td>${completedAppointments.ServicesAmount}</td>
-                                                                            <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
-                                                                            <td>${completedAppointments.Tips}</td>
-                                                                            <td>${completedAppointments.Tax}</td>
-                                                                            <td>${completedAppointments.GrandTotal}</td>
-                                                                        </tr>
-                                                                    ))) : (
+                                                                            <tr>
+                                                                                <td>{completedAppointments.WorkingHours}</td>
+                                                                                <td>${completedAppointments.ServicesAmount}</td>
+                                                                                <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
+                                                                                <td>${completedAppointments.Tips}</td>
+                                                                                <td>${completedAppointments.Tax}</td>
+                                                                                <td>${completedAppointments.GrandTotal}</td>
+                                                                            </tr>
+                                                                        ))) : (
                                                                         <tr>
                                                                             <td colSpan={7} className="text-center">No completed appointments available</td>
-                                                                        </tr>
-                                                                    )}
-                                                                </tbody>
-                                                            </table>
-
-                                                            <h5>Cancelled Appointments</h5>
-                                                            <hr />
-                                                            <table className="table">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Time</th>
-                                                                        <th>Payment Mode</th>
-                                                                        <th>Tax</th>
-                                                                        <th>Grand Total</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {detail.CancelledAppointments.length > 0 ? (
-                                                                        detail.CancelledAppointments.map((cancelledAppointments: any, index: any) => (
-                                                                            <tr key={index}>
-                                                                                <td>{formatHours(cancelledAppointments.CancelTime)}</td>
-                                                                                <td>{cancelledAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
-                                                                                <td>${cancelledAppointments.Tax}</td>
-                                                                                <td>${cancelledAppointments.GrandTotal}</td>
-                                                                            </tr>
-                                                                        ))
-                                                                    ) : (
-                                                                        <tr>
-                                                                            <td colSpan={5} className="text-center">No cancelled appointments available</td>
                                                                         </tr>
                                                                     )}
                                                                 </tbody>
