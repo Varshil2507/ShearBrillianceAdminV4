@@ -472,7 +472,6 @@ const Payroll = () => {
                 <PayrollDownloadButton isReady={isReady} payrollData={payrollData} selectedSalonInfo={selectedSalonInfo}
                     selectedStartDate={selectedStartDate}
                     selectedEndDate={selectedEndDate} />
-                {openEmployee}
                 <Accordion open={openEmployee} toggle={toggleEmployee}>
                     {payrollData.map((employee) => (
                         <AccordionItem key={employee.id} itemID={String(employee.id)}>
