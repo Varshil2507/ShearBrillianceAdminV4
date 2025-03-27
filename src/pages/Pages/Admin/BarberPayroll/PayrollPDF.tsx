@@ -81,7 +81,7 @@ const PayrollPDF = ({
                                             <Text style={styles.detailtitle}>Completed Appointments</Text>
                                             <View style={styles.table}>
                                                 <View style={styles.row}>
-                                                    {['Time', 'Amount', 'Payment Mode', 'Tips', 'Tax', 'Grand Total'].map((header) => (
+                                                    {['Duration', 'Amount', 'Payment Mode', 'Tips', 'Tax', 'Grand Total'].map((header) => (
                                                         <Text key={header} style={styles.headerCell}>{header}</Text>
                                                     ))}
                                                 </View>
