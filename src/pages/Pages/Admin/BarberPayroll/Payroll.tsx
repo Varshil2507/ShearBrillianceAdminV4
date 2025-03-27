@@ -480,7 +480,6 @@ const Payroll = () => {
                                     <table className="table">
                                         <thead>
                                             <tr>
-                                                <th>Name</th>
                                                 <th>Total Hours</th>
                                                 <th>Working Hours</th>
                                                 <th>Appointments</th>
@@ -492,7 +491,6 @@ const Payroll = () => {
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{employee.name}</td>
                                                 <td>{employee.totalHours}</td>
                                                 <td>{employee.workingHours}</td>
                                                 <td>{employee.appointments}</td>
@@ -514,8 +512,6 @@ const Payroll = () => {
                                                         <table className="table">
                                                             <thead>
                                                                 <tr>
-                                                                    <th>Date</th>
-                                                                    <th>Day</th>
                                                                     <th>Total Hours</th>
                                                                     <th>Working Hours</th>
                                                                     <th>Appointments</th>
@@ -527,8 +523,6 @@ const Payroll = () => {
                                                             </thead>
                                                             <tbody>
                                                                 <tr>
-                                                                    <td>{detail.Date}</td>
-                                                                    <td>{detail.Day}</td>
                                                                     <td>{detail.TotalHours}</td>
                                                                     <td>{detail.WorkingHours}</td>
                                                                     <td>{detail.Appointments}</td>
@@ -545,8 +539,6 @@ const Payroll = () => {
                                                             <table className="table">
                                                                 <thead>
                                                                     <tr>
-                                                                        <th>Date</th>
-                                                                        <th>Time</th>
                                                                         <th>Amount</th>
                                                                         <th>Payment Mode</th>
                                                                         <th>Tips</th>
@@ -558,8 +550,7 @@ const Payroll = () => {
                                                                     {detail.CompletedAppointments.length > 0 ? (
                                                                         detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
                                                                         <tr>
-                                                                            <td>{completedAppointments.AppointmentDate}</td>
-                                                                            <td>{formatHours(completedAppointments.CompleteTime)}</td>
+                                                                            <td>{completedAppointments.WorkingHours}</td>
                                                                             <td>${completedAppointments.ServicesAmount}</td>
                                                                             <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
                                                                             <td>${completedAppointments.Tips}</td>
@@ -579,7 +570,6 @@ const Payroll = () => {
                                                             <table className="table">
                                                                 <thead>
                                                                     <tr>
-                                                                        <th>Date</th>
                                                                         <th>Time</th>
                                                                         <th>Payment Mode</th>
                                                                         <th>Tax</th>
@@ -590,7 +580,6 @@ const Payroll = () => {
                                                                     {detail.CancelledAppointments.length > 0 ? (
                                                                         detail.CancelledAppointments.map((cancelledAppointments: any, index: any) => (
                                                                             <tr key={index}>
-                                                                                <td>{cancelledAppointments.AppointmentDate}</td>
                                                                                 <td>{formatHours(cancelledAppointments.CancelTime)}</td>
                                                                                 <td>{cancelledAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
                                                                                 <td>${cancelledAppointments.Tax}</td>
