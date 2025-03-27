@@ -539,6 +539,7 @@ const Payroll = () => {
                                                             <table className="table">
                                                                 <thead>
                                                                     <tr>
+                                                                        <th>Duration</th>
                                                                         <th>Amount</th>
                                                                         <th>Payment Mode</th>
                                                                         <th>Tips</th>
@@ -570,7 +571,7 @@ const Payroll = () => {
                                                             <table className="table">
                                                                 <thead>
                                                                     <tr>
-                                                                        <th>Time</th>
+                                                                        <th>Duration</th>
                                                                         <th>Payment Mode</th>
                                                                         <th>Tax</th>
                                                                         <th>Grand Total</th>
