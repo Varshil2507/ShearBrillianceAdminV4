@@ -249,7 +249,7 @@ const Section = (props: any) => {
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
                 {(userRole?.role_name === "Salon Manager" ||
                   userRole?.role_name === "Salon Owner") && (
-                    <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 mb-2 bg-light">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
                       <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
                         Today's Avaialable Barber
                       </p>

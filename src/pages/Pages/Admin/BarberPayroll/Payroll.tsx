@@ -230,6 +230,7 @@ const Payroll = () => {
         }
     }, []);
 
+
     const getSalonBabrer = async (salonId: any) => {
         try {
             // Fetch barbers for the selected salon
