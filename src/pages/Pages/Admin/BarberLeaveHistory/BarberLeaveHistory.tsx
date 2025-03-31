@@ -14,7 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchLeaveHistory } from "../../../../Services/BarberLeaveHistoryService"; // Update the path to your service file
 import { Cell } from "@tanstack/react-table";
-import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
+import { formatDate, formatHours, otherFormatDate,formatUTCDate } from "Components/Common/DateUtil";
 
 interface LeaveHistory {
   id: number;
@@ -173,11 +173,11 @@ const LeaveHistoryTable: React.FC = () => {
           const { start_date, end_date } = row.original;
           // Check if both dates are the same or if end_date is missing
           if (!end_date || start_date === end_date) {
-            return formatDate(start_date); // Show only the start_date
+            return formatUTCDate(start_date); // Show only the start_date
           }
 
           // Otherwise, show the range
-          return `${formatDate(start_date)} To ${formatDate(end_date)}`;
+          return `${formatUTCDate(start_date)} To ${formatUTCDate(end_date)}`;
         },
       },
       {
