@@ -1443,7 +1443,7 @@ const CalenderScheduleInfo: React.FC = () => {
             textOverflow: "ellipsis",
           }}
         >
-          {`,${eventInfo.event.title}`}
+          {`${eventInfo.event.title}`}
         </i>
       </>
     );
