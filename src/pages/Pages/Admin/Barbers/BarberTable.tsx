@@ -177,6 +177,7 @@ const BarberTable: React.FC = () => {
   // Toggle modal visibility
   const closeModal = () => {
     setIsEditing(false);
+    setShowSpinner(false);
     setSelectedDays([]);
     toggleModal();
   };
