@@ -745,6 +745,21 @@ const CalenderScheduleInfo: React.FC = () => {
     }
   };
 
+  const subtractMinutes = (timeString: string | undefined, minutes: number) => {
+    if (!timeString) return "";
+  
+    let [time, period] = timeString.split(" ");
+    let [hours, mins] = time.split(":").map(Number);
+  
+    let totalMins = (hours % 12) * 60 + mins - minutes + (period === "PM" ? 720 : 0);
+    let newHours = Math.floor((totalMins % 1440) / 60) || 12;
+    let newMinutes = (totalMins % 60).toString().padStart(2, "0");
+    let newPeriod = totalMins >= 720 ? "PM" : "AM";
+  
+    return `${newHours}:${newMinutes} ${newPeriod}`;
+  };
+  
+
   return (
     <React.Fragment>
       <div className="row">
@@ -936,8 +951,13 @@ const CalenderScheduleInfo: React.FC = () => {
           <ModalHeader toggle={toggle} className="w-100">
             Appointment Details
             <span style={{ position: "absolute", right: "6%" }}>
-              {event?.eventDate} ({event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - {event?.eventEndTime ? formatTime(event?.eventEndTime) : "N/A"})
-            </span>
+            {event?.eventDate} ({event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - {event?.eventEndTime ? formatTime(event?.eventEndTime) : "N/A"})
+
+  {/* {event?.eventDate} (
+  {event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - 
+  {event?.eventEndTime ? subtractMinutes(formatTime(event?.eventEndTime), 15) : "N/A"}) */}
+</span>
+
           </ModalHeader>
           <ModalBody>
             <Form
@@ -1440,6 +1460,10 @@ const CalenderScheduleInfo: React.FC = () => {
         <b>
           {formattedStartTime} - {formattedEndTime}
         </b>
+        {/* <b>
+  {formattedStartTime} - {formattedEndTime ? subtractMinutes(formattedEndTime, 15) : "N/A"}
+</b> */}
+
         <i
           style={{
             whiteSpace: "normal",
