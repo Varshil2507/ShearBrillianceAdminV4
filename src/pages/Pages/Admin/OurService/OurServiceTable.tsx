@@ -147,6 +147,7 @@ const ServiceTable: React.FC = () => {
           await handleAddService(values);
         }
       } else {
+        setShowSpinner(false);
         setErrors({ minPrice: minError, maxPrice: maxError });
       }
     },

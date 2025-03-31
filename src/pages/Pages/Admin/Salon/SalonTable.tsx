@@ -289,6 +289,7 @@ const SalonTable: React.FC = () => {
   const handleCloseModal = () => {
     setDeleteModal(false); // Close the modal
     setSelectedSalon(null); // Clear selected barber ID
+    setShowSpinner(false);
   };
 
   const handleDeleteSalon = async () => {
@@ -307,6 +308,7 @@ const SalonTable: React.FC = () => {
         setShowSpinner(false);
       }
     } catch (error) {
+      setShowSpinner(false);
       console.error("Error deleting salon:", error);
     }
   };

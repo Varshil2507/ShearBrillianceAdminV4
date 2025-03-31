@@ -536,6 +536,7 @@ const RequestedLeavesTable: React.FC = () => {
         setSelectedLeave(updatedSelectedLeave); // Update state or wherever selectedLeave is stored
       }
     } catch (error: any) {
+      setShowSpinner(false);
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response

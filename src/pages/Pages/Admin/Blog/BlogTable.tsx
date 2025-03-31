@@ -262,6 +262,7 @@ const BlogTable: React.FC = () => {
         setDeletingBlogId(null);
         setDeleteModal(false);
       } catch (error) {
+        setShowSpinner(false);
         console.error("Error deleting blog:", error);
       }
     }
@@ -334,6 +335,7 @@ const BlogTable: React.FC = () => {
 
       toggleModal();
     } catch (error: any) {
+      setShowSpinner(false);
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
@@ -374,6 +376,7 @@ const BlogTable: React.FC = () => {
         toggleModal();
 
       } catch (error: any) {
+        setShowSpinner(false);
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response

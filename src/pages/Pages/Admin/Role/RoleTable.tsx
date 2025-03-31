@@ -99,6 +99,7 @@ const RoleTable: React.FC = () => {
       setShowSpinner(false);
       validation.resetForm();
     } catch (error: any) {
+      setShowSpinner(false);
       // Check if the error response contains a message from the server
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {

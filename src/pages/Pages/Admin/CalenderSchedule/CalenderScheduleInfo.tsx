@@ -155,6 +155,7 @@ const CalenderScheduleInfo: React.FC = () => {
 
       // Pass both salonId and barberId
     } catch (error) {
+      setShowSpinner(false);
       console.error("Error fetching appointments:", error);
     }
   };
@@ -282,6 +283,7 @@ const CalenderScheduleInfo: React.FC = () => {
         }, 500);
       }
     } catch (error: any) {
+      setShowSpinner(false);
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
@@ -636,6 +638,8 @@ const CalenderScheduleInfo: React.FC = () => {
           autoClose: 2000,
         });
       } catch (error: any) {
+        
+        setShowSpinner(false);
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
