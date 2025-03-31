@@ -321,6 +321,7 @@ const SalonTable: React.FC = () => {
     setNewSalon(null);
     setSelectedImages([]);
     setIsEditing(false);
+    setShowSpinner(false);
     toggleModal();
   }
   const handleAddButtonClick = () => {

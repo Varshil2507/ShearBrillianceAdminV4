@@ -114,6 +114,7 @@ const UserTable: React.FC = () => {
     formik.resetForm();
     setSelectedImage([]);
     setIsEditing(false);
+    setShowSpinner(false);
     toggleModal();
   };
 
