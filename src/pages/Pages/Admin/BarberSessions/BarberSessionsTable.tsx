@@ -64,6 +64,7 @@ const BarberSessionsTable: React.FC = () => {
       setModal(false);
       setNewBarberSession(null);
       formik.resetForm();
+      setShowSpinner(false);
     } else {
       setModal(true);
     }
