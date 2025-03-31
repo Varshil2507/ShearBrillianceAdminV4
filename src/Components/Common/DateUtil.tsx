@@ -15,6 +15,21 @@ export const formatDate = (dateString: any): string => {
   const formattedDate = new Intl.DateTimeFormat("en-CA", options).format(date);
   return formattedDate.replace(/\//g, "-");
 };
+export const formatUTCDate = (dateString: any): string => {
+  if (!dateString) return "";
+  
+  // Create date object and immediately get ISO string to avoid timezone shifts
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+
+  // Extract the date parts in UTC to avoid timezone conversion
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  // Format as YYYY-MM-DD (Canadian format)
+  return `${year}-${month}-${day}`;
+};
 
 export const otherFormatDate = (dateString: any): string => {
   if (!dateString) return "";
