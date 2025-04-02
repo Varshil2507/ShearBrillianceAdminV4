@@ -22,11 +22,10 @@ import {
   fetchUsers,
   updateUser,
 } from "Services/UserService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchRoles } from "Services/RoleService";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 // Define the User type based on your database structure
 interface User {
@@ -129,10 +128,10 @@ const UserTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -152,10 +151,10 @@ const UserTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -194,9 +193,9 @@ const UserTable: React.FC = () => {
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        toast.error(error.response.data.message || "An error occurred");
+        showErrorToast(error.response.data.message || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -325,7 +324,7 @@ const UserTable: React.FC = () => {
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error(
+        showErrorToast(
           "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
         );
         e.target.value = ""; // Clear the file input
@@ -383,7 +382,7 @@ const UserTable: React.FC = () => {
 
       // let tempUser = response;
       tempUser.fullname = tempUser.firstname + " " + tempUser.lastname;
-      toast.success("User added successfully", { autoClose: 2000 });
+      showSuccessToast("User added successfully");
       // Add new user to the local state
       // const users = response.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
@@ -404,10 +403,10 @@ const UserTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -438,7 +437,7 @@ const UserTable: React.FC = () => {
       formData.append("password", updatedUserData.password);
       await updateUser(id, formData);
 
-      toast.success("User updated successfully", { autoClose: 2000 });
+      showSuccessToast("User updated successfully");
       // const users = updatedUsers.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
       //   return usr;
@@ -457,10 +456,10 @@ const UserTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -502,7 +501,7 @@ const UserTable: React.FC = () => {
           null,
           userSelectedRole
         );
-        toast.success("User deleted successfully", { autoClose: 2000 });
+        showSuccessToast("User deleted successfully");
         setShowSpinner(false);
         setDeleteModal(false); // Close the delete confirmation modal
         setSelectedUser(null); // Reset selected user ID
@@ -511,10 +510,10 @@ const UserTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     }
@@ -1156,7 +1155,6 @@ const UserTable: React.FC = () => {
         }
         // Convert to string or undefined
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

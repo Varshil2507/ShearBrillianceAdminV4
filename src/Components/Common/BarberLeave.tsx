@@ -17,9 +17,8 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Flatpickr from "react-flatpickr";
-import { toast, ToastContainer } from "react-toastify"; // Import Toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for Toastify
 import {formatDate}  from  "./DateUtil"
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface BarberLeaveModalProps {
   isOpen: boolean;
@@ -84,7 +83,7 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
         const endTime = values.end_time;
         if (startTime >= endTime) {
           // Show an error or prevent submission
-          toast.error("Start time must be earlier than end time.");
+          showErrorToast("Start time must be earlier than end time.");
           setShowSpinner(false);
           return; // Prevent further execution
         }
@@ -106,9 +105,9 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
         formik.resetForm();
         setShowSpinner(false);
         // Pass the leaveData to the parent component
-        toast.success("Leave request submitted successfully!", { autoClose: 2000 }); // Success toast
+        showSuccessToast("Leave request submitted successfully!"); // Success toast
       } catch (error) {
-        toast.error("Something went wrong, please try again!"); // Error toast
+        showErrorToast("Something went wrong, please try again!"); // Error toast
       } finally {
         setShowSpinner(false);
         toggle();  // Close the modal after form submission
@@ -275,8 +274,6 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
         </Form>
       </ModalBody>
 
-      {/* Toast container */}
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar closeOnClick rtl={false} draggable pauseOnHover />
     </Modal>
   );
 };

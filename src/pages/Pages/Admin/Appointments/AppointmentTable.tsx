@@ -17,8 +17,6 @@ import { Status } from "./AppointmentListCol";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../../../Components/Common/Loader";
 import { createSelector } from "reselect";
 
@@ -38,6 +36,8 @@ import {
 } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
 import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import { toast } from "react-toastify";
 
 const Assigned = [
   { id: 1, imgId: "anna-adame", img: avatar1, name: "Anna Adame" },
@@ -172,7 +172,7 @@ const AppointmentTable: React.FC = () => {
     if (totalServiceTime > 0) {
       getBarberScheduleData(selectedBarberId, totalServiceTime, selected);
     } else {
-      toast.warning("Please first select atleast one service!!!");
+      showWarningToast("Please first select atleast one service!!!");
       setIsAppointmentAvailable(false);
     }
   };
@@ -314,10 +314,10 @@ const AppointmentTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -368,10 +368,10 @@ const AppointmentTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -418,10 +418,10 @@ const AppointmentTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -449,10 +449,10 @@ const AppointmentTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -603,7 +603,7 @@ const AppointmentTable: React.FC = () => {
           tip: tipAmount,
         };
         const response = await createAppointment(processedValues);
-        toast.success("Appointment created successfully", {
+        showSuccessToast("Appointment created successfully", {
           autoClose: 2000,
         });
         setTotalPrice(0);
@@ -616,9 +616,9 @@ const AppointmentTable: React.FC = () => {
         // Error handling
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message;
-          toast.error(apiMessage || "An error occurred");
+          showErrorToast(apiMessage || "An error occurred");
         } else {
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       } finally {
         setShowSpinner(false);
@@ -868,17 +868,17 @@ const AppointmentTable: React.FC = () => {
           // appointmentFormik.setFieldValue("barber_id", "")
           if (parseInt(sessionResponse) === 100) {
             formik.setFieldValue("barber_id", "");
-            toast.warning("Fully Booked!!!", {
+            showWarningToast("Fully Booked!!!", {
               autoClose: 3000,
             });
           } else if (parseInt(sessionResponse) === 101) {
             formik.setFieldValue("barber_id", "");
-            toast.warning("Low Remaining Time!!!", {
+            showWarningToast("Low Remaining Time!!!", {
               autoClose: 3000,
             });
           } else {
             formik.setFieldValue("barber_id", "");
-            toast.warning("Barber not available for longer!!!", {
+            showWarningToast("Barber not available for longer!!!", {
               autoClose: 3000,
             });
           }
@@ -962,7 +962,7 @@ const AppointmentTable: React.FC = () => {
     } else {
       formik.setFieldValue("barber_id", "");
       setIsAppointmentAvailable(false);
-      toast.warning("Please first select atleast one service!!!");
+      showWarningToast("Please first select atleast one service!!!");
     }
     toggleBarberModal(); // Close modal after confirmation
   };
@@ -1041,7 +1041,6 @@ const AppointmentTable: React.FC = () => {
                   onChangeIndex={handlePageChange}
                 />
               )}
-              <ToastContainer closeButton={false} limit={1} />
             </div>
           </div>
         </Col>

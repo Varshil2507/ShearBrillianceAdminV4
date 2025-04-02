@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Row, Col, Alert, Card, CardBody, Container, FormFeedback, Input, Label, Form, Spinner } from "reactstrap";
 
 //redux
-import { useDispatch } from "react-redux";
 
 import { Link } from "react-router-dom";
 import withRouter from "../../Components/Common/withRouter";
@@ -19,9 +18,8 @@ import { userForgetPassword } from "../../slices/thunks";
 // import profile from "../../assets/images/bg.png";
 import logoLight from "../../assets/images/smallest.png";
 import ParticlesAuth from "../AuthenticationInner/ParticlesAuth";
-import { createSelector } from "reselect";
-import { toast, ToastContainer } from "react-toastify";
 import config from "config";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 const { commonText } = config;
 const ForgetPasswordPage = (props: any) => {
@@ -43,22 +41,22 @@ const ForgetPasswordPage = (props: any) => {
         const response = await userForgetPassword(values.email);
 
         if (!response || response.error) {
-          toast.error(response.error, { autoClose: 2000 });
+          showErrorToast(response.error);
           setLoader(false);
           return;
           // Handle error display if needed
         }
         validation.resetForm();
-        toast.success("Send email Successfully", { autoClose: 2000 });
+        showSuccessToast("Send email Successfully");
         setLoader(false);
       } catch (error: any) {
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster 
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster 
           setLoader(false);
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
           setLoader(false);
         }
       }
@@ -140,7 +138,6 @@ const ForgetPasswordPage = (props: any) => {
         </Container>
       </div>
 
-      <ToastContainer closeButton={false} limit={1} />
     </ParticlesAuth>
   );
 };

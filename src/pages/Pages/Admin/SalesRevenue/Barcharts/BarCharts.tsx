@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import getChartColorsArray from "../../../../../Components/Common/ChartsDynamicColor";
 import { APIClient } from "../../../../../Services/api_helper"; // Adjust the path
-import { toast, ToastContainer } from "react-toastify";
 import Loader from "Components/Common/Loader";
+import { showErrorToast } from "slices/layouts/toastService";
 
 const apiClient = new APIClient();
 
@@ -32,10 +32,10 @@ const Basic = ({ dataColors }: any) => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
         setError(error);
       }
@@ -99,8 +99,6 @@ const Basic = ({ dataColors }: any) => {
           </div> */}
         </>
       )}
-
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

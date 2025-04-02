@@ -1,6 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 //Include Both Helper File with needed methods
 import {
@@ -9,6 +7,7 @@ import {
     updateProjectList as updateProjectListApi,
     deleteProjectList as deleteProjectListApi
 } from "../../helpers/fakebackend_helper";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 export const getProjectList = createAsyncThunk("projects/getProjectList", async () => {
     try {
@@ -23,10 +22,10 @@ export const addProjectList = createAsyncThunk("projects/addProjectList", async 
     try {
         const response = addProjectListApi(project);
         const data = await response;
-        toast.success("project-list Added Successfully", { autoClose: 2000 });
+        showSuccessToast("project-list Added Successfully");
         return data;
     } catch (error) {
-        toast.error("project-list Added Failed", { autoClose: 2000 });
+        showErrorToast("project-list Added Failed");
         return error;
     }
 });
@@ -35,10 +34,10 @@ export const updateProjectList = createAsyncThunk("projects/updateProjectList", 
     try {
         const response = updateProjectListApi(project);
         const data = await response;
-        toast.success("project-list Updated Successfully", { autoClose: 2000 });
+        showSuccessToast("project-list Updated Successfully");
         return data;
     } catch (error) {
-        toast.error("project-list Updated Failed", { autoClose: 2000 });
+        showErrorToast("project-list Updated Failed");
         return error;
     }
 });
@@ -47,10 +46,10 @@ export const deleteProjectList = createAsyncThunk("projects/deleteProjectList", 
     try {
         const response = deleteProjectListApi(data);
         const newdata = await response;
-        toast.success("project-list Delete Successfully", { autoClose: 2000 });
+        showSuccessToast("project-list Delete Successfully");
         return newdata;
     } catch (error) {
-        toast.error("project-list Delete Failed", { autoClose: 2000 });
+        showErrorToast("project-list Delete Failed");
         return error;
     }
 });

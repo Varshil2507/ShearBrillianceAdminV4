@@ -2,18 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader, Col, Container, Form, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane } from 'reactstrap';
 import classnames from "classnames";
-import Flatpickr from "react-flatpickr";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import * as Yup from "yup";
 //import images
-import progileBg from '../../../../assets/images/profile-bg.jpg';
-import avatar1 from '../../../../assets/images/users/avatar-1.jpg';
 import Profile from "../../../../assets/images/users/avatar-8.jpg";
 import { useFormik } from 'formik';
 import { changePassword, updatePatchUser, updateUser } from 'Services/UserService';
 import config from 'config';
+import { showErrorToast, showSuccessToast, showWarningToast } from 'slices/layouts/toastService';
 
 export const USERS_ENDPOINT = "/users";
 
@@ -108,7 +104,7 @@ const Settings: React.FC = () => {
                 setSelectedImage(file); // Save the file object directly
                 formik.setFieldValue('profile_photo', file);
             } else {
-                toast.warning("Invalid file type", { autoClose: 2000 });
+                showWarningToast("Invalid file type");
                 e.target.value = ''; // Clear the file input
             }
         }
@@ -140,29 +136,29 @@ const Settings: React.FC = () => {
                 newPassword: values.newpassword
             }
             const response = await changePassword(obj);
-            // toast.success("Password change successfully", { autoClose: 2000 });
-            toast.success(response?.message, { autoClose: 2000 });
+            // showSuccessToast("Password change successfully");
+            showSuccessToast(response?.message);
 
             passwordformik.resetForm();
         } catch (error: any) {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
                 const apiMessage = error.response.data.message; // Extract the message from the response
-                toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
                 // Fallback for other types of errors
-                toast.error(error.message || "Something went wrong");
+                showErrorToast(error.message || "Something went wrong");
             }
             // if (error.response) {
             //     const errorMessage = error.response.data.message || 'An error occurred'; // Adjust based on your API structure
             //     console.error('Error Response:', errorMessage);
 
             //     // Show the error message using toast
-            //     toast.error(errorMessage, { autoClose: 2000 });
+            //     showErrorToast(errorMessage);
             // } else {
             //     // Handle network or unexpected errors
             //     console.error('Unexpected Error:', error);
-            //     toast.error('An unexpected error occurred. Please try again later.', { autoClose: 2000 });
+            //     showErrorToast('An unexpected error occurred. Please try again later.');
             // }
         }
     };
@@ -189,7 +185,7 @@ const Settings: React.FC = () => {
                     user: updatedUser.user
                 }
                 localStorage.setItem("authUser", JSON.stringify(obj));
-                toast.success("User updated successfully", { autoClose: 2000 });
+                showSuccessToast("User updated successfully");
                 // Make sure updatedUsers is of type User[]
                 setUser(updatedUser.user);
                 setUserPhoto(updatedUser.user.profile_photo);
@@ -199,10 +195,10 @@ const Settings: React.FC = () => {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
                 const apiMessage = error.response.data.message; // Extract the message from the response
-                toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
                 // Fallback for other types of errors
-                toast.error(error.message || "Something went wrong");
+                showErrorToast(error.message || "Something went wrong");
             }
         }
     };
@@ -617,7 +613,6 @@ const Settings: React.FC = () => {
                     </Row>
                 </Container>
             </div>
-            <ToastContainer closeButton={false} limit={1} />
         </React.Fragment>
     );
 };

@@ -1,6 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 //Include Both Helper File with needed methods
 import {
@@ -9,6 +7,7 @@ import {
     updateTeamData as updateTeamDataApi,
     deleteTeamData as deleteTeamDataApi
 } from "../../helpers/fakebackend_helper";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 export const getTeamData = createAsyncThunk("team/getTeamData", async () => {
     try {
@@ -22,10 +21,10 @@ export const getTeamData = createAsyncThunk("team/getTeamData", async () => {
 export const addTeamData = createAsyncThunk("team/addTeamData", async (team : any) => {
     try {
         const response = addTeamDataApi(team);
-        toast.success("Team Data Added Successfully", { autoClose: 2000 });
+        showSuccessToast("Team Data Added Successfully");
         return response;
     } catch (error) {
-        toast.error("Team Data Added Failed", { autoClose: 2000 });
+        showErrorToast("Team Data Added Failed");
         return error;
     }
 });
@@ -33,10 +32,10 @@ export const addTeamData = createAsyncThunk("team/addTeamData", async (team : an
 export const updateTeamData = createAsyncThunk("team/updateTeamData", async (project : any) => {
     try {
         const response = updateTeamDataApi(project);
-        toast.success("Team Data Updated Successfully", { autoClose: 2000 });
+        showSuccessToast("Team Data Updated Successfully");
         return response;
     } catch (error) {
-        toast.error("Team Data Updated Failed", { autoClose: 2000 });
+        showErrorToast("Team Data Updated Failed");
         return error;
     }
 });
@@ -44,10 +43,10 @@ export const updateTeamData = createAsyncThunk("team/updateTeamData", async (pro
 export const deleteTeamData = createAsyncThunk("team/deleteTeamData", async (team : any) => {
     try {
         const response = deleteTeamDataApi(team);
-        toast.success("Team Data Delete Successfully", { autoClose: 2000 });
+        showSuccessToast("Team Data Delete Successfully");
         return response;
     } catch (error) {
-        toast.error("Team Data Delete Failed", { autoClose: 2000 });
+        showErrorToast("Team Data Delete Failed");
         return error;
     }
 });

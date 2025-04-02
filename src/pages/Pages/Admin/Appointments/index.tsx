@@ -4,8 +4,8 @@ import BreadCrumb from '../../../../Components/Common/BreadCrumb';
 import AppointmentTable from './AppointmentTable';
 import Widgets from './Widgets';
 import { fetchAppointmentDashboardData } from "Services/DashboardService";
-import { toast, ToastContainer } from 'react-toastify';
 import config from 'config';
+import { showErrorToast } from 'slices/layouts/toastService';
 export const DASHBOARD_ENDPOINT = "/dashboard";
 
 const { commonText } = config;
@@ -22,10 +22,10 @@ const TaskList = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -46,7 +46,6 @@ const TaskList = () => {
         </Container>
       </div>
       
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

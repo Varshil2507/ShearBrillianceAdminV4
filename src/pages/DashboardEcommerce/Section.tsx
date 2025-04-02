@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Button, Col, Modal, ModalBody, ModalHeader, Row, Spinner } from "reactstrap";
 import Flatpickr from "react-flatpickr";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
-import Loader from "Components/Common/Loader";
 import { generatereport } from "Services/Insalonappointment";
 import "./section.css";
 import { fetchSalons } from "Services/SalonService";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import TodaysBarber from "./TodaysBarber";
 import {formatDate} from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 
 const Section = (props: any) => {
   const [greeting, setGreeting] = useState("");
@@ -71,16 +69,16 @@ const Section = (props: any) => {
       );
 
       if (response && response.downloadLink) {
-        toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
+        showSuccessToast("PDF sales report generated successfully!");
         window.open(response.downloadLink, "_blank");
       } else {
-        toast.error("Failed to generate PDF report.");
+        showErrorToast("Failed to generate PDF report.");
       }
     } catch (error: any) {
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+        showErrorToast(error.response.data.message);
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     } finally {
       setShowSpinner(false);
@@ -93,7 +91,7 @@ const Section = (props: any) => {
     setIsShowBarberModal(true);
   }
   const showToast = (message: string) => {
-    toast.warning(message); // Display warning toast message
+    showWarningToast(message); // Display warning toast message
   };
   useEffect(() => {
     if (userRole?.role_name !== "Salon Manager" && userRole?.role_name !== "Salon Owner") {
@@ -109,10 +107,10 @@ const Section = (props: any) => {
           // Check if the error has a response property (Axios errors usually have this)
           if (error.response && error.response.data) {
             const apiMessage = error.response.data.message; // Extract the message from the response
-            toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
           } else {
             // Fallback for other types of errors
-            toast.error(error.message || "Something went wrong");
+            showErrorToast(error.message || "Something went wrong");
           }
         }
       };
@@ -157,10 +155,10 @@ const Section = (props: any) => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setSalonBarberData([]); // Clear barber data in case of error
     }
@@ -211,7 +209,7 @@ const Section = (props: any) => {
         await getSalonBabrer(salonId); // Fetch barbers
       } catch (error) {
         console.error("Error fetching barbers:", error);
-        toast.error("Failed to fetch barbers.");
+        showErrorToast("Failed to fetch barbers.");
       } finally {
         setIsLoadingBarbers(false); // Hide spinner after fetching
       }
@@ -420,7 +418,6 @@ const Section = (props: any) => {
               </div>
             </div>
           )}
-          <ToastContainer closeButton={false} limit={1} />
         </Col>
       </Row>
       {

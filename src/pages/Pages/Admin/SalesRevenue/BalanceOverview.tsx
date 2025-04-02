@@ -15,7 +15,7 @@ import { Provider } from 'react-redux';
 import { fetchAppointmentSalesData } from '../../../../Services/Sales'; // Adjust path
 //import { BalanceOverviewCharts } from './DashboardCrmCharts'; // Adjust path
 import Chart from 'react-apexcharts';
-import { toast, ToastContainer } from 'react-toastify';
+import { showErrorToast } from 'slices/layouts/toastService';
 
 interface BalanceOverviewChartsProps {
   series: { name: string; data: number[] }[];
@@ -127,10 +127,10 @@ const getBalanceChartsData = (filter: string) => async (dispatch: any) => {
     // Check if the error has a response property (Axios errors usually have this)
     if (error.response && error.response.data) {
       const apiMessage = error.response.data.message; // Extract the message from the response
-      toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+      showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
     } else {
       // Fallback for other types of errors
-      toast.error(error.message || "Something went wrong");
+      showErrorToast(error.message || "Something went wrong");
     }
     dispatch(updateBalanceOverviewData([]));
     dispatch(updateMetrics({ sales: 0, appointments: 0, profitRatio: 0 }));
@@ -262,8 +262,6 @@ const BalanceOverview = () => {
           </Card>
         </Col>
       )}
-      
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

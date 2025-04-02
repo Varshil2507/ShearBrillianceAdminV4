@@ -28,10 +28,10 @@ import { createBarberLeaveRequest } from '../Services/BarberLeaveService';
 import { changeSidebarVisibility } from "../slices/thunks";
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
-import { toast, ToastContainer } from "react-toastify"; // Import Toastify
 import "react-toastify/dist/ReactToastify.css"; // Import the CSS for Toastify
 import config from "config";
 import { updatePaymentConfig } from "Services/ConfigurationService";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 const { commonText } = config;
 const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass, userInfo, salonUserInfo, paymentMode, changeShowLoader }: any) => {
@@ -162,17 +162,17 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
       const response = await createBarberLeaveRequest(leaveData);
 
       if (response.status === 200) {
-        toast.success("Leave request submitted successfully!", { autoClose: 2000 });
+        showSuccessToast("Leave request submitted successfully!");
         toggleModal();
       }
     } catch (error: any) {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -188,17 +188,17 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
     }
     try {
       await updatePaymentConfig(obj);
-      toast.success("Payment mode updated successfully!", { autoClose: 2000 });
+      showSuccessToast("Payment mode updated successfully!");
       setIsChecked(nextState); // Toggle the switch
       setShowModal(false); // Close modal
     } catch (error: any) {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     };
   }
@@ -349,7 +349,6 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                   </>
                 )}
               </div>
-              <ToastContainer />
 
               {/* {storeRoleInfo?.role_name === 'Barber' && (
                 <BarberStatusDropdown isBarber={isBarber}

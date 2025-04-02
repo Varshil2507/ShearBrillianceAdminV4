@@ -5,11 +5,10 @@ import Section from "./Section";
 import { fetchDashboardData } from "Services/DashboardService";
 import Loader from "Components/Common/Loader";
 import ProjectsStatus from "./ProjectsStatus";
-import { toast, ToastContainer } from "react-toastify";
 import config from "config";
-import RevenueStatus from "./RevenueStatus";
 import CustomerStatus from "./CustomerStatus";
 import { CustomerMixedChart } from "./CustomerMixedChart";
+import { showErrorToast } from "slices/layouts/toastService";
 
 export const DASHBOARD_ENDPOINT = "/dashboard";
 const { commonText } = config;
@@ -34,10 +33,10 @@ const DashboardEcommerce = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -91,7 +90,6 @@ const DashboardEcommerce = () => {
         </Container>
       </div>
 
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

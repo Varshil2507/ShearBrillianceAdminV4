@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row, Spinner } from "reactstrap";
 import Flatpickr from "react-flatpickr";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
-import Loader from "Components/Common/Loader";
 import { generateSalesReport } from "Services/Insalonappointment";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
 import { formatDate } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 
 const Salesrevenue = () => {
   const [selectedStartDate, setStartDate] = useState<any>(new Date());
@@ -46,16 +44,16 @@ const Salesrevenue = () => {
       );
 
       if (response && response.downloadUrl) {
-        toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
+        showSuccessToast("PDF sales report generated successfully!");
         window.open(response.downloadUrl, "_blank");
       } else {
-        toast.error("Failed to generate PDF report.");
+        showErrorToast("Failed to generate PDF report.");
       }
     } catch (error: any) {
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+        showErrorToast(error.response.data.message);
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     } finally {
       setShowSpinner(false);
@@ -64,7 +62,7 @@ const Salesrevenue = () => {
     }
   };
   const showToast = (message: string) => {
-    toast.warning(message); // Display warning toast message
+    showWarningToast(message); // Display warning toast message
   };
 
   // const formatDate = (dateString: any) => {
@@ -107,10 +105,10 @@ const Salesrevenue = () => {
           // Check if the error has a response property (Axios errors usually have this)
           if (error.response && error.response.data) {
             const apiMessage = error.response.data.message; // Extract the message from the response
-            toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
           } else {
             // Fallback for other types of errors
-            toast.error(error.message || "Something went wrong");
+            showErrorToast(error.message || "Something went wrong");
           }
         }
       };
@@ -134,10 +132,10 @@ const Salesrevenue = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setSalonBarberData([]); // Clear barber data in case of error
     }
@@ -188,7 +186,7 @@ const Salesrevenue = () => {
         await getSalonBabrer(salonId); // Fetch barbers
       } catch (error) {
         console.error("Error fetching barbers:", error);
-        toast.error("Failed to fetch barbers.");
+        showErrorToast("Failed to fetch barbers.");
       } finally {
         setIsLoadingBarbers(false); // Hide spinner after fetching
       }
@@ -373,7 +371,6 @@ const Salesrevenue = () => {
             </div>
           )}
 
-          <ToastContainer closeButton={false} limit={1} />
         </Col>
       </Row>
     </React.Fragment>

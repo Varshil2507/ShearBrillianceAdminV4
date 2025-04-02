@@ -23,9 +23,8 @@ import {
   updateBlog,
   deleteBlog,
 } from "../../../../Services/BlogService"; // Adjust the import based on your structure
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 // Define the Blog type based on your table structure
 interface Blog {
@@ -120,10 +119,10 @@ const BlogTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -252,7 +251,7 @@ const BlogTable: React.FC = () => {
       try {
         await deleteBlog(deletingBlogId); // Call delete API
 
-        toast.success("Blog deleted successfully", { autoClose: 2000 });
+        showSuccessToast("Blog deleted successfully");
 
         setShowSpinner(false);
         fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -300,7 +299,7 @@ const BlogTable: React.FC = () => {
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
+        showErrorToast('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
         event.target.value = ''; // Clear the file input
       }
     } else {
@@ -322,7 +321,7 @@ const BlogTable: React.FC = () => {
 
       const newBlogData = await addBlog(formData);
 
-      toast.success("Blog added successfully", { autoClose: 2000 });
+      showSuccessToast("Blog added successfully");
       // Update the state with the new blog
       // setBlogData((prevData) => [...prevData, newBlogData]);
       fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -339,10 +338,10 @@ const BlogTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -363,7 +362,7 @@ const BlogTable: React.FC = () => {
 
         // Update blog API call
         const updatedBlogData = await updateBlog(newBlog.id, formData);
-        toast.success("Blog updated successfully", { autoClose: 2000 });
+        showSuccessToast("Blog updated successfully");
         setShowSpinner(false);
         // Fetch updated blogs filtered by title
         fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -380,10 +379,10 @@ const BlogTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     }
@@ -665,7 +664,6 @@ const BlogTable: React.FC = () => {
         onCloseClick={toggleDeleteModal}
         title="Blog"
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

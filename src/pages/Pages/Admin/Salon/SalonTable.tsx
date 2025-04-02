@@ -12,8 +12,6 @@ import {
 } from "reactstrap";
 import TableContainer from "Components/Common/TableContainer";
 import DeleteModal from "../../../../../src/Components/Common/DeleteModal";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Profile1 from "../../../../assets/images/about.jpg";
 import axios from "axios";
 
@@ -27,6 +25,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Loader from "Components/Common/Loader";
 import { formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 // Define the Salon type based on your database structure
 interface Salon {
   id: number;
@@ -104,10 +103,10 @@ const SalonTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -298,7 +297,7 @@ const SalonTable: React.FC = () => {
       if (selectedSalon !== null) {
         await deleteSalon(selectedSalon.id);
 
-        toast.success("Salon deleted successfully", { autoClose: 2000 });
+        showSuccessToast("Salon deleted successfully");
         // setSalonData((prevSalons) =>
         //   prevSalons.filter((salon) => salon.id !== selectedSalonId)
         // );
@@ -462,7 +461,7 @@ const SalonTable: React.FC = () => {
 
       // setSalonData(salons);
       fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-      toast.success("Salon added successfully!", { autoClose: 2000 });
+      showSuccessToast("Salon added successfully!");
       setShowSpinner(false);
       formik.resetForm();
       toggleModal(); // Close the modal
@@ -480,7 +479,7 @@ const SalonTable: React.FC = () => {
             const fieldError = backendError.data[field];
             if (fieldError) {
               // Display the field-specific error in a toast message
-              toast.error(
+              showErrorToast(
                 `${field.charAt(0).toUpperCase() + field.slice(1)
                 }: ${fieldError}`,
                 { autoClose: 3000 }
@@ -489,7 +488,7 @@ const SalonTable: React.FC = () => {
           });
         } else if (backendError.message) {
           // For other errors (non-validation related)
-          toast.error(backendError.message, { autoClose: 2000 });
+          showErrorToast(backendError.message);
         }
       }
 
@@ -540,7 +539,7 @@ const SalonTable: React.FC = () => {
       // setSalonData(salons);
       fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
       // Show success toast
-      toast.success("Salon updated successfully", { autoClose: 2000 });
+      showSuccessToast("Salon updated successfully");
 
       setShowSpinner(false);
       // Close the modal
@@ -552,10 +551,10 @@ const SalonTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -642,7 +641,7 @@ const SalonTable: React.FC = () => {
       values.email.trim();
       // Check if open_time is less than close_time
       if (openTime >= closeTime) {
-        toast.error("Open time must be earlier than close time.");
+        showErrorToast("Open time must be earlier than close time.");
         setShowSpinner(false);
       } else {
         if (values.id) {
@@ -1244,7 +1243,6 @@ const SalonTable: React.FC = () => {
         subTitle="the salon"
         title={selectedSalon != null ? String(selectedSalon.name) : undefined} // Convert to string if not undefined
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

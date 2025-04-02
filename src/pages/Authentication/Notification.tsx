@@ -16,7 +16,7 @@ import {
 } from "reactstrap";
 import defaultImage from "../../assets/images/blog_default_img.jpg";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 export const NOTIFICATION_ENDPOINT = "/notification";
 
@@ -46,15 +46,15 @@ const Notification = () => {
 
     try {
       const response = await axios.post(NOTIFICATION_ENDPOINT, payload);
-      toast.success("Send Notification Successfully", { autoClose: 2000 });
+      showSuccessToast("Send Notification Successfully");
       setLoader(false);
     } catch (error: any) {
       setLoader(false);
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message;
-        toast.error(apiMessage || "An error occurred");
+        showErrorToast(apiMessage || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     } finally {
       toggleModal(); // Close the modal after submission
@@ -69,7 +69,7 @@ const Notification = () => {
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
+        showErrorToast('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
         event.target.value = ''; // Clear the file input
       }
     } else {
@@ -250,7 +250,6 @@ const Notification = () => {
         </Modal>
       </Container>
 
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import getChartColorsArray from "../../../../../Components/Common/ChartsDynamicColor";
 import { APIClient } from "../../../../../Services/api_helper";
-import { toast, ToastContainer } from "react-toastify";
 import { fetchTopSalon } from "Services/Sales";
 import Loader from "Components/Common/Loader";
+import { showErrorToast } from "slices/layouts/toastService";
 
 const apiClient = new APIClient();
 
@@ -33,11 +33,11 @@ const TopSalon = ({ dataColors }: any) => {
                     }, 500); // Hide loader after 5 seconds
                     return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
                 } else {
-                    toast.error("Failed to fetch salon data");
+                    showErrorToast("Failed to fetch salon data");
                     setShowLoader(false);
                 }
             } catch (error) {
-                toast.error("Error fetching salon data");
+                showErrorToast("Error fetching salon data");
                 setShowLoader(false);
             }
         };
@@ -73,7 +73,6 @@ const TopSalon = ({ dataColors }: any) => {
             {showLoader && (
                 <Loader />
             )}
-            <ToastContainer />
             {/* {chartData.length > 0 && categories.length > 0 ? ( */}
                 <ReactApexChart className="apex-charts" series={chartData} options={options} type="bar" height={350} />
             {/* ) : (

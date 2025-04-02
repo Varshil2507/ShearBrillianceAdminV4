@@ -25,8 +25,6 @@ import {
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { format, parseISO, startOfWeek, isSameWeek } from "date-fns";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
@@ -41,6 +39,7 @@ import {
 import { cancelAppointment } from "Services/AppointmentService";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
 import { formatDateShort, formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 const today = format(new Date(), "yyyy-MM-dd");
 
 const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
@@ -289,7 +288,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     if (!startTime) return;
     if (!selectedDate) {
       if (startTime < currentTime) {
-        toast.error(
+        showErrorToast(
           `Start time cannot be in the past. Please select a valid time.`,
           {
             autoClose: 3000,
@@ -305,7 +304,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       (startTime < salonNames.salon.open_time_temp ||
         startTime > salonNames.salon.close_time_temp)
     ) {
-      toast.error(
+      showErrorToast(
         `Start time must be later than ${salonNames.startTimeAMPM} and later than end time`,
         {
           autoClose: 3000,
@@ -321,7 +320,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       endTime &&
       (endTime > salonNames.salon.close_time_temp || endTime < startTime)
     ) {
-      toast.error(
+      showErrorToast(
         `End time must be earlier than ${salonNames.closeTimeAMPM} and later than start time`,
         {
           autoClose: 3000,
@@ -393,7 +392,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     onSubmit: (values) => {
       setShowSpinner(true);
       if (isAddNew && !newBarberSession?.session_date) {
-        toast.error("First select date", {
+        showErrorToast("First select date", {
           autoClose: 3000,
         });
         setShowSpinner(false);
@@ -401,7 +400,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       }
       // Validate start_time and end_time
       if (values.start_time >= values.end_time) {
-        toast.error("Start time must be earlier than end time", {
+        showErrorToast("Start time must be earlier than end time", {
           autoClose: 3000,
         });
         setShowSpinner(false);
@@ -420,7 +419,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       if (newBarberSession?.id) {
         updateBarberSession(values.id, values)
           .then((response) => {
-            toast.success("Barber schedule updated successfully", {
+            showSuccessToast("Barber schedule updated successfully", {
               autoClose: 2000,
             });
             setShowSpinner(false);
@@ -434,10 +433,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
               const apiMessage = error.response.data.message; // Extract the message from the response
-              toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+              showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
               // Fallback for other types of errors
-              toast.error(error.message || "Something went wrong");
+              showErrorToast(error.message || "Something went wrong");
             }
             setShowSpinner(false);
           });
@@ -458,7 +457,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
 
         addBarberSession(obj)
           .then((response) => {
-            toast.success("Barber schedule added successfully", {
+            showSuccessToast("Barber schedule added successfully", {
               autoClose: 2000,
             });
             setShowSpinner(false);
@@ -471,10 +470,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
               const apiMessage = error.response.data.message; // Extract the message from the response
-              toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+              showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
               // Fallback for other types of errors
-              toast.error(error.message || "Something went wrong");
+              showErrorToast(error.message || "Something went wrong");
             }
             setShowSpinner(false);
           });
@@ -492,10 +491,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -513,7 +512,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     try {
       if (appointmentId) {
         await cancelAppointment(appointmentId); // API call with appointment ID
-        toast.success("Cancel appointment successfully", { autoClose: 2000 });
+        showSuccessToast("Cancel appointment successfully");
         setAppointmentId(null);
         setShowCancelSpinner(false);
         if (onReload) {
@@ -553,11 +552,11 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   const handleDateChange = (barberInfo: any, event: any) => {
     const selectedDate = event.target.value;
     if (!newBarberSession || !newBarberSession.lastBarberScheduleDate) {
-      toast.error("No available schedule date.");
+      showErrorToast("No available schedule date.");
       return;
     }
     if (selectedDate > newBarberSession.lastBarberScheduleDate) {
-      toast.error("Selected date cannot be later than " + newBarberSession.lastBarberScheduleDate);
+      showErrorToast("Selected date cannot be later than " + newBarberSession.lastBarberScheduleDate);
       return;
     }
     // if(newBarberSession?.lastBarberScheduleDate )
@@ -569,7 +568,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     // const isAvailableSchedule = barberInfo.schedule?.find((info: any) => formatDate(info.date).toString() === formatDate(event.target.value).toString() && info.is_non_working_day == false && info.is_leave_day === false);
     // setIsAvailableSchedule(isAvailableSchedule ? true : false);
     // if (isAvailableSchedule) {
-    //   toast.warning("Please select another date because this barber's schedule is already available on this date.");
+    //   showWarningToast("Please select another date because this barber's schedule is already available on this date.");
     // } else {
     //   formik.setFieldValue("session_date", event.target.value);
     // }
@@ -586,7 +585,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       setShowTransferSpinner(false);
       setModalTransfer(!modalTransfer);
       if (data) {
-        toast.success("Transfer barber successfully", { autoClose: 2000 });
+        showSuccessToast("Transfer barber successfully");
       }
       // Ensure selectedLeave and barber exist before modifying appointments
       if (newBarberSession && newBarberSession?.appointments) {
@@ -612,10 +611,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -1267,7 +1266,6 @@ useEffect(() => {
         isService={false}
         appointmentId={appointmentId} // Pass appointmentId to modal
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

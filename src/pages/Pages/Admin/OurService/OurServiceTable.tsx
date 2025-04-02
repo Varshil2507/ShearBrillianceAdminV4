@@ -22,10 +22,9 @@ import {
   updatePatchStatus,
   deleteService,
 } from "../../../../Services/Service";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface Service {
   id: number;
@@ -74,10 +73,10 @@ const ServiceTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -99,7 +98,7 @@ const ServiceTable: React.FC = () => {
         )
       );
       setIsEditMode(false); // Enable edit mode
-      toast.success("Status updated successfully", { autoClose: 2000 });
+      showSuccessToast("Status updated successfully");
       fetchServices();
       toggleConfirmModal();
       setSelectedService(null);
@@ -109,10 +108,10 @@ const ServiceTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -161,7 +160,7 @@ const ServiceTable: React.FC = () => {
         created_at: new Date().toISOString(),
         isActive: setIsActive,
       });
-      toast.success("Service added successfully", { autoClose: 2000 });
+      showSuccessToast("Service added successfully");
       toggleModal();
       setServiceData((prevData) => [...prevData, newService]);
       setShowSpinner(false);
@@ -175,7 +174,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error adding service, please try again later";
-      toast.error(errorMessage, { autoClose: 2000 });
+      showErrorToast(errorMessage);
       console.error("Error adding service:", error);
     }
   };
@@ -200,7 +199,7 @@ const ServiceTable: React.FC = () => {
 
       await updateService(id, serviceDataToUpdate);
 
-      toast.success("Service updated successfully", { autoClose: 2000 });
+      showSuccessToast("Service updated successfully");
       toggleModal();
       setShowSpinner(false);
       setMinPrice("");
@@ -219,7 +218,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error updating service, please try again later";
-      toast.error(errorMessage, { autoClose: 2000 });
+      showErrorToast(errorMessage);
       console.error("Error updating service:", error);
     }
   };
@@ -325,7 +324,7 @@ const ServiceTable: React.FC = () => {
         prevData.filter((barber) => barber.id !== selectedService.id)
       );
 
-      toast.success("Barber deleted successfully", { autoClose: 2000 });
+      showSuccessToast("Barber deleted successfully");
       setShowSpinner(true);
       setDeleteModal(false); // Close the modal
       setSelectedService(null); // Reset selected service ID
@@ -373,7 +372,7 @@ const ServiceTable: React.FC = () => {
       const errorMessage =
         error.response?.data?.message ||
         "Error updating service, please try again later";
-      toast.error(errorMessage, { autoClose: 2000 });
+      showErrorToast(errorMessage);
       setShowSpinner(false);
     }
   };
@@ -747,7 +746,6 @@ const ServiceTable: React.FC = () => {
         isService={true}
         appointmentId={''}  // Pass appointmentId to modal
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

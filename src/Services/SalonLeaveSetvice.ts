@@ -1,6 +1,5 @@
-import { toast } from 'react-toastify';
-
 import { APIClient } from './api_helper'; // Assuming APIClient is already defined
+import { showErrorToast } from 'slices/layouts/toastService';
 const apiClient = new APIClient();
 
 export const REQUESTED_LEAVES_ENDPOINT = '/barber-leave/all';
@@ -26,7 +25,7 @@ export const fetchRequestedLeaves = async (
     const response:any = await apiClient.get(REQUESTED_LEAVES_ENDPOINT, { params });
     return response; // Return only the data array
   } catch (error) {
-    toast.error('Error fetching requested leaves', { autoClose: 2000 });
+    showErrorToast('Error fetching requested leaves');
     console.error('Error fetching requested leaves:', error);
     throw error; // Rethrow the error so that it can be handled in the component
   }

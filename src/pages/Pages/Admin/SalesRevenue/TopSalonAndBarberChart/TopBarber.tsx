@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import getChartColorsArray from "../../../../../Components/Common/ChartsDynamicColor";
 import { fetchTopBarber } from "Services/Sales"; // Import API method
-import { toast, ToastContainer } from "react-toastify";
 import Loader from "Components/Common/Loader";
+import { showErrorToast } from "slices/layouts/toastService";
 
 const TopBarber = ({ dataColors }: any) => {
   const [showLoader, setShowLoader] = useState(true);
@@ -36,11 +35,11 @@ const TopBarber = ({ dataColors }: any) => {
           }, 500); // Hide loader after 5 seconds
           return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
         } else {
-          // toast.error("No top barbers found");
+          // showErrorToast("No top barbers found");
           setShowLoader(false);
         }
       } catch (error) {
-        toast.error("Error fetching top barbers");
+        showErrorToast("Error fetching top barbers");
         setShowLoader(false);
       }
     };
@@ -102,7 +101,6 @@ const TopBarber = ({ dataColors }: any) => {
       {showLoader && (
         <Loader />
       )}
-      <ToastContainer />
       <ReactApexChart dir="ltr" className="apex-charts" series={series} options={options} type="bar" height={350} />
     </>
   );

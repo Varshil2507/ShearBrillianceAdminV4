@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardBody, CardHeader, Col, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
-import { toast, ToastContainer } from 'react-toastify';
 import { fetchSalesPaymentData } from 'Services/Sales';
+import { showErrorToast } from 'slices/layouts/toastService';
 
 interface AppointmentStatus {
     status: string;
@@ -39,10 +38,10 @@ const RevenueStatus: React.FC = () => {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
                 const apiMessage = error.response.data.message; // Extract the message from the response
-                toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
                 // Fallback for other types of errors
-                toast.error(error.message || "Something went wrong");
+                showErrorToast(error.message || "Something went wrong");
             }
             setChartData([0, 0]); // Handle error by resetting data
         } finally {
@@ -91,8 +90,7 @@ const RevenueStatus: React.FC = () => {
                     </div>
                 </Card>
             </Col> */}
-            
-            <ToastContainer closeButton={false} limit={1} />
+
         </React.Fragment>
     );
 };

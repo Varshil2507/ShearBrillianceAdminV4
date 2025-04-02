@@ -8,10 +8,9 @@ import { useFormik } from "formik";
 import { loginAPI, resetLoginFlag, socialLogin } from "../../slices/thunks";
 import smallest from "../../assets/images/smallest.png";
 import { createSelector } from 'reselect';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { loginSuccess } from 'slices/auth/login/reducer';
 import config from 'config';
+import { showErrorToast, showSuccessToast } from 'slices/layouts/toastService';
 
 const Login = (props: any) => {
     const dispatch: any = useDispatch();
@@ -63,26 +62,27 @@ const Login = (props: any) => {
             setLoader(true);
             try {
                 const response = await dispatch(loginAPI(values, navigate));
+                debugger;
                 if (!response || response.error) {
-                    toast.error(response.error, { autoClose: 2000 });
+                    showErrorToast(response.error);
                     setLoader(false);
                     // Handle error display if needed
                 } else if (response.token) {
-                    toast.success("Login Successfully", { autoClose: 2000 });
+                    showSuccessToast("Login Successfully");
                     dispatch(loginSuccess(response));
                     navigate('/dashboard');
                 } else {
                     setLoader(false);
-                    toast.error(response.message);
+                    showErrorToast(response.message);
                 }
             } catch (error: any) {
                 // Check if the error has a response property (Axios errors usually have this)
                 if (error.response && error.response.data) {
                     const apiMessage = error.response.data.message; // Extract the message from the response
-                    toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                    showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
                 } else {
                     // Fallback for other types of errors
-                    toast.error(error.message || "Something went wrong");
+                    showErrorToast(error.message || "Something went wrong");
                 }
                 setLoader(false);
             }
@@ -199,7 +199,6 @@ const Login = (props: any) => {
                         </Row>
                     </Container>
                 </div>
-                <ToastContainer closeButton={false} limit={1} />
             </ParticlesAuth>
         </React.Fragment>
     );

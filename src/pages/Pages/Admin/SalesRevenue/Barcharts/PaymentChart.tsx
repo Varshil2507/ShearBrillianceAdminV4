@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Col, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import { PrjectsStatusCharts } from '../DashboardProjectCharts';
 import { fetchPaymentMethod } from 'Services/Sales';
-import { toast, ToastContainer } from 'react-toastify';
 import Loader from 'Components/Common/Loader';
+import { showErrorToast } from 'slices/layouts/toastService';
 
 interface PaymentMethod {
     status: string;
@@ -37,7 +37,7 @@ const PaymentChart: React.FC = () => {
             setChartData([parseFloat(online), parseFloat(offline)]);
         } catch (error: any) {
             console.error("Fetch Error:", error);
-            toast.error(error.response?.data?.message || "Something went wrong");
+            showErrorToast(error.response?.data?.message || "Something went wrong");
             setChartData([0.00, 0.00]); // Fallback with formatted values
         } finally {
             setLoading(false);
@@ -135,7 +135,6 @@ const PaymentChart: React.FC = () => {
                 </Card>
             </Col>
 
-            <ToastContainer closeButton={false} limit={1} />
         </React.Fragment>
     );
 };

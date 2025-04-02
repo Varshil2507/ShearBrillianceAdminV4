@@ -10,11 +10,10 @@ import {
 } from "reactstrap";
 import TableContainer from "Components/Common/TableContainer";
 import Loader from "Components/Common/Loader";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { fetchLeaveHistory } from "../../../../Services/BarberLeaveHistoryService"; // Update the path to your service file
 import { Cell } from "@tanstack/react-table";
 import { formatDate, formatHours, otherFormatDate,formatUTCDate } from "Components/Common/DateUtil";
+import { showErrorToast } from "slices/layouts/toastService";
 
 interface LeaveHistory {
   id: number;
@@ -76,10 +75,10 @@ const LeaveHistoryTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       setShowLoader(false);
     }
@@ -330,7 +329,6 @@ const LeaveHistoryTable: React.FC = () => {
         />
 
       )}
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

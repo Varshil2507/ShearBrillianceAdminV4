@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 //Include Both Helper File with needed methods
 import {
     getTaskList as getTaskListApi,
@@ -8,6 +7,7 @@ import {
     updateTask as updateTaskApi,
     deleteTask as deleteTaskApi,
 } from "../../helpers/fakebackend_helper";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 export const getTaskList = createAsyncThunk("tasks/getTaskList", async () => {
     try {
         const response = getTaskListApi();
@@ -19,30 +19,30 @@ export const getTaskList = createAsyncThunk("tasks/getTaskList", async () => {
 export const addNewTask = createAsyncThunk("tasks/addNewTask", async (task: any) => {
     try {
         const response = addNewTaskApi(task);
-        toast.success("Task Added Successfully", { autoClose: 2000 });
+        showSuccessToast("Task Added Successfully");
         return response;
     } catch (error) {
-        toast.error("Task Added Failed", { autoClose: 2000 });
+        showErrorToast("Task Added Failed");
         return error;
     }
 });
 export const updateTask = createAsyncThunk("tasks/updateTask", async (task: any) => {
     try {
         const response = updateTaskApi(task);
-        toast.success("Task Updated Successfully", { autoClose: 2000 });
+        showSuccessToast("Task Updated Successfully");
         return response;
     } catch (error) {
-        toast.error("Task Updated Failed", { autoClose: 2000 });
+        showErrorToast("Task Updated Failed");
         return error;
     }
 });
 export const deleteTask = createAsyncThunk("tasks/deleteTask", async (task: any) => {
     try {
         const response = deleteTaskApi(task);
-        toast.success("Task Updated Successfully", { autoClose: 2000 });
+        showSuccessToast("Task Updated Successfully");
         return { task, ...response };
     } catch (error) {
-        toast.error("Task Updated Failed", { autoClose: 2000 });
+        showErrorToast("Task Updated Failed");
         return error;
     }
 });

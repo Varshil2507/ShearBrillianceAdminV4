@@ -26,7 +26,6 @@ import ca from "../../../../assets/images/flags/ca.svg";
 import { fetchSalons } from "Services/SalonService";
 import default_image from "../../../../assets/images/default_salon_img.png";
 import { fetchServices } from "Services/Service";
-import { toast } from "react-toastify";
 import { fetchBarberBySalon } from "Services/barberService";
 import { fetchTimeSlots } from "Services/AvailableTimeslot";
 import { createAppointment } from "Services/AppointmentService";
@@ -36,6 +35,7 @@ import SelectBarberModal from "../../../../Components/Common/SelectedServiceModa
 import config from "config";
 import "./Scheduleappointment.css"
 import { formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showInfoToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 
 interface Service {
   id: number;
@@ -325,7 +325,7 @@ const Scheduleappointment = () => {
       const mappedData = mapAppointmentData(appointmentData); // Map the data to match Swagger format
       const response = await createAppointment(mappedData); // Pass the mapped data to the API
       setShowSpinner(false);
-      toast.success("Appointment created successfully!", { autoClose: 2000 });
+      showSuccessToast("Appointment created successfully!");
       // Move to the next step
       toggleArrowTab(activeArrowTab + 1); // Increment the active tab to navigate to the next step
     } catch (error: any) {
@@ -333,10 +333,10 @@ const Scheduleappointment = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -365,10 +365,10 @@ const Scheduleappointment = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       } finally {
       }
@@ -411,10 +411,10 @@ const Scheduleappointment = () => {
           // Check if the error has a response property (Axios errors usually have this)
           if (error.response && error.response.data) {
             const apiMessage = error.response.data.message; // Extract the message from the response
-            toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
           } else {
             // Fallback for other types of errors
-            toast.error(error.message || "Something went wrong");
+            showErrorToast(error.message || "Something went wrong");
           }
         } finally {
         }
@@ -512,10 +512,10 @@ const Scheduleappointment = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       } finally {
       }
@@ -813,10 +813,10 @@ const Scheduleappointment = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -971,7 +971,7 @@ const Scheduleappointment = () => {
       // remainingSlotsNew = filteredData.slice(startIndexNew, slotsNeeded + 1);
       const remainingSlotsNew = filteredData.length - startIndex; // Calculate remaining slots from the selected one
       if (remainingSlotsNew < slotsNeeded) {
-        toast.warn("Insufficient consecutive slots for the service time.");
+        showWarningToast("Insufficient consecutive slots for the service time.");
         return;
       }
     }
@@ -987,7 +987,7 @@ const Scheduleappointment = () => {
 
     if (!areAllSlotsAvailable) {
       console.error("Some of the required slots are already booked.");
-      toast.warn("Some of the required slots are already booked.");
+      showWarningToast("Some of the required slots are already booked.");
       return;
     }
 
@@ -1061,7 +1061,7 @@ const Scheduleappointment = () => {
     setSelectedPeriod(null);
     setTimeSlots([]); // Clear available time slots
 
-    toast.info("Selections have been reset. Please reselect the date.");
+    showInfoToast("Selections have been reset. Please reselect the date.");
   };
 
   const handleBackClick = (currentPage: number) => {
@@ -1254,7 +1254,7 @@ const Scheduleappointment = () => {
                               toggleArrowTab(activeArrowTab + 1);
                               setIsNextButtonActive(false);
                             } else {
-                              toast.warn(
+                              showWarningToast(
                                 "Please select a salon before proceeding!"
                               );
                             }
@@ -1476,7 +1476,7 @@ const Scheduleappointment = () => {
                                                       service.min_price
                                                     );
                                                   } else {
-                                                    toast.warn(
+                                                    showWarningToast(
                                                       "You have reached the limit of 5!"
                                                     );
                                                   }

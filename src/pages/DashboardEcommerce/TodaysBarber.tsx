@@ -1,15 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardBody, CardImg, CardSubtitle, CardText, CardTitle, Col, Row, Spinner } from "reactstrap";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
 
 import "./section.css";
 import { getTodaysBarber } from "Services/BarberSessionService";
-import TableContainer from "Components/Common/TableContainer";
 import Profile from "../../assets/images/users/avatar-8.jpg";
 import Loader from "Components/Common/Loader";
 import { formatHours } from "Components/Common/DateUtil";
+import { showErrorToast } from "slices/layouts/toastService";
 
 const TodaysBarber = (props: any) => {
   const [salonBarberData, setSalonBarberData] = useState<any>(); // Barbers filtered by selected salon
@@ -49,9 +47,9 @@ const TodaysBarber = (props: any) => {
     } catch (error: any) {
       console.error("Error fetching barbers:", error);
       if (error.response && error.response.data) {
-        toast.error(error.response.data.message || "An error occurred");
+        showErrorToast(error.response.data.message || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setSalonBarberData([]); // Clear barber data in case of error
     } finally {
@@ -81,7 +79,6 @@ const TodaysBarber = (props: any) => {
 
   return (
     <React.Fragment>
-      <ToastContainer closeButton={false} limit={1} />
 
       {
         showLoader ? (

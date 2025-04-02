@@ -2,17 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Spinner, Accordion, AccordionItem, AccordionHeader, AccordionBody, Card } from "reactstrap";
 import Select from "react-select";
 import Flatpickr from "react-flatpickr";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
-import { generateSalesReport } from "Services/Insalonappointment";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
-import PayrollPDF from "./PayrollPDF"; // Import the PDF Component
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import { fetchBarberPayroll } from "Services/DashboardService";
 import { formatDate, formatHours } from "Components/Common/DateUtil";
 import PayrollDownloadButton from "./PayrollDownloadButton";
+import { showErrorToast, showWarningToast } from "slices/layouts/toastService";
 
 interface SubDetail {
     id: string;
@@ -114,11 +110,11 @@ const Payroll = () => {
 
     const applyDateFilter = async () => {
         if (!selectedSalonId) {
-            toast.warning("Please select salon.");
+            showWarningToast("Please select salon.");
             return;
         }
         if (selectedBarberIds.length === 0) {
-            toast.warning("Please select at least one barber.");
+            showWarningToast("Please select at least one barber.");
             return;
         }
         setShowSpinner(true);
@@ -163,16 +159,16 @@ const Payroll = () => {
             }
 
             // if (response && response.downloadUrl) {
-            //     toast.success("PDF sales report generated successfully!", { autoClose: 2000 });
+            //     showSuccessToast("PDF sales report generated successfully!");
             //     window.open(response.downloadUrl, "_blank");
             // } else {
-            //     toast.error("Failed to generate PDF report.");
+            //     showErrorToast("Failed to generate PDF report.");
             // }
         } catch (error: any) {
             if (error.response?.data?.message) {
-                toast.error(error.response.data.message);
+                showErrorToast(error.response.data.message);
             } else {
-                toast.error(error.message || "Something went wrong");
+                showErrorToast(error.message || "Something went wrong");
             }
         } finally {
             setShowSpinner(false);
@@ -180,7 +176,7 @@ const Payroll = () => {
         }
     };
     const showToast = (message: string) => {
-        toast.warning(message); // Display warning toast message
+        showWarningToast(message); // Display warning toast message
     };
 
     // const formatDate = (dateString: any) => {
@@ -219,10 +215,10 @@ const Payroll = () => {
                     // Check if the error has a response property (Axios errors usually have this)
                     if (error.response && error.response.data) {
                         const apiMessage = error.response.data.message; // Extract the message from the response
-                        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
                     } else {
                         // Fallback for other types of errors
-                        toast.error(error.message || "Something went wrong");
+                        showErrorToast(error.message || "Something went wrong");
                     }
                 }
             };
@@ -252,10 +248,10 @@ const Payroll = () => {
             // Check if the error has a response property (Axios errors usually have this)
             if (error.response && error.response.data) {
                 const apiMessage = error.response.data.message; // Extract the message from the response
-                toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+                showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
             } else {
                 // Fallback for other types of errors
-                toast.error(error.message || "Something went wrong");
+                showErrorToast(error.message || "Something went wrong");
             }
             setSalonBarberData([]); // Clear barber data in case of error
         }
@@ -286,7 +282,7 @@ const Payroll = () => {
                 await getSalonBabrer(salonId); // Fetch barbers
             } catch (error) {
                 console.error("Error fetching barbers:", error);
-                toast.error("Failed to fetch barbers.");
+                showErrorToast("Failed to fetch barbers.");
             } finally {
                 setIsLoadingBarbers(false); // Hide spinner after fetching
             }
@@ -457,7 +453,6 @@ const Payroll = () => {
                             </button>
                         </div>
                     </div>
-                    <ToastContainer closeButton={false} limit={1} />
                 </Col>
             </Row>
             <div className="p-4">

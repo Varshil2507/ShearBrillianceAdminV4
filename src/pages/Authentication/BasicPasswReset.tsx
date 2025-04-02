@@ -21,7 +21,7 @@ import { postSetPassword } from "Services/AuthService";
 //formik
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { toast, ToastContainer } from "react-toastify";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 const BasicPasswCreate = () => {
   const { commonText } = config;
@@ -77,10 +77,10 @@ const BasicPasswCreate = () => {
 
         // Check if the response indicates failure (success: false)
         if (!data.success) {
-          toast.error(data.message); // Show the error message as a toast
+          showErrorToast(data.message); // Show the error message as a toast
           setLoader(false);
         } else {
-          toast.success("Password reset successfully!", { autoClose: 2000 }); // Success case, optional
+          showSuccessToast("Password reset successfully!"); // Success case, optional
           setLoader(false);
           navigate("/signin");
         }
@@ -88,10 +88,10 @@ const BasicPasswCreate = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
           setLoader(false);
         }
       } finally {
@@ -280,7 +280,6 @@ const BasicPasswCreate = () => {
           </Row>
         </Container>
       </div>
-      <ToastContainer closeButton={false} limit={1} />
     </ParticlesAuth>
   );
 };

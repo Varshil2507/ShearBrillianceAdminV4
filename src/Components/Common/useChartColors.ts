@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import getChartColorsArray from '../../Components/Common/ChartsDynamicColor';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { toast } from 'react-toastify';
+import { showErrorToast } from 'slices/layouts/toastService';
 
 const useChartColors = (chartId: string) => {
   const [chartColors, setChartColors] = useState<string[]>([]);
@@ -34,9 +34,9 @@ const useChartColors = (chartId: string) => {
       // Error handling
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message;
-        toast.error(apiMessage || "An error occurred");
+        showErrorToast(apiMessage || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setChartColors([]); // Fallback to an empty array on error
     }

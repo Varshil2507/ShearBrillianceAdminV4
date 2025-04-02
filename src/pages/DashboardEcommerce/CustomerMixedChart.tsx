@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { Row, Col, Card, CardHeader, CardBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 import { fetchCustomerYearlyStatus } from "Services/DashboardService";
-import { toast, ToastContainer } from "react-toastify";
 import getChartColorsArray from "../../common/data/ChartsDynamicColor";
+import { showErrorToast } from "slices/layouts/toastService";
 
 const CustomerMixedChart = ({ dataColors }: any) => {
   const chartMultiColors = getChartColorsArray(dataColors);
@@ -46,7 +46,7 @@ const CustomerMixedChart = ({ dataColors }: any) => {
         setTotalCustomers(0);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      showErrorToast(error.response?.data?.message || "Something went wrong");
       setSeries([]);
       setCategories([]);
       setTotalCustomers(0);
@@ -101,7 +101,6 @@ const CustomerMixedChart = ({ dataColors }: any) => {
           </CardBody>
         </Card>
       </Col>
-      <ToastContainer closeButton={false} limit={1} />
     </Row>
   );
 };

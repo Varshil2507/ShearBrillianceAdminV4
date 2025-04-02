@@ -5,9 +5,8 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import DeleteModal from "../../../../../src/Components/Common/DeleteModal";
 import { fetchRoles, addRole, updateRole} from '../../../../Services/RoleService';
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from 'Components/Common/Loader';
+import { showErrorToast, showSuccessToast } from 'slices/layouts/toastService';
 
 interface Role {
   id: number;
@@ -54,10 +53,10 @@ const RoleTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -93,7 +92,7 @@ const RoleTable: React.FC = () => {
   const handleAddRole = async (values: Omit<Role, 'id' | 'created_at'>) => {
     try {
       const newRole = await addRole({ ...values, created_at: new Date().toISOString() });
-      toast.success("Role added successfully", { autoClose: 2000 });
+      showSuccessToast("Role added successfully");
       // setRoleData((prevData) => [...prevData, newRole]);
       fetchRoles();
       setShowSpinner(false);
@@ -104,10 +103,10 @@ const RoleTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -129,7 +128,7 @@ const RoleTable: React.FC = () => {
 
       await updateRole(id, roleDataToUpdate);
 
-      toast.success("Role updated successfully", { autoClose: 2000 });
+      showSuccessToast("Role updated successfully");
       // setRoleData((prevData) =>
       //   prevData.map((role) => (role.id === id ? { ...role, ...values } : role))
       // );
@@ -139,7 +138,7 @@ const RoleTable: React.FC = () => {
     } catch (error: any) {
       // Capture the error message from the API response
       const errorMessage = error.response?.data?.message || "Error updating role, please try again later";
-      toast.error(errorMessage, { autoClose: 2000 });
+      showErrorToast(errorMessage);
       console.error("Error updating role:", error);
     }
   };
@@ -320,7 +319,6 @@ const RoleTable: React.FC = () => {
         onCloseClick={toggleDeleteModal}
         title={selectedRole !== null ? selectedRole.name.toString() : undefined} // Convert to string or undefined
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

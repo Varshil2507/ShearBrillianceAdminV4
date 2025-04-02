@@ -3,6 +3,7 @@ import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from
 import { updateSalonStatus } from "../../Services/SalonService"; // Assuming the API function is in api.js or api.ts
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface SalonStatusDropdownProps {
   isSalonOwner: boolean;
@@ -32,15 +33,15 @@ const SalonStatusDropdown = ({ userInfo, salonUserInfo, showLoader }: SalonStatu
       const timer = setTimeout(() => {
         showLoader(false);
       }, 1000); // Hide loader after 5 seconds
-      toast.success("Status updated successfully", { autoClose: 2000 });
+      showSuccessToast("Status updated successfully");
     } catch (error: any) {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -71,7 +72,6 @@ const SalonStatusDropdown = ({ userInfo, salonUserInfo, showLoader }: SalonStatu
           </DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
-      <ToastContainer autoClose={2000} limit={1} />
       {/* Show loading spinner if the API call is in progress */}
       {/* {loading && <span>Loading...</span>} */}
     </div>

@@ -23,13 +23,12 @@ import {
   updateBarber,
 } from "Services/barberService";
 
-import { toast, ToastContainer } from "react-toastify";
 import Select from "react-select";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchServices } from "Services/Service";
 import { formatDate, formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 // Define the User type based on your database structure
 interface Barber {
@@ -203,10 +202,10 @@ const BarberTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -244,10 +243,10 @@ const BarberTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -272,10 +271,10 @@ const BarberTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -328,7 +327,7 @@ const BarberTable: React.FC = () => {
       startTime &&
       (startTime < selectedSalonOpenTime || startTime > selectedSalonCloseTime)
     ) {
-      toast.error(
+      showErrorToast(
         `Start time must be later than ${selectedSalonOpenTimeAMPM} and later than end time`,
         {
           autoClose: 3000,
@@ -343,7 +342,7 @@ const BarberTable: React.FC = () => {
 
   const validateEndTime = (endTime: any, startTime: any, index: any) => {
     if (endTime && (endTime > selectedSalonCloseTime || endTime < startTime)) {
-      toast.error(
+      showErrorToast(
         `End time must be earlier than ${selectedSalonCloseTimeAMPM} and later than start time`,
         {
           autoClose: 3000,
@@ -653,7 +652,7 @@ const BarberTable: React.FC = () => {
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        toast.error(
+        showErrorToast(
           "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
         );
         e.target.value = ""; // Clear the file input
@@ -732,7 +731,7 @@ const BarberTable: React.FC = () => {
       if (newAdded) {
         // Fetch and update the salon list
         const message = "Barber added successfully.";
-        toast.success(message, { autoClose: 2000 });
+        showSuccessToast(message);
         setShowSpinner(false);
         fetchBarbersList(
           selectedCurrentPage ? selectedCurrentPage + 1 : 1,
@@ -755,10 +754,10 @@ const BarberTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -833,7 +832,7 @@ const BarberTable: React.FC = () => {
 
       await updateBarber(id, formData);
 
-      toast.success("Barber updated successfully", { autoClose: 2000 });
+      showSuccessToast("Barber updated successfully");
 
       setShowSpinner(false);
       fetchBarbersList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
@@ -861,10 +860,10 @@ const BarberTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -1031,7 +1030,7 @@ const BarberTable: React.FC = () => {
         //   prevData.filter((barber) => barber.id !== selectedBarberId)
         // );
 
-        toast.success("Barber deleted successfully", { autoClose: 2000 });
+        showSuccessToast("Barber deleted successfully");
         setShowSpinner(false);
         fetchBarbersList(
           selectedCurrentPage ? selectedCurrentPage + 1 : 1,
@@ -1044,10 +1043,10 @@ const BarberTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     }
@@ -2095,7 +2094,6 @@ const BarberTable: React.FC = () => {
         subTitle="the barber"
         // Convert to string or undefined
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

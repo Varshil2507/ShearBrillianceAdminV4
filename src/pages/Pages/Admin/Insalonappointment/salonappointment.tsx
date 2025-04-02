@@ -1,8 +1,8 @@
 import config from "config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
 import { Insalonappointment } from "Services/Insalonappointment";
+import { showErrorToast } from "slices/layouts/toastService";
 import { io } from "socket.io-client";
 // Ensure you import your API method
 
@@ -124,10 +124,10 @@ const AppointmentCards = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
         setLoading(false);
       }
@@ -178,7 +178,7 @@ const AppointmentCards = () => {
         )) : <span className="text-muted text-center w-100"><i>No appointment currently running!!!</i></span>}
 
       </div>
-    </div><ToastContainer closeButton={false} limit={1} /></>
+    </div></>
 
   );
 };

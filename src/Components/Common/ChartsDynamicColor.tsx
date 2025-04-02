@@ -1,4 +1,5 @@
-import { toast } from "react-toastify";
+
+import { showErrorToast } from "slices/layouts/toastService";
 
 const getChartColorsArray = (colors: string): string[] => {
     try {
@@ -36,9 +37,9 @@ const getChartColorsArray = (colors: string): string[] => {
           // Error handling
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message;
-        toast.error(apiMessage || "An error occurred");
+        showErrorToast(apiMessage || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
         return []; // Return an empty array or default value
     }

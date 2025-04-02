@@ -22,8 +22,6 @@ import {
 // Formik
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import TableContainer from "Components/Common/TableContainerReactTable";
 import { fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
@@ -44,6 +42,7 @@ import Loader from "Components/Common/Loader";
 import { Link } from "react-router-dom";
 import { format, isAfter, isBefore, isToday } from "date-fns";
 import { formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -144,7 +143,7 @@ const CalenderScheduleInfo: React.FC = () => {
     salonId = selectedSalonId ?? salonId;
     barberId = selectedBarberId ?? barberId;
     if (!salonId || !barberId) {
-      toast.error("Please select both a salon and a barber."); // Show error toast if salon or barber not selected
+      showErrorToast("Please select both a salon and a barber."); // Show error toast if salon or barber not selected
       setShowSpinner(false);
       return;
     }
@@ -175,10 +174,10 @@ const CalenderScheduleInfo: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setSalonBarberData([]); // Clear barber data in case of error
     }
@@ -287,10 +286,10 @@ const CalenderScheduleInfo: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -324,10 +323,10 @@ const CalenderScheduleInfo: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -634,7 +633,7 @@ const CalenderScheduleInfo: React.FC = () => {
         haircutFormik.resetForm();
         haircutToggle();
         event?.haircutDetails.push(newHaircutDetails);
-        toast.success("Haircut details added successfully", {
+        showSuccessToast("Haircut details added successfully", {
           autoClose: 2000,
         });
       } catch (error: any) {
@@ -643,10 +642,10 @@ const CalenderScheduleInfo: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     },
@@ -728,7 +727,7 @@ const CalenderScheduleInfo: React.FC = () => {
         toggle();
         toggleModal(); // Close the modal 
         filterAppointment(null, null, appointmentId, selectedStatus);
-        toast.success("Status updated successfully", { autoClose: 2000 });
+        showSuccessToast("Status updated successfully");
         // Update the specific appointment in local state after a successful API call
         // setAppointments((prevAppointments: any[]) => {
         //   return prevAppointments.map((appointment) => {

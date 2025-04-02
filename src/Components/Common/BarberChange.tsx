@@ -6,8 +6,7 @@ import {
   DropdownItem,
 } from "reactstrap";
 import { updateBarberStatus } from "../../Services/barberService"; // API handler
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface BarberStatusDropdownProps {
   isBarber: boolean; // Indicates if the user is a barber
@@ -44,16 +43,16 @@ const BarberStatusDropdown: React.FC<BarberStatusDropdownProps> = ({
       // Validate and update session storage
       if (response && response.barber) {
         sessionStorage.setItem("authBarberUser", JSON.stringify(response.barber));
-        toast.success("Status updated successfully", { autoClose: 2000 });
+        showSuccessToast("Status updated successfully");
       } 
     } catch (error: any) {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
     } finally {
       showLoader(false); // Hide loader after API call
@@ -90,7 +89,6 @@ const BarberStatusDropdown: React.FC<BarberStatusDropdownProps> = ({
         </DropdownMenu>
       </UncontrolledDropdown>
 
-      <ToastContainer autoClose={2000} limit={1} />
     </div>
   );
 };

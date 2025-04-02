@@ -21,8 +21,6 @@ import {
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../../../Components/Common/Loader";
 
 import { fetchBarber } from "Services/barberService";
@@ -30,6 +28,7 @@ import { fetchBarberSession } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
 import BarberScheduleList from "./BarberScheduleList";
 import { formatHours, formatTime } from "Components/Common/DateUtil";
+import { showErrorToast, showWarningToast } from "slices/layouts/toastService";
 
 
 const BarberSessionsTable: React.FC = () => {
@@ -142,10 +141,10 @@ const BarberSessionsTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -160,10 +159,10 @@ const BarberSessionsTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -227,10 +226,10 @@ const BarberSessionsTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   }
@@ -278,7 +277,7 @@ const BarberSessionsTable: React.FC = () => {
       // // })
       // if (isEditing) {
       //   updateBarberSession(values.id, processedValues).then((response) => {
-      //     toast.success("Barber schedule updated successfully", {
+      //     showSuccessToast("Barber schedule updated successfully", {
       //       autoClose: 2000,
       //     });
       //     getBarberSessionsData();
@@ -291,7 +290,7 @@ const BarberSessionsTable: React.FC = () => {
       // } else {
       //   addBarberSession(obj)
       //     .then((response) => {
-      //       toast.success("Barber schedule created successfully", {
+      //       showSuccessToast("Barber schedule created successfully", {
       //         autoClose: 2000,
       //       });
       //       getBarberSessionsData();
@@ -401,7 +400,7 @@ const BarberSessionsTable: React.FC = () => {
         // const barberInfo = barberSessionsData.find((barbr: any) => barbr.BarberId === barberId);
         if (barberId && !isEditing) {
           setExistBarber(true);
-          toast.warning("Barber schedule already exist!!!", {
+          showWarningToast("Barber schedule already exist!!!", {
             autoClose: 3000,
           });
         } else {
@@ -491,7 +490,6 @@ const BarberSessionsTable: React.FC = () => {
                 //   SearchPlaceholder="Search by barber, salon or name"
                 // />
               )}
-              <ToastContainer closeButton={false} limit={1} />
             </div>
           </div>
         </Col>

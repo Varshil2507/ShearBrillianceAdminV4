@@ -1,6 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 //Include Both Helper File with needed methods
 import {
@@ -10,6 +8,7 @@ import {
   updateCustomer as updateCustomerApi,
   deleteCustomer as deleteCustomerApi,
 } from "../../helpers/fakebackend_helper";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 export const getCustomers = createAsyncThunk("ecommerce/getCustomers", async () => {
   try {
@@ -24,10 +23,10 @@ export const updateCustomer = createAsyncThunk("ecommerce/updateCustomer", async
   try {
     const response = updateCustomerApi(customer);
     const data = await response;
-    toast.success("Customer Updateded Successfully", { autoClose: 2000 });
+    showSuccessToast("Customer Updateded Successfully");
     return data;
   } catch (error) {
-    toast.error("Customer Updateded Failed", { autoClose: 2000 });
+    showErrorToast("Customer Updateded Failed");
     return error;
   }
 });
@@ -35,10 +34,10 @@ export const updateCustomer = createAsyncThunk("ecommerce/updateCustomer", async
 export const deleteCustomer = createAsyncThunk("ecommerce/deleteCustomer", async (customer:any) => {
   try {
     const response = deleteCustomerApi(customer);
-    toast.success("Customer Deleted Successfully", { autoClose: 2000 });
+    showSuccessToast("Customer Deleted Successfully");
     return { customer, ...response }
   } catch (error) {
-    toast.error("Customer Deleted Failed", { autoClose: 2000 });
+    showErrorToast("Customer Deleted Failed");
     return error;
   }
 });
@@ -47,10 +46,10 @@ export const addNewCustomer = createAsyncThunk("ecommerce/addNewCustomer", async
   try {
     const response = addNewCustomerApi(customer);
     const data = await response;
-    toast.success("Customer Added Successfully", { autoClose: 2000 });
+    showSuccessToast("Customer Added Successfully");
     return data;
   } catch (error) {
-    toast.error("Customer Added Failed", { autoClose: 2000 });
+    showErrorToast("Customer Added Failed");
     return error;
   }
 });

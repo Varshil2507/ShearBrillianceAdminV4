@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Loader from "Components/Common/Loader";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { fetchBarber, updateBarberCategory } from "Services/barberService";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
+import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 
 type CategoryKey = "walkIn" | "schedule";
 
@@ -72,10 +71,10 @@ const SalonTransferBarber: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -161,10 +160,10 @@ const SalonTransferBarber: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -206,7 +205,7 @@ const SalonTransferBarber: React.FC = () => {
   //   }
   //   const updatedCategory = await updateBarberCategory(parseInt(barberId), obj);
   //   if (updatedCategory) {
-  //     toast.success("Category updated successfully", { autoClose: 2000 });
+  //     showSuccessToast("Category updated successfully", { autoClose: 2000 });
 
   //     setConfirmModalOpen(false);
   //     setSelectedBarberCategory(null);
@@ -234,7 +233,7 @@ const SalonTransferBarber: React.FC = () => {
       const updatedCategory = await updateBarberCategory(parseInt(barberId),obj);
 
       if (updatedCategory) {
-        toast.success("Category updated successfully", { autoClose: 2000 });
+        showSuccessToast("Category updated successfully");
         setConfirmModalOpen(false);
         setSelectedBarberCategory(null);
         setSelectedSoruceCategory(null);
@@ -248,10 +247,10 @@ const SalonTransferBarber: React.FC = () => {
         // toast.warning(error?.response?.data?.message || "Bad Request", {
         //   autoClose: 3000,
         // });
-        toast.warning("You must complete all ongoing appointments before changing the barber's category.", { autoClose: 3000 });
+        showWarningToast("You must complete all ongoing appointments before changing the barber's category.", { autoClose: 3000 });
 
       } else {
-        toast.error("Something went wrong. Please try again!", {
+        showErrorToast("Something went wrong. Please try again!", {
           autoClose: 3000,
         });
       }
@@ -455,7 +454,6 @@ const SalonTransferBarber: React.FC = () => {
           appointmentId={""} // Pass appointmentId to modal
         />
       </>
-      <ToastContainer closeButton={false} limit={1} />
     </>
   );
 };

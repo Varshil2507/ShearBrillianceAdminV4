@@ -29,8 +29,6 @@ import { createSelector } from "reselect";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Link, useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
-// import moment from "moment"
-import { toast, ToastContainer } from "react-toastify";
 import DeleteModal from "Components/Common/DeleteModal";
 import Select from "react-select";
 import printJS from "print-js";
@@ -55,6 +53,7 @@ import {
 import { fetchSalons } from "Services/SalonService";
 import { deleteBarber, fetchBarber } from "Services/barberService";
 import { formatDateHours, formatHours } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 
 //Import Breadcrumb
 interface CardData {
@@ -410,10 +409,10 @@ const Board = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -427,10 +426,10 @@ const Board = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     };
@@ -470,10 +469,10 @@ const Board = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -518,10 +517,10 @@ const Board = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -612,10 +611,10 @@ const Board = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -641,10 +640,10 @@ const Board = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -758,7 +757,7 @@ const Board = () => {
       if (totalServiceTime > 0) {
         getBarberScheduleData(selectedBarberId, totalServiceTime, selected);
       } else {
-        toast.warning("Please first select atleast one service!!!");
+        showWarningToast("Please first select atleast one service!!!");
         setIsAppointmentAvailable(false);
       }
     }, 500);
@@ -826,7 +825,7 @@ const Board = () => {
     const statusData = { status: selectedCardNewStatus };
     await updateAppointmentStatus(parseInt(selectedCard?.id), statusData);
 
-    toast.success("Appointment updated successfully", { autoClose: 2000 });
+    showSuccessToast("Appointment updated successfully");
     if (selectedCardNewStatus === "canceled") {
       setCancelLoader(false);
     } else if (selectedCardNewStatus === "completed") {
@@ -1092,17 +1091,17 @@ const Board = () => {
           setIsAppointmentAvailable(false);
           if (parseInt(sessionResponse) === 100) {
             appointmentFormik.setFieldValue("barber_id", "");
-            toast.warning("Fully Booked!!!", {
+            showWarningToast("Fully Booked!!!", {
               autoClose: 3000,
             });
           } else if (parseInt(sessionResponse) === 101) {
             appointmentFormik.setFieldValue("barber_id", "");
-            toast.warning("Low Remaining Time!!!", {
+            showWarningToast("Low Remaining Time!!!", {
               autoClose: 3000,
             });
           } else {
             appointmentFormik.setFieldValue("barber_id", "");
-            toast.warning("Barber not available for longer!!!", {
+            showWarningToast("Barber not available for longer!!!", {
               autoClose: 3000,
             });
           }
@@ -1112,10 +1111,10 @@ const Board = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -1191,7 +1190,7 @@ const Board = () => {
         const timeData = { additionalTime: parseInt(values.additionalTime) };
         await updateAppointmentWaitTime(values.appointment_id, timeData);
         waitTimeToggle();
-        toast.success("Appointment updated successfully", { autoClose: 2000 });
+        showSuccessToast("Appointment updated successfully");
         const response: any = await fetchBoardAppointments(null, null);
         if (activeFilterBarber) {
           if (activeFilterBarber?.id === "all") {
@@ -1242,10 +1241,10 @@ const Board = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     },
@@ -1308,7 +1307,7 @@ const Board = () => {
       createAppointment(processedValues)
         .then((response) => {
           fetchAppointments();
-          toast.success("Appointment created successfully", {
+          showSuccessToast("Appointment created successfully", {
             autoClose: 2000,
           });
           setShowAppointmentSpinner(false);
@@ -1344,16 +1343,16 @@ const Board = () => {
           // Check for the specific error code
       if (error.response && error.response.status === 400) {
         if (error.response.data.code === 400) {
-          toast.error(error.response.data.message, {
+          showErrorToast(error.response.data.message, {
             autoClose: 3000,
           });
         } else {
-          toast.error("Failed to create an appointment.", {
+          showErrorToast("Failed to create an appointment.", {
             autoClose: 3000,
           });
         }
       } else {
-        toast.error("Something went wrong. Please try again later.", {
+        showErrorToast("Something went wrong. Please try again later.", {
           autoClose: 3000,
         });
       }
@@ -1389,7 +1388,7 @@ const Board = () => {
     onSubmit: async (values: any) => {
       try {
         const newHaircutDetails = await addHaircutDetail({ ...values });
-        toast.success("Haircut details added successfully", {
+        showSuccessToast("Haircut details added successfully", {
           autoClose: 2000,
         });
         card.haircutDetails.push(newHaircutDetails);
@@ -1399,10 +1398,10 @@ const Board = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          toast.error(error.message || "Something went wrong");
+          showErrorToast(error.message || "Something went wrong");
         }
       }
     },
@@ -1625,7 +1624,7 @@ const Board = () => {
           await updateAppointmentStatus(movedCard.id, statusData);
 
           setShowLoader(true);
-          toast.success("Appointment updated successfully", {
+          showSuccessToast("Appointment updated successfully", {
             autoClose: 2000,
           });
           const response: any = await fetchBoardAppointments(null, null);
@@ -1690,7 +1689,7 @@ const Board = () => {
           // Check if the error has a response property (Axios errors usually have this)
           if (error.response && error.response.data) {
             const apiMessage = error.response.data.message; // Extract the message from the response
-            toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
           }
           // Revert the UI changes if API fails
           const revertedLines = cards.map((line: any) => {
@@ -1800,7 +1799,7 @@ const Board = () => {
     } else {
       appointmentFormik.setFieldValue("barber_id", "");
       setIsAppointmentAvailable(false);
-      toast.warning("Please first select atleast one service!!!");
+      showWarningToast("Please first select atleast one service!!!");
     }
     toggleBarberModal(); // Close modal after confirmation
   };
@@ -3281,7 +3280,6 @@ const Board = () => {
           </div>
         </ModalBody>
       </Modal>
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };

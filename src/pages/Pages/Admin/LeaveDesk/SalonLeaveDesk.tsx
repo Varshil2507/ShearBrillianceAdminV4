@@ -22,8 +22,6 @@ import TableContainer from "Components/Common/TableContainer";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
 import axios from "axios";
 import Loader from "Components/Common/Loader";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { fetchRequestedLeaves } from "../../../../Services/SalonLeaveSetvice"; // Adjust the path as necessary
 import { updateLeaveStatus } from "../../../../Services/LeaveStatusService"; // Import your API function
 import { cancelAppointment } from "Services/AppointmentService";
@@ -32,6 +30,7 @@ import {
   saveTransferAppointments,
 } from "Services/barberService";
 import { formatDate, formatHours, formatTime, otherFormatDate,formatUTCDate } from "Components/Common/DateUtil";
+import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface RequestedLeave {
   id: number;
@@ -118,9 +117,9 @@ const RequestedLeavesTable: React.FC = () => {
       // Error handling
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message;
-        toast.error(apiMessage || "An error occurred");
+        showErrorToast(apiMessage || "An error occurred");
       } else {
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
       setShowLoader(false);
     }
@@ -167,10 +166,10 @@ const RequestedLeavesTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -252,7 +251,7 @@ const RequestedLeavesTable: React.FC = () => {
     if (selectedLeave) {
       // Pre-validation
       if (selectedUpdatedStatus === "denied" && !denyReason.trim()) {
-        toast.error("Please provide a reason for rejection.");
+        showErrorToast("Please provide a reason for rejection.");
         return;
       }
 
@@ -274,10 +273,10 @@ const RequestedLeavesTable: React.FC = () => {
           selectedStatus,
           " "
         );
-        toast.success("Leave status updated successfully", { autoClose: 2000 });
+        showSuccessToast("Leave status updated successfully");
         
       } catch (error) {
-        toast.error("Error submitting leave status");
+        showErrorToast("Error submitting leave status");
         console.error("Error submitting leave status:", error);
       } finally {
         setIsSubmitting(false); // Reset loading state
@@ -442,7 +441,7 @@ const RequestedLeavesTable: React.FC = () => {
     try {
       if (appointmentId) {
         await cancelAppointment(appointmentId); // API call with appointment ID
-        toast.success("Cancel appointment successfully", { autoClose: 2000 });
+        showSuccessToast("Cancel appointment successfully");
         setAppointmentId(null);
         toggleConfirmModal(); // Close modal
         // Ensure selectedLeave and barber exist before modifying appointments
@@ -511,7 +510,7 @@ const RequestedLeavesTable: React.FC = () => {
       const data = await saveTransferAppointments(obj);
       setShowSpinner(false);
       setModalTransfer(!modalTransfer);
-      toast.success("Transfer barber successfully", { autoClose: 2000 });
+      showSuccessToast("Transfer barber successfully");
       // Ensure selectedLeave and barber exist before modifying appointments
       if (
         selectedLeave &&
@@ -540,10 +539,10 @@ const RequestedLeavesTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        toast.error(error.message || "Something went wrong");
+        showErrorToast(error.message || "Something went wrong");
       }
     }
   };
@@ -908,7 +907,6 @@ const RequestedLeavesTable: React.FC = () => {
         isService={false}
         appointmentId={appointmentId} // Pass appointmentId to modal
       />
-      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };
