@@ -29,6 +29,7 @@ import { fetchSalons } from "Services/SalonService";
 import { fetchServices } from "Services/Service";
 import { formatDate, formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 // Define the User type based on your database structure
 interface Barber {
@@ -183,8 +184,8 @@ const BarberTable: React.FC = () => {
 
   useEffect(() => {
     if (
-      storeRoleInfo.role_name === "Salon Manager" ||
-      storeRoleInfo.role_name === "Salon Owner"
+      storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo.role_name === ROLES.SALON_OWNER
     ) {
       setSelectedSalonId(storeUserInfo.salon.id);
       formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
@@ -1197,8 +1198,8 @@ const BarberTable: React.FC = () => {
 
   const setSalonInformation = () => {
     if (
-      storeRoleInfo.role_name === "Salon Manager" ||
-      storeRoleInfo.role_name === "Salon Owner"
+      storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo.role_name === ROLES.SALON_OWNER
     ) {
       setSelectedSalonId(storeUserInfo.salon.id);
       formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
@@ -1471,8 +1472,8 @@ const BarberTable: React.FC = () => {
               </Col>
 
               {/* Salon ID */}
-              {storeRoleInfo.role_name !== "Salon Manager" &&
-                storeRoleInfo.role_name !== "Salon Owner" && (
+              {storeRoleInfo.role_name !== ROLES.SALON_MANAGER &&
+                storeRoleInfo.role_name !== ROLES.SALON_OWNER && (
                   <Col lg={4}>
                     <div className="mb-3">
                       <Label htmlFor="salon" className="form-label">

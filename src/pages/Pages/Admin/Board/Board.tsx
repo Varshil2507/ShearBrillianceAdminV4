@@ -54,6 +54,7 @@ import { fetchSalons } from "Services/SalonService";
 import { deleteBarber, fetchBarber } from "Services/barberService";
 import { formatDateHours, formatHours } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 //Import Breadcrumb
 interface CardData {
@@ -387,8 +388,8 @@ const Board = () => {
   };
   useEffect(() => {
     if (
-      storeRoleInfo?.role_name === "Salon Manager" ||
-      storeRoleInfo?.role_name === "Salon Owner"
+      storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER
     ) {
       formik.setFieldValue("salon_id", salonUserInfo?.id);
       appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
@@ -929,7 +930,7 @@ const Board = () => {
   };
 
   const tags = [
-    { label: "Admin", value: "Admin" },
+    { label:ROLES.ADMIN, value: ROLES.ADMIN },
     { label: "Layout", value: "Layout" },
     { label: "Dashboard", value: "Dashboard" },
     { label: "Design", value: "Design" },
@@ -977,8 +978,8 @@ const Board = () => {
       setIsAppointmentAvailable(false);
       appointmentFormik.resetForm();
       if (
-        storeRoleInfo?.role_name === "Salon Manager" ||
-        storeRoleInfo?.role_name === "Salon Owner"
+        storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+        storeRoleInfo?.role_name === ROLES.SALON_OWNER
       ) {
         appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
         getBarberSessionsData(salonUserInfo?.id);
@@ -1273,7 +1274,7 @@ const Board = () => {
     },
     validationSchema: Yup.object({
       barber_id:
-        userCategory === "WalkIn_Barber"
+        userCategory === ROLES.WALKIN_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
       firstname: Yup.string().required("First name is required"),
@@ -1318,8 +1319,8 @@ const Board = () => {
           setCustomTip("");
           appointmentFormik.resetForm();
           if (
-            storeRoleInfo?.role_name === "Salon Manager" ||
-            storeRoleInfo?.role_name === "Salon Owner"
+            storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+            storeRoleInfo?.role_name === ROLES.SALON_OWNER
           ) {
             appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
             getBarberSessionsData(salonUserInfo?.id);
@@ -1442,7 +1443,7 @@ const Board = () => {
   };
 
   const handleAddNewCard = (line: any) => {
-    if (storeRoleInfo.role_name === "Salon Manager") {
+    if (storeRoleInfo.role_name === ROLES.SALON_MANAGER) {
       appointmentFormik.setFieldValue("salon_id", authSalonUser?.id);
       getBarberSessionsData(authSalonUser?.id);
     }
@@ -2613,7 +2614,7 @@ const Board = () => {
                 /> */}
               </Col>
 
-              {storeRoleInfo.role_name === "Admin" && (
+              {storeRoleInfo.role_name === ROLES.ADMIN && (
                 <Col lg={12}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -2641,7 +2642,7 @@ const Board = () => {
                 </Col>
               )}
               {/* Barber ID */}
-              {userCategory !== "WalkIn_Barber" && (
+              {userCategory !== ROLES.WALKIN_BARBER && (
                 <Col lg={12}>
                   <div>
                     <Label htmlFor="barber" className="form-label">

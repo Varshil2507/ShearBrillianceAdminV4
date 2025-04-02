@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
+import { ROLES } from 'common/data/Constants';
 
 //import images
 import Profile from "../../assets/images/users/avatar-8.jpg";
@@ -16,7 +17,7 @@ const ProfileDropdown = () => {
     // Inside your component
     const user = useSelector(profiledropdownData);
 
-    const [userName, setUserName] = useState("Admin");
+    const [userName, setUserName] = useState(ROLES.ADMIN);
     const [userPhoto, setUserPhoto] = useState(Profile);
     const userRole = localStorage.getItem("userRole");
     let storeRoleInfo: any;
@@ -46,7 +47,7 @@ const ProfileDropdown = () => {
                         <img className="rounded-circle header-profile-user" src={userPhoto}
                             alt="Header Avatar" />
                         <span className="text-start ms-xl-2">
-                            <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text"> {userName || "Admin"}</span>
+                            <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text"> {userName || ROLES.ADMIN}</span>
                             <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">{storeRoleInfo?.role_name}</span>
                         </span>
                     </span>
@@ -66,7 +67,7 @@ const ProfileDropdown = () => {
                         </Link>
                     </DropdownItem>
                     {
-                        storeRoleInfo?.role_name === 'Admin' &&
+                        storeRoleInfo?.role_name === ROLES.ADMIN &&
                         <DropdownItem className='p-0'>
                             <Link to="/notification" className="dropdown-item">
                                 <i className="mdi mdi-bell text-muted fs-16 align-middle me-1"></i>

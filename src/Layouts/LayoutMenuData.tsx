@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ROLES } from "common/data/Constants";
 
 
 const Navdata = () => {
@@ -55,7 +56,7 @@ const Navdata = () => {
         {
             label: "Menu",
             isHeader: true,
-            allowedRoles: ['Admin', 'Appointment_Barber', 'WalkIn_Barber', 'Salon Owner', 'Salon Manager']
+            allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER]
         },
         {
             id: "dashboard",
@@ -69,7 +70,7 @@ const Navdata = () => {
                 setIscurrentState('Dashboard');
                 updateIconSidebar(e);
             },
-            allowedRoles: ['Admin', 'Appointment_Barber', 'WalkIn_Barber', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "board",
@@ -80,7 +81,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Board');
             },
-            allowedRoles: ['Admin', 'WalkIn_Barber', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "AppointmentSchedule",
@@ -91,7 +92,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "salon",
@@ -102,18 +103,18 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Salon');
             },
-            allowedRoles: ['Admin'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN] // All roles can see this
         },
         {
             id: "barber",
-            label: "Barber",
+            label: ROLES.SALON_BARBER,
             icon: "ri-scissors-cut-line",
             link: "/barbers",
             click: function (e: any) {
                 e.preventDefault();
-                setIscurrentState('Barber');
+                setIscurrentState(ROLES.SALON_BARBER);
             },
-            allowedRoles: ['Admin', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "appointment",
@@ -124,7 +125,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Appointment');
             },
-            allowedRoles: ['Admin', 'WalkIn_Barber', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "calender",
@@ -135,7 +136,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('calender Schedule');
             },
-            allowedRoles: ["Admin", "Salon Owner", 'Appointment_Barber', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.APPOINTMENT_BARBER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "Insalonappointment",
@@ -146,7 +147,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin', 'Salon Owner', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "barberSchedule",
@@ -157,7 +158,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Barber Schedule');
             },
-            allowedRoles: ["Admin", "Salon Manager", 'Salon Manager',] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER, ROLES.SALON_MANAGER,] // All roles can see this
         },
         {
             id: "ourservice",
@@ -168,7 +169,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Our Service');
             },
-            allowedRoles: ['Admin'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN] // All roles can see this
         },
         {
             id: "blog",
@@ -179,7 +180,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN] // All roles can see this
         },
         {
             id: "TransferBarber",
@@ -190,7 +191,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "users",
@@ -201,7 +202,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Users');
             },
-            allowedRoles: ['Admin'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN] // All roles can see this
         },
         {
             id: "customers",
@@ -212,7 +213,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Customers');
             },
-            allowedRoles: ['Admin', 'Salon Owner', 'Salon Manager'] // Only Admin can see
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] // Only Admin can see
         },
         {
             id: "SalesRevenue",
@@ -223,7 +224,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "payroll",
@@ -234,7 +235,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Blog');
             },
-            allowedRoles: ['Admin', 'Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] // All roles can see this
         },
         {
             id: "role",
@@ -245,7 +246,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Role');
             },
-            allowedRoles: ['Admin'] // All roles can see this
+            allowedRoles: [ROLES.ADMIN] // All roles can see this
         },
         // {
         //     id: "haircutdetails",
@@ -267,7 +268,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Leave');
             },
-            allowedRoles: ['Appointment_Barber', 'WalkIn_Barber'] // All roles can see this
+            allowedRoles: [ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER] // All roles can see this
         },
         {
             id: "LeaveDesk",
@@ -278,7 +279,7 @@ const Navdata = () => {
                 e.preventDefault();
                 setIscurrentState('Leave');
             },
-            allowedRoles: ['Salon Manager'] // All roles can see this
+            allowedRoles: [ROLES.SALON_MANAGER] // All roles can see this
         },
 
 

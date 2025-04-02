@@ -29,7 +29,7 @@ import { fetchSalons } from "Services/SalonService";
 import BarberScheduleList from "./BarberScheduleList";
 import { formatHours, formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showWarningToast } from "slices/layouts/toastService";
-
+import { ROLES } from "common/data/Constants";
 
 const BarberSessionsTable: React.FC = () => {
   const [barberSessionsData, setBarberSessionsData] = useState<any>(null);
@@ -134,7 +134,7 @@ const BarberSessionsTable: React.FC = () => {
           (bar: any) => bar.availability_status === "available"
         );
         setBarberData(activeBarber);
-        if (storeRoleInfo.role_name !== "Admin") {
+        if (storeRoleInfo.role_name !== ROLES.ADMIN) {
           setSalonBarberData(response.barbers);
         }
       } catch (error: any) {
@@ -247,11 +247,11 @@ const BarberSessionsTable: React.FC = () => {
     },
     validationSchema: Yup.object({
       SalonId:
-        storeRoleInfo?.role_name === "Admin"
+        storeRoleInfo?.role_name === ROLES.ADMIN
           ? Yup.number()
           : Yup.number().required("Salon is required"), // Add this line
       BarberId:
-        userCategory === "WalkIn_Barber" || userCategory === "Appointment_Barber"
+        userCategory === ROLES.WALKIN_BARBER || userCategory === ROLES.APPOINTMENT_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
     }),
@@ -502,7 +502,7 @@ const BarberSessionsTable: React.FC = () => {
         <Form className="tablelist-form" onSubmit={formik.handleSubmit}>
           <ModalBody className="modal-body">
             <Row className="g-3">
-              {(storeRoleInfo.role_name === "Admin" || storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name === ROLES.ADMIN|| storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={6}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -529,7 +529,7 @@ const BarberSessionsTable: React.FC = () => {
                 </Col>
               )}
               {/* Barber ID */}
-              {(storeRoleInfo.role_name === "Admin" || storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name ===ROLES.ADMIN || storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={6}>
                   <div>
                     <Label htmlFor="salon" className="form-label">

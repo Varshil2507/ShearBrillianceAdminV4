@@ -64,6 +64,7 @@ import Salesrevenueindex from "pages/Pages/Admin/SalesRevenue";
 import CalenderScheduleInfo from "pages/Pages/Admin/CalenderSchedule";
 import BasicPasswReset from "pages/Authentication/BasicPasswReset";
 import BarberPayroll from "pages/Pages/Admin/BarberPayroll";
+import {ROLES} from "../common/data/Constants"
 
 
 const authProtectedRoutes = [
@@ -77,41 +78,41 @@ const authProtectedRoutes = [
 
 
   //Tables
-  { path: "/customers", component: <CustomerTable />, allowedRoles: ["Admin", "Salon Owner", "Salon Manager"] },  // Only admins can access},
-  { path: "/users", component: <UserTable />, allowedRoles: ["Admin"] },
-  { path: "/barbers", component: <BarberTable />, allowedRoles: ["Admin", "Salon Owner", "Salon Manager"] },
-  { path: "/barber-schedule", component: <BarberSessions />, allowedRoles: ["Admin", "Salon Manager"] },
-  { path: "/salons", component: <SalonTable />, allowedRoles: ["Admin"] },
-  { path: "/roles", component: <RoleTable />, allowedRoles: ["Admin"] },
-  { path: "/appointments", component: <AppointmentTable />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
-  { path: "/blogs", component: <BlogTable />, allowedRoles: ["Admin"] },
-  { path: "/in-salon-appointment", component: <Salonappointment />, allowedRoles: ["Admin", "Salon Owner", "Salon Manager"] },
-  { path: "/board", component: <Board />, allowedRoles: ["Admin", 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
+  { path: "/customers", component: <CustomerTable />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER,ROLES.SALON_MANAGER] },  // Only admins can access},
+  { path: "/users", component: <UserTable />, allowedRoles: [ROLES.ADMIN] },
+  { path: "/barbers", component: <BarberTable />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/barber-schedule", component: <BarberSessions />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] },
+  { path: "/salons", component: <SalonTable />, allowedRoles: [ROLES.ADMIN] },
+  { path: "/roles", component: <RoleTable />, allowedRoles: [ROLES.ADMIN] },
+  { path: "/appointments", component: <AppointmentTable />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER,ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/blogs", component: <BlogTable />, allowedRoles: [ROLES.ADMIN] },
+  { path: "/in-salon-appointment", component: <Salonappointment />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/board", component: <Board />, allowedRoles: [ROLES.ADMIN, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
   { path: "/haircut-details", component: <HaircutDetail /> },
-  { path: "/services", component: <OurService />, allowedRoles: ["Admin"] },
-  { path: "/leave-history", component: <LeaveHistoryTable />, allowedRoles: ['Appointment_Barber', 'WalkIn_Barber'] },
-  { path: "/transfer-barber", component: <SalonTransferBarber />, allowedRoles: ["Admin", "Salon Manager"] },
-  { path: "/leave-desk", component: <RequestedLeavesTable />, allowedRoles: ['Salon Manager'] },
+  { path: "/services", component: <OurService />, allowedRoles: [ROLES.ADMIN] },
+  { path: "/leave-history", component: <LeaveHistoryTable />, allowedRoles: [ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER] },
+  { path: "/transfer-barber", component: <SalonTransferBarber />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] },
+  { path: "/leave-desk", component: <RequestedLeavesTable />, allowedRoles: [ROLES.SALON_MANAGER] },
 
-  { path: "/sales-revenue", component: <Salesrevenueindex />, allowedRoles: ["Admin", "Salon Manager"] },
+  { path: "/sales-revenue", component: <Salesrevenueindex />, allowedRoles: [ROLES.ADMIN,ROLES.SALON_MANAGER] },
 
-  { path: "/schedule-appointment", component: <Salonscheduleappointment />, allowedRoles: ["Admin", 'Salon Owner', 'Salon Manager'] },
-  { path: "/calender-schedule", component: <CalenderScheduleInfo />, allowedRoles: ["Admin", 'Salon Owner', 'Appointment_Barber', 'Salon Manager'] },
+  { path: "/schedule-appointment", component: <Salonscheduleappointment />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/calender-schedule", component: <CalenderScheduleInfo />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.APPOINTMENT_BARBER, ROLES.SALON_MANAGER] },
 
 
   // //Pages
-  { path: "/pages-profile-settings", component: <Settings />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
+  { path: "/pages-profile-settings", component: <Settings />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
   { path: "/pages-faqs", component: <Faqs /> },
 
-  { path: "/pages-privacy-policy", component: <PrivacyPolicy />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
-  { path: "/termscondition", component: <TermsCondition />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
+  { path: "/pages-privacy-policy", component: <PrivacyPolicy />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/termscondition", component: <TermsCondition />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
 
 
   //User Profile
-  { path: "/profile", component: <UserProfile />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
-  { path: "/dashboard", component: <DashboardEcommerce />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
-  { path: "/notification", component: < Notification />, allowedRoles: ["Admin", 'Appointment_Barber', 'WalkIn_Barber', "Salon Owner", "Salon Manager"] },
-  { path: "/payroll", component: <BarberPayroll />, allowedRoles: ["Admin", "Salon Manager"] },
+  { path: "/profile", component: <UserProfile />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/dashboard", component: <DashboardEcommerce />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/notification", component: < Notification />, allowedRoles: [ROLES.ADMIN, ROLES.APPOINTMENT_BARBER, ROLES.WALKIN_BARBER, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
+  { path: "/payroll", component: <BarberPayroll />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] },
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name
   {

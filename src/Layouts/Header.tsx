@@ -32,6 +32,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import the CSS for Toastify
 import config from "config";
 import { updatePaymentConfig } from "Services/ConfigurationService";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 const { commonText } = config;
 const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass, userInfo, salonUserInfo, paymentMode, changeShowLoader }: any) => {
@@ -318,7 +319,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </div> */}
-              {(storeRoleInfo?.role_name === 'Admin') && (
+              {(storeRoleInfo?.role_name ===ROLES.ADMIN) && (
                 <div className="form-check form-switch form-switch-secondary">
                   <Input className="form-check-input" type="checkbox" role="switch" id="SwitchCheck2"
                     checked={isChecked}
@@ -327,7 +328,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                   <Label className="form-check-label" htmlFor="SwitchCheck2">Payment {isChecked ? "Online" : "Offline"}</Label>
                 </div>
               )}
-              {(storeRoleInfo?.role_name === 'Salon Owner' || storeRoleInfo?.role_name === 'Salon Manager') && (
+              {(storeRoleInfo?.role_name === ROLES.SALON_OWNER || storeRoleInfo?.role_name === ROLES.SALON_MANAGER) && (
                 <SalonStatusDropdown
                   isSalonOwner={isSalonOwner}
                   userInfo={userInfo}
@@ -336,7 +337,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                 />
               )}
               <div>
-                {storeRoleInfo?.role_name === 'Barber' && (
+                {storeRoleInfo?.role_name === ROLES.SALON_BARBER && (
                   <>
                     <Button color="primary" onClick={toggleModal}>Leave Request</Button>
 
@@ -350,7 +351,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                 )}
               </div>
 
-              {/* {storeRoleInfo?.role_name === 'Barber' && (
+              {/* {storeRoleInfo?.role_name === ROLES.SALON_BARBER && (
                 <BarberStatusDropdown isBarber={isBarber}
                  userInfo={userInfo}
                  barberUserInfo={barberUserInfo}

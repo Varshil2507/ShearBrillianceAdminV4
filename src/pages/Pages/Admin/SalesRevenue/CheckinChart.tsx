@@ -16,6 +16,7 @@ import { fetchWalkInSalesData } from '../../../../Services/Sales'; // Adjust pat
 //import { BalanceOverviewCharts } from './DashboardCrmCharts'; // Adjust path
 import Chart from 'react-apexcharts';
 import { showErrorToast } from 'slices/layouts/toastService';
+import { ROLES } from 'common/data/Constants';
 
 interface BalanceOverviewChartsProps {
   series: { name: string; data: number[] }[];
@@ -193,7 +194,7 @@ const CheckinOverview = () => {
 
   return (
     <React.Fragment>
-      {storeRoleInfo.role_name !== 'Barber' && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER && (
         <Col xxl={12}>
           <Card className="card-height-100">
             <CardHeader className="align-items-center d-flex">

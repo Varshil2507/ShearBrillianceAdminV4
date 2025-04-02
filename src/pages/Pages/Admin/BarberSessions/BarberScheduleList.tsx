@@ -40,6 +40,7 @@ import { cancelAppointment } from "Services/AppointmentService";
 import AppointmentConfirmationModal from "Components/Common/AppointmentStatusChange";
 import { formatDateShort, formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 const today = format(new Date(), "yyyy-MM-dd");
 
 const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
@@ -857,8 +858,8 @@ useEffect(() => {
         <Form className="tablelist-form" onSubmit={formik.handleSubmit}>
           <ModalBody className="modal-body">
             <Row className="g-3">
-              {(storeRoleInfo.role_name === "Admin" ||
-                storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name === ROLES.ADMIN ||
+                storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={4}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -869,8 +870,8 @@ useEffect(() => {
                 </Col>
               )}
               {/* Barber ID */}
-              {(storeRoleInfo.role_name === "Admin" ||
-                storeRoleInfo.role_name === "Salon Manager") && (
+              {(storeRoleInfo.role_name ===ROLES.ADMIN ||
+                storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={4}>
                   <div>
                     <Label htmlFor="salon" className="form-label">

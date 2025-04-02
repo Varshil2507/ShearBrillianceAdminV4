@@ -11,6 +11,8 @@ import avatar7 from "../../assets/images/users/avatar-7.jpg";
 import avatar8 from "../../assets/images/users/avatar-8.jpg";
 import avatar9 from "../../assets/images/users/avatar-9.jpg";
 import avatar10 from "../../assets/images/users/avatar-10.jpg";
+import {ROLES} from "../data/Constants"
+
 
 const { commonText } = config;
 const taskWidgets = [
@@ -131,7 +133,7 @@ const kanbanBoardData = [
                 progressBarColor: "danger",
                 progressBarText: "secondary",
                 tags: [
-                    { tag: "Admin" }
+                    { tag: ROLES.ADMIN }
                 ],
                 members: [
                     { id: 1, img: avatar6 },
@@ -150,7 +152,7 @@ const kanbanBoardData = [
                 date: "07 Jan, 2022",
                 tags: [
                     { tag: "Layout" },
-                    { tag: "Admin" },
+                    { tag: ROLES.ADMIN },
                     { tag: "Dashboard" }
                 ],
                 members: [

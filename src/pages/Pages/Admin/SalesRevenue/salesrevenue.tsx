@@ -7,6 +7,7 @@ import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import { fetchSalons } from "Services/SalonService";
 import { formatDate } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 const Salesrevenue = () => {
   const [selectedStartDate, setStartDate] = useState<any>(new Date());
@@ -92,7 +93,7 @@ const Salesrevenue = () => {
   //     storeRoleInfo = JSON.parse(userRole);
   //   }
   useEffect(() => {
-    if (userRole?.role_name !== "Salon Manager") {
+    if (userRole?.role_name !== ROLES.SALON_MANAGER) {
       const fetchAllData = async () => {
         try {
           // Fetch both salons and barbers data in parallel
@@ -152,7 +153,7 @@ const Salesrevenue = () => {
       //   );
       // }, 500);
     }
-    if (storeUserInfo.salon && userRole?.role_name === "Salon Manager") {
+    if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
       setSelectedSalonId(storeUserInfo.salon.id);
       getSalonBabrer(storeUserInfo.salon.id);
     }
@@ -211,8 +212,8 @@ const Salesrevenue = () => {
       <Row className="mb-3 pb-1">
         <Col xs={12}>
           <div className="d-flex justify-content-end align-items-lg-center flex-lg-row flex-column">
-            {userRole?.role_name === "Admin" ||
-            userRole?.role_name === "Salon Manager" ? (
+            {userRole?.role_name === ROLES.ADMIN ||
+            userRole?.role_name === ROLES.SALON_MANAGER ? (
               <div className="mt-3 mt-lg-0">
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
@@ -283,7 +284,7 @@ const Salesrevenue = () => {
                   disabled={
                     !selectedSalonId ||
                     isLoadingBarbers &&
-                    (userRole?.role_name !== "Salon Manager" || userRole?.role_name !== "Admin")
+                    (userRole?.role_name !== ROLES.SALON_MANAGER || userRole?.role_name !== ROLES.ADMIN)
                   } // Disable barber dropdown if no salon is selected
                   id="barberSelect"
                   className="form-select"

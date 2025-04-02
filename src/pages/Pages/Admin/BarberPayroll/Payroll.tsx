@@ -9,6 +9,7 @@ import { fetchBarberPayroll } from "Services/DashboardService";
 import { formatDate, formatHours } from "Components/Common/DateUtil";
 import PayrollDownloadButton from "./PayrollDownloadButton";
 import { showErrorToast, showWarningToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 interface SubDetail {
     id: string;
@@ -202,7 +203,7 @@ const Payroll = () => {
     // };
 
     useEffect(() => {
-        if (userRole?.role_name !== "Salon Manager") {
+        if (userRole?.role_name !== ROLES.SALON_MANAGER) {
             const fetchAllData = async () => {
                 try {
                     // Fetch both salons and barbers data in parallel
@@ -258,7 +259,7 @@ const Payroll = () => {
     };
 
     useEffect(() => {
-        if (storeUserInfo.salon && userRole?.role_name === "Salon Manager") {
+        if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
             setSelectedSalonId(storeUserInfo.salon.id);
             setSelectedSalonInfo(storeUserInfo.salon);
             getSalonBabrer(storeUserInfo.salon.id);
@@ -407,7 +408,7 @@ const Payroll = () => {
                                     disabled={
                                         !selectedSalonId ||
                                         isLoadingBarbers &&
-                                        (userRole?.role_name !== "Salon Manager" || userRole?.role_name !== "Admin")
+                                        (userRole?.role_name !== ROLES.SALON_MANAGER || userRole?.role_name !== ROLES.ADMIN)
                                     } // Disable barber dropdown if no salon is selected
                                     getOptionLabel={(e: any) => (
                                         <div style={{ display: 'flex', alignItems: 'center' }}>

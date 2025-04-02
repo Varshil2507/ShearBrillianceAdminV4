@@ -9,6 +9,7 @@ import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import TodaysBarber from "./TodaysBarber";
 import {formatDate} from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 const Section = (props: any) => {
   const [greeting, setGreeting] = useState("");
@@ -94,7 +95,7 @@ const Section = (props: any) => {
     showWarningToast(message); // Display warning toast message
   };
   useEffect(() => {
-    if (userRole?.role_name !== "Salon Manager" && userRole?.role_name !== "Salon Owner") {
+    if (userRole?.role_name !== ROLES.SALON_MANAGER && userRole?.role_name !== ROLES.SALON_OWNER) {
       const fetchAllData = async () => {
         try {
           // Fetch both salons and barbers data in parallel
@@ -175,7 +176,7 @@ const Section = (props: any) => {
       //   );
       // }, 500);
     }
-    if (storeUserInfo.salon && userRole?.role_name === "Salon Manager") {
+    if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
       setSelectedSalonId(storeUserInfo.salon.id);
       getSalonBabrer(storeUserInfo.salon.id);
     }
@@ -241,12 +242,12 @@ const Section = (props: any) => {
                 Tracking your salon’s story from day one!
               </p>
             </div>
-            {userRole?.role_name === "Admin" ||
-              userRole?.role_name === "Salon Manager" ||
-              userRole?.role_name === "Salon Owner" ? (
+            {userRole?.role_name === ROLES.ADMIN ||
+              userRole?.role_name === ROLES.SALON_MANAGER ||
+              userRole?.role_name === ROLES.SALON_OWNER ? (
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
-                {(userRole?.role_name === "Salon Manager" ||
-                  userRole?.role_name === "Salon Owner") && (
+                {(userRole?.role_name === ROLES.SALON_MANAGER ||
+                  userRole?.role_name === ROLES.SALON_OWNER) && (
                     <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
                       <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
                         Today's Avaialable Barber
@@ -325,12 +326,12 @@ const Section = (props: any) => {
                   // disabled={
                   //   barberDisabled ||
                   //   isLoadingBarbers ||
-                  //   userRole?.role_name !== "Salon Manager"
+                  //   userRole?.role_name !== ROLES.SALON_MANAGER
                   // } // Disable dropdown while loading
                   disabled={
                     !selectedSalonId ||
                     isLoadingBarbers &&
-                    (userRole?.role_name !== "Salon Manager" || userRole?.role_name !== "Admin")
+                    (userRole?.role_name !== ROLES.SALON_MANAGER || userRole?.role_name !== ROLES.ADMIN)
                   } // Disable barber dropdown if no salon is selected
                   id="barberSelect"
                   className="form-select"
@@ -421,7 +422,7 @@ const Section = (props: any) => {
         </Col>
       </Row>
       {
-        storeUserInfo.salon && (userRole?.role_name === "Salon Manager" || userRole?.role_name === "Salon Owner") && (
+        storeUserInfo.salon && (userRole?.role_name === ROLES.SALON_MANAGER || userRole?.role_name === ROLES.SALON_OWNER) && (
           <Modal isOpen={isShowBarberModal} toggle={() => setIsShowBarberModal(!isShowBarberModal)} centered backdrop="static" size="xl">
             <ModalHeader toggle={() => setIsShowBarberModal(!isShowBarberModal)}>
               Today's Barber(s) Status

@@ -2,6 +2,7 @@ import React from "react";
 import CountUp from "react-countup";
 import { Link } from "react-router-dom";
 import { Card, CardBody, Col } from "reactstrap";
+import { ROLES } from "common/data/Constants";
 
 const Widgets = (props: any) => {
   const userRole = localStorage.getItem("userRole");
@@ -20,8 +21,8 @@ const Widgets = (props: any) => {
 
   return (
     <React.Fragment>
-      {storeRoleInfo.role_name !== "Barber" &&
-        storeRoleInfo.role_name !== "Salon Owner" && storeRoleInfo.role_name !== "Salon Manager" && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER && storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
           <Col xl={3} md={6}>
             <Card className="card-animate">
               <CardBody>
@@ -68,7 +69,7 @@ const Widgets = (props: any) => {
             </Card>
           </Col>
         )}
-      {storeRoleInfo.role_name !== "Barber" && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER && (
         <Col xl={3} md={6}>
           <Card className="card-animate">
             <CardBody>
@@ -115,7 +116,7 @@ const Widgets = (props: any) => {
           </Card>
         </Col>
       )}
-      {storeRoleInfo.role_name !== "Barber" && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER && (
         <Col xl={3} md={6}>
           <Card className="card-animate">
             <CardBody>
@@ -622,8 +623,8 @@ const Widgets = (props: any) => {
 
         </Card>
       </Col>
-      {storeRoleInfo.role_name !== "Barber" &&
-        storeRoleInfo.role_name !== "Salon Owner" && storeRoleInfo.role_name !== "Salon Manager" && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER && storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
           <Col xl={3} md={6}>
             <Card className="card-animate">
               <CardBody>
@@ -674,7 +675,7 @@ const Widgets = (props: any) => {
           </Col>
         )}
 
-      {storeRoleInfo.role_name !== "Barber" && (
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER && (
         <Col xl={3} md={6}>
           <Card className="card-animate">
             <CardBody>

@@ -26,6 +26,7 @@ import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchRoles } from "Services/RoleService";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { ROLES } from "common/data/Constants";
 
 // Define the User type based on your database structure
 interface User {
@@ -143,8 +144,8 @@ const UserTable: React.FC = () => {
         const response: any = await fetchRoles();
         const roles = response.filter(
           (role: any) =>
-            role.role_name.toLowerCase() === "admin" ||
-            role.role_name.toLowerCase() === "salon manager"
+            role.role_name.toLowerCase() === ROLES.ADMIN ||
+            role.role_name.toLowerCase() === ROLES.SALON_MANAGER
         );
         setRoleData(roles);
       } catch (error: any) {
@@ -280,7 +281,7 @@ const UserTable: React.FC = () => {
             .required("Password is required"),
       RoleId: Yup.string().required("Role ID is required"),
       salonId:
-        selectedRole?.role_name !== "Salon Manager"
+        selectedRole?.role_name !== ROLES.SALON_MANAGER
           ? Yup.number()
           : Yup.number().required("Salon ID is required"),
       // profile_photo: Yup.string().url("Invalid URL")
@@ -471,8 +472,8 @@ const UserTable: React.FC = () => {
     const selectedRoleData = roleData.find((role) => role.id === user.RoleId);
     if (
       selectedRoleData &&
-      (user.role?.role_name !== "Barber" ||
-        user.role?.role_name !== "Salon Owner")
+      (user.role?.role_name !== ROLES.SALON_BARBER ||
+        user.role?.role_name !== ROLES.SALON_OWNER)
     ) {
       selectedRoleData.requiresSalonId = true; // Assign value only if selectedRoleData is defined
     } else {
@@ -596,7 +597,7 @@ const UserTable: React.FC = () => {
               onClick={() => onClickDelete(cell.row.original)} // Pass the user ID
             ></i> */}
             {/* Delete Icon - Hide or Disable for Admin */}
-            {userSelectedRole !== "Admin" ? (
+            {userSelectedRole !==ROLES.ADMIN ? (
               <i
                 className="ri-delete-bin-fill"
                 style={{ cursor: "pointer", color: "grey", fontSize: "20px" }}
@@ -719,10 +720,10 @@ const UserTable: React.FC = () => {
 
             <li className="nav-item">
               <Button
-                color={userSelectedRole === "Admin" ? "primary" : "light"}
+                color={userSelectedRole === ROLES.ADMIN ? "primary" : "light"}
                 onClick={() => {
-                  setUserSelectedRole("Admin");
-                  getUsers(1, selectedSearchText, "Admin"); // Fetch only Admins
+                  setUserSelectedRole(ROLES.ADMIN)
+                  getUsers(1, selectedSearchText, ROLES.ADMIN); // Fetch only Admins
                 }}
               >
                 <i className="ri-admin-fill me-1"></i> Admin
@@ -732,11 +733,11 @@ const UserTable: React.FC = () => {
             <li className="nav-item">
               <Button
                 color={
-                  userSelectedRole === "Salon Manager" ? "primary" : "light"
+                  userSelectedRole === ROLES.SALON_MANAGER ? "primary" : "light"
                 }
                 onClick={() => {
-                  setUserSelectedRole("Salon Manager");
-                  getUsers(1, selectedSearchText, "Salon Manager"); // Fetch only Salon Managers
+                  setUserSelectedRole(ROLES.SALON_MANAGER);
+                  getUsers(1, selectedSearchText, ROLES.SALON_MANAGER); // Fetch only Salon Managers
                 }}
               >
                 <i className="ri-store-2-fill me-1"></i> Salon Manager
@@ -745,10 +746,10 @@ const UserTable: React.FC = () => {
 
             <li className="nav-item">
               <Button
-                color={userSelectedRole === "Salon Owner" ? "primary" : "light"}
+                color={userSelectedRole === ROLES.SALON_OWNER ? "primary" : "light"}
                 onClick={() => {
-                  setUserSelectedRole("Salon Owner");
-                  getUsers(1, selectedSearchText, "Salon Owner");
+                  setUserSelectedRole(ROLES.SALON_OWNER);
+                  getUsers(1, selectedSearchText, ROLES.SALON_OWNER);
                 }}
               >
                 <i className="ri-user-star-fill me-1"></i> Salon Owner
@@ -757,10 +758,10 @@ const UserTable: React.FC = () => {
 
             <li className="nav-item">
               <Button
-                color={userSelectedRole === "Barber" ? "primary" : "light"}
+                color={userSelectedRole === ROLES.SALON_BARBER ? "primary" : "light"}
                 onClick={() => {
-                  setUserSelectedRole("Barber");
-                  getUsers(1, selectedSearchText, "Barber"); // Fetch only Barbers
+                  setUserSelectedRole(ROLES.SALON_BARBER);
+                  getUsers(1, selectedSearchText, ROLES.SALON_BARBER); // Fetch only Barbers
                 }}
               >
                 <i className="ri-scissors-fill me-1"></i> Barber
@@ -1060,13 +1061,13 @@ const UserTable: React.FC = () => {
                 </Col>
               )}
               {/* Role ID */}
-              {(storeRoleInfo.role_name === "Admin" ||
-                storeRoleInfo.role_name === "Salon Manager") &&
+              {(storeRoleInfo.role_name === ROLES.ADMIN ||
+                storeRoleInfo.role_name === ROLES.SALON_MANAGER) &&
                 (!isEditing ||
                   (isEditing &&
                     selectedRole &&
-                    selectedRole.role_name !== "Barber" &&
-                    selectedRole.role_name !== "Salon Owner")) && (
+                    selectedRole.role_name !== ROLES.SALON_BARBER &&
+                    selectedRole.role_name !== ROLES.SALON_OWNER)) && (
                   <Col lg={6}>
                     <div className="mb-3">
                       <Label htmlFor="role" className="form-label">
@@ -1095,7 +1096,7 @@ const UserTable: React.FC = () => {
                 )}
 
               {/* Salon ID */}
-              {selectedRole?.role_name === "Salon Manager" && (
+              {selectedRole?.role_name === ROLES.SALON_MANAGER && (
                 <Col lg={6}>
                   <div className="mb-3">
                     <Label htmlFor="salon" className="form-label">

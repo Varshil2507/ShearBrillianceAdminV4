@@ -38,6 +38,7 @@ import { fetchSalons } from "Services/SalonService";
 import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
 import { toast } from "react-toastify";
+import { ROLES } from "common/data/Constants";
 
 const Assigned = [
   { id: 1, imgId: "anna-adame", img: avatar1, name: "Anna Adame" },
@@ -142,13 +143,13 @@ const AppointmentTable: React.FC = () => {
       setBarberSessionsData([]);
       formik.resetForm();
       if (
-        storeRoleInfo?.role_name === "Salon Manager" ||
-        storeRoleInfo?.role_name === "Salon Owner"
+        storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+        storeRoleInfo?.role_name === ROLES.SALON_OWNER
       ) {
         formik.setFieldValue("salon_id", salonUserInfo.id);
         getBarberSessionsData(salonUserInfo.id);
       }
-      if (userCategory === "WalkIn_Barber") {
+      if (userCategory ===ROLES.WALKIN_BARBER) {
         if (storeUserInfo.berber) {
           formik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
           formik.setFieldValue("barber_id", storeUserInfo.berber.id);
@@ -284,13 +285,13 @@ const AppointmentTable: React.FC = () => {
 
   useEffect(() => {
     if (
-      storeRoleInfo?.role_name === "Salon Manager" ||
-      storeRoleInfo?.role_name === "Salon Owner"
+      storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER
     ) {
       formik.setFieldValue("salon_id", salonUserInfo.id);
       getBarberSessionsData(salonUserInfo.id);
     }
-    if (userCategory === "WalkIn_Barber") {
+    if (userCategory === ROLES.WALKIN_BARBER) {
       if (storeUserInfo.berber) {
         formik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
         formik.setFieldValue("barber_id", storeUserInfo.berber.id);
@@ -567,11 +568,11 @@ const AppointmentTable: React.FC = () => {
     },
     validationSchema: Yup.object({
       salon_id:
-        storeRoleInfo?.role_name === "Admin"
+        storeRoleInfo?.role_name === ROLES.ADMIN
           ? Yup.number()
           : Yup.number().required("Salon is required"), // Add this line
       barber_id:
-        userCategory === "WalkIn_Barber"
+        userCategory === ROLES.WALKIN_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
       firstname: Yup.string()
@@ -1065,7 +1066,7 @@ const AppointmentTable: React.FC = () => {
                 />
               </Col>
 
-              {storeRoleInfo.role_name === "Admin" && (
+              {storeRoleInfo.role_name ===ROLES.ADMIN && (
                 <Col lg={12}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -1092,7 +1093,7 @@ const AppointmentTable: React.FC = () => {
                 </Col>
               )}
               {/* Barber ID */}
-              {userCategory !== "WalkIn_Barber" && (
+              {userCategory !== ROLES.WALKIN_BARBER && (
                 <Col lg={12}>
                   <div>
                     <Label htmlFor="salon" className="form-label">

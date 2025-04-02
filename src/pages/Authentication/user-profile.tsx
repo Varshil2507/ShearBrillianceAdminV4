@@ -27,6 +27,7 @@ import avatar from "../../assets/images/users/avatar-1.jpg";
 import { editProfile, resetProfileFlag } from "../../slices/thunks";
 import { createSelector } from "reselect";
 import config from "config";
+import { ROLES } from "common/data/Constants";
 
 const UserProfile = () => {
   const dispatch: any = useDispatch();
@@ -34,7 +35,7 @@ const UserProfile = () => {
   const [email, setemail] = useState("admin@gmail.com");
   const [idx, setidx] = useState("1");
 
-  const [userName, setUserName] = useState("Admin");
+  const [userName, setUserName] = useState(ROLES.ADMIN);
   const { commonText } = config;
 
 
@@ -64,7 +65,7 @@ const UserProfile = () => {
         if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
 
           obj.displayName = user.username;
-          setUserName(obj.displayName || "Admin");
+          setUserName(obj.displayName || ROLES.ADMIN);
           setemail(obj.email || "admin@gmail.com");
           setidx(obj.uid || '1');
         } else if (process.env.REACT_APP_DEFAULTAUTH === "fake" ||
@@ -76,7 +77,7 @@ const UserProfile = () => {
             localStorage.setItem("authUser", JSON.stringify(obj));
           }
 
-          setUserName(obj.data?.first_name || "Admin");
+          setUserName(obj.data?.first_name ||ROLES.ADMIN);
           setemail(obj?.data?.email || "admin@gmail.com");
           setidx(obj?.data?._id || "1");
 
@@ -95,7 +96,7 @@ const UserProfile = () => {
     enableReinitialize: true,
 
     initialValues: {
-      first_name: userName || 'Admin',
+      first_name: userName || ROLES.ADMIN,
       idx: idx || '',
     },
     validationSchema: Yup.object({
@@ -128,7 +129,7 @@ const UserProfile = () => {
                     </div>
                     <div className="flex-grow-1 align-self-center">
                       <div className="text-muted">
-                        <h5>{userName || "Admin"}</h5>
+                        <h5>{userName || ROLES.ADMIN}</h5>
                         <p className="mb-1">Email Id : {email}</p>
                         <p className="mb-0">Id No : #{idx}</p>
                       </div>
