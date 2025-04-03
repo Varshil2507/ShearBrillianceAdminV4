@@ -123,6 +123,17 @@ const Navdata = () => {
           },
         ],
       },
+      {
+        id: "calender",
+        label: "Calender",
+        icon: "ri-calendar-2-line",
+        link: "/calender-schedule",
+        click: function (e: any) {
+            e.preventDefault();
+            setIscurrentState('calender Schedule');
+        },
+        allowedRoles: [ROLES.APPOINTMENT_BARBER] // All roles can see this
+    },
     {
       id: "salon",
       label: "Salon",

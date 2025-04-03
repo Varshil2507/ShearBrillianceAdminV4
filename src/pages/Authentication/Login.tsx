@@ -62,7 +62,7 @@ const Login = (props: any) => {
             setLoader(true);
             try {
                 const response = await dispatch(loginAPI(values, navigate));
-                debugger;
+
                 if (!response || response.error) {
                     showErrorToast(response.error);
                     setLoader(false);
