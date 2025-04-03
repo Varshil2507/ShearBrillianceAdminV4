@@ -22,10 +22,11 @@ import {
   fetchUsers,
   updateUser,
 } from "Services/UserService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchRoles } from "Services/RoleService";
-import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 import { ROLES } from "common/data/Constants";
 
 // Define the User type based on your database structure
@@ -129,10 +130,10 @@ const UserTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+          toast.error(error.message || "Something went wrong");
         }
       }
     };
@@ -144,18 +145,18 @@ const UserTable: React.FC = () => {
         const response: any = await fetchRoles();
         const roles = response.filter(
           (role: any) =>
-            role.role_name.toLowerCase() === ROLES.ADMIN ||
-            role.role_name.toLowerCase() === ROLES.SALON_MANAGER
+            role.role_name.toLowerCase() === "admin" ||
+            role.role_name.toLowerCase() === "salon manager"
         );
         setRoleData(roles);
       } catch (error: any) {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+          toast.error(error.message || "Something went wrong");
         }
       }
     };
@@ -194,9 +195,9 @@ const UserTable: React.FC = () => {
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        showErrorToast(error.response.data.message || "An error occurred");
+        toast.error(error.response.data.message || "An error occurred");
       } else {
-        showErrorToast(error.message || "Something went wrong");
+        toast.error(error.message || "Something went wrong");
       }
     }
   };
@@ -325,7 +326,7 @@ const UserTable: React.FC = () => {
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        showErrorToast(
+        toast.error(
           "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
         );
         e.target.value = ""; // Clear the file input
@@ -383,7 +384,7 @@ const UserTable: React.FC = () => {
 
       // let tempUser = response;
       tempUser.fullname = tempUser.firstname + " " + tempUser.lastname;
-      showSuccessToast("User added successfully");
+      toast.success("User added successfully", { autoClose: 2000 });
       // Add new user to the local state
       // const users = response.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
@@ -404,10 +405,10 @@ const UserTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        showErrorToast(error.message || "Something went wrong");
+        toast.error(error.message || "Something went wrong");
       }
     }
   };
@@ -438,7 +439,7 @@ const UserTable: React.FC = () => {
       formData.append("password", updatedUserData.password);
       await updateUser(id, formData);
 
-      showSuccessToast("User updated successfully");
+      toast.success("User updated successfully", { autoClose: 2000 });
       // const users = updatedUsers.users.map((usr: any) => {
       //   usr.fullname = usr.firstname + " " + usr.lastname;
       //   return usr;
@@ -457,10 +458,10 @@ const UserTable: React.FC = () => {
       // Check if the error has a response property (Axios errors usually have this)
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message; // Extract the message from the response
-        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+        toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
       } else {
         // Fallback for other types of errors
-        showErrorToast(error.message || "Something went wrong");
+        toast.error(error.message || "Something went wrong");
       }
     }
   };
@@ -502,7 +503,7 @@ const UserTable: React.FC = () => {
           null,
           userSelectedRole
         );
-        showSuccessToast("User deleted successfully");
+        toast.success("User deleted successfully", { autoClose: 2000 });
         setShowSpinner(false);
         setDeleteModal(false); // Close the delete confirmation modal
         setSelectedUser(null); // Reset selected user ID
@@ -511,10 +512,10 @@ const UserTable: React.FC = () => {
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
           const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          toast.error(apiMessage || "An error occurred"); // Show the error message in a toaster
         } else {
           // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+          toast.error(error.message || "Something went wrong");
         }
       }
     }
@@ -597,7 +598,7 @@ const UserTable: React.FC = () => {
               onClick={() => onClickDelete(cell.row.original)} // Pass the user ID
             ></i> */}
             {/* Delete Icon - Hide or Disable for Admin */}
-            {userSelectedRole !==ROLES.ADMIN ? (
+            {userSelectedRole !== ROLES.ADMIN ? (
               <i
                 className="ri-delete-bin-fill"
                 style={{ cursor: "pointer", color: "grey", fontSize: "20px" }}
@@ -722,7 +723,7 @@ const UserTable: React.FC = () => {
               <Button
                 color={userSelectedRole === ROLES.ADMIN ? "primary" : "light"}
                 onClick={() => {
-                  setUserSelectedRole(ROLES.ADMIN)
+                  setUserSelectedRole(ROLES.ADMIN);
                   getUsers(1, selectedSearchText, ROLES.ADMIN); // Fetch only Admins
                 }}
               >
@@ -1156,6 +1157,7 @@ const UserTable: React.FC = () => {
         }
         // Convert to string or undefined
       />
+      <ToastContainer closeButton={false} limit={1} />
     </React.Fragment>
   );
 };
