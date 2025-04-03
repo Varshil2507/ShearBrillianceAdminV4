@@ -240,7 +240,7 @@ const SalonTransferBarber: React.FC = () => {
         setSelectedBarberId(null);
         fetchBarbersList(1, null);
         setShowLoader(false);
-        salonBarberData[sourceSalonIndex].initialLoader = false;
+        // salonBarberData[sourceSalonIndex].initialLoader = false;
       }
     } catch (error: any) {
       setShowLoader(false);

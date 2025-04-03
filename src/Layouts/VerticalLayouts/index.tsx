@@ -168,7 +168,7 @@ const VerticalLayout = (props: any) => {
                                         id={`tooltip-${item.label.replace(/\s+/g, '-').toLowerCase()}`} // Add a unique ID
                                     >
                                         <i className={item.icon}></i>
-                                        <span data-key="t-apps">qqq {props.t(item.label)}</span>
+                                        <span data-key="t-apps">{props.t(item.label)}</span>
                                         {item.badgeName ? (
                                             <span
                                                 className={"badge badge-pill bg-" + item.badgeColor}
