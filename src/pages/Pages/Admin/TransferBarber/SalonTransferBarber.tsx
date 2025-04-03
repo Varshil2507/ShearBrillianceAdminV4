@@ -152,7 +152,7 @@ const SalonTransferBarber: React.FC = () => {
         if (destCategory === "walkIn") {
           toggleConfirmModal();
         } else {
-          updateBarberStatus(result.draggableId, destCategory, sourceCategory);
+          updateBarberStatus(result.draggableId, destCategory, sourceCategory, sourceSalonIndex);
         }
       }, 500);
     } catch (error: any) {
@@ -216,7 +216,7 @@ const SalonTransferBarber: React.FC = () => {
 
   //   }
 
-  const updateBarberStatus = async (barberId?: any,destCategory?: any,sourceCategory?: any) => {
+  const updateBarberStatus = async (barberId?: any,destCategory?: any,sourceCategory?: any, sourceSalonIndex?: any) => {
     try {
       if (selectedBarberCategory) {
         destCategory = selectedBarberCategory;
@@ -240,9 +240,11 @@ const SalonTransferBarber: React.FC = () => {
         setSelectedBarberId(null);
         fetchBarbersList(1, null);
         setShowLoader(false);
+        salonBarberData[sourceSalonIndex].initialLoader = false;
       }
     } catch (error: any) {
       setShowLoader(false);
+      salonBarberData[sourceSalonIndex].initialLoader = false;
       if (error?.response && error?.response?.status === 400) {
         // toast.warning(error?.response?.data?.message || "Bad Request", {
         //   autoClose: 3000,
@@ -250,6 +252,7 @@ const SalonTransferBarber: React.FC = () => {
         showWarningToast("You must complete all ongoing appointments before changing the barber's category.", { autoClose: 3000 });
 
       } else {
+        salonBarberData[sourceSalonIndex].initialLoader = false;
         showErrorToast("Something went wrong. Please try again!", {
           autoClose: 3000,
         });
