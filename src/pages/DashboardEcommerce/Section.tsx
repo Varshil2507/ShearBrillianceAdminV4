@@ -242,43 +242,43 @@ const Section = (props: any) => {
                 Tracking your salon’s story from day one!
               </p>
             </div>
-            {userRole?.role_name === ROLES.ADMIN ||
-              userRole?.role_name === ROLES.SALON_MANAGER ||
-              userRole?.role_name === ROLES.SALON_OWNER ? (
-              <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
-                {(userRole?.role_name === ROLES.SALON_MANAGER ||
-                  userRole?.role_name === ROLES.SALON_OWNER) && (
-                    <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
-                      <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
-                        Today's Avaialable Barber
-                      </p>
-                      <button
-                        type="button"
-                        className="btn btn-soft-info btn-icon waves-effect waves-light"
-                        onClick={() => showBarber()}
-                        title="Select Date Range"
-                        aria-label="Select Date Range"
-                      >
-                        <i className="ri-file-list-line"></i>
-                      </button>
-                    </div>
-                  )}
-                <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
-                  <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
-                    Generate Report
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-soft-info btn-icon waves-effect waves-light"
-                    onClick={() => setShowDatePicker(!showDatePicker)}
-                    title="Select Date Range"
-                    aria-label="Select Date Range"
-                  >
-                    <i className="ri-download-line"></i>
-                  </button>
-                </div>
-              </div>
-            ) : null}
+            {(userRole?.role_name === ROLES.ADMIN || userRole?.role_name === ROLES.SALON_MANAGER) && (
+  <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
+    {(userRole?.role_name === ROLES.SALON_MANAGER) && (
+      <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
+        <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+          Today's Available Barber
+        </p>
+        <button
+          type="button"
+          className="btn btn-soft-info btn-icon waves-effect waves-light"
+          onClick={() => showBarber()}
+          title="Select Date Range"
+          aria-label="Select Date Range"
+        >
+          <i className="ri-file-list-line"></i>
+        </button>
+      </div>
+    )}
+    
+    {/* Show Generate Report only for ADMIN and SALON_MANAGER */}
+    <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
+      <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
+        Generate Report
+      </p>
+      <button
+        type="button"
+        className="btn btn-soft-info btn-icon waves-effect waves-light"
+        onClick={() => setShowDatePicker(!showDatePicker)}
+        title="Select Date Range"
+        aria-label="Select Date Range"
+      >
+        <i className="ri-download-line"></i>
+      </button>
+    </div>
+  </div>
+)}
+
           </div>
 
           {showDatePicker && (

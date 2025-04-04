@@ -13,18 +13,17 @@ const CustomerMixedChart = ({ dataColors }: any) => {
   const [selectedFilter, setSelectedFilter] = useState<string>("last_12_months");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Function to process API data into chart format
   const mapApiResponseToChartData = (data: any) => {
     if (!data || typeof data !== "object") return { months: [], newCustomers: [], repeatedCustomers: [], totalCustomers: [] };
-  
-    const months = Object.keys(data) ?? []; // Ensure months is always an array
-    const newCustomers = months.map((month) => data[month]?.newCustomers || 0);
-    const repeatedCustomers = months.map((month) => data[month]?.repeatedCustomers || 0);
-    const totalCustomers = months.map((month) => data[month]?.totalCustomers || 0);
-  
+
+    const months = Object.keys(data) ?? [];
+    const newCustomers = months.map((month) => data[month]?.newCustomers ?? 0);
+    const repeatedCustomers = months.map((month) => data[month]?.repeatedCustomers ?? 0);
+    const totalCustomers = months.map((month) => data[month]?.totalCustomers ?? 0);
+
     return { months, newCustomers, repeatedCustomers, totalCustomers };
   };
-  
+
   const fetchData = async (filter: string) => {
     setLoading(true);
     try {
@@ -33,13 +32,18 @@ const CustomerMixedChart = ({ dataColors }: any) => {
       if (response) {
         const { months, newCustomers, repeatedCustomers, totalCustomers } = mapApiResponseToChartData(response);
 
+        console.log("Months:", months);
+        console.log("New Customers:", newCustomers);
+        console.log("Repeated Customers:", repeatedCustomers);
+        console.log("Total Customers:", totalCustomers);
+
         setSeries([
           { name: "Repeated Customer", type: "column", data: repeatedCustomers },
           { name: "New Customer", type: "column", data: newCustomers },
           { name: "Total Customer", type: "line", data: totalCustomers },
         ]);
         setCategories(months);
-        setTotalCustomers(totalCustomers.reduce((acc, val) => acc + val, 0)); // Sum total customers
+        setTotalCustomers(totalCustomers.reduce((acc, val) => acc + (isNaN(val) ? 0 : val), 0));
       } else {
         setSeries([]);
         setCategories([]);
@@ -68,12 +72,18 @@ const CustomerMixedChart = ({ dataColors }: any) => {
     chart: { stacked: false, toolbar: { show: false } },
     dataLabels: { enabled: false },
     stroke: { width: [1, 1, 4] },
-    xaxis: { categories: categories.length ? categories : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] },
+    xaxis: {
+      categories: categories.length ? categories : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    },
     yaxis: [{ axisTicks: { show: true }, axisBorder: { show: true, color: "#038edc" }, labels: { style: { colors: "#038edc" } } }],
     tooltip: { fixed: { enabled: true, position: "topLeft", offsetY: 30, offsetX: 60 } },
     legend: { horizontalAlign: "left", offsetX: 40 },
     colors: chartMultiColors,
   };
+
+  if (categories.length === 0 || series.length === 0) {
+    return <div className="text-center">No Data Available</div>;
+  }
 
   return (
     <Row>
