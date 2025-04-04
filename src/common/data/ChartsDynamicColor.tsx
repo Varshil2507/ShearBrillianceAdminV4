@@ -1,6 +1,6 @@
 const getChartColorsArray = (colors: string | undefined): string[] => {
     if (!colors) {
-        console.error("Error: colors parameter is undefined or empty.");
+        // console.error("Error: colors parameter is undefined or empty.");
         return [];
     }
 
