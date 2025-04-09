@@ -10,8 +10,8 @@ const Navdata = () => {
   //state data
   const [isDashboard, setIsDashboard] = useState<boolean>(false)
   const [isFutureBooking, setIsFutureBooking] = useState<boolean>(false)
-  const [isAdministrationOpen, setIsAdministrationOpen] = useState(false);
-  const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [isAdministrationOpen, setIsAdministrationOpen] = useState<boolean>(false)
+  const [isReportsOpen, setIsReportsOpen] = useState<boolean>(false)
   const [iscurrentState, setIscurrentState] = useState("Dashboard")
 
   // Get the user's role from localStorage (you can replace this with a global state if needed)
@@ -246,43 +246,35 @@ const Navdata = () => {
       allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER], // Only Admin can see
     },
     {
-        id: "administration",
-        label: "Administration",
-        icon: "ri-settings-line", // Using a settings icon for administration
-        link: "#",
-        stateVariables: isAdministrationOpen,
-        click: (e: any) => {
-          e.preventDefault();
-          setIsAdministrationOpen(!isAdministrationOpen);
-          setIscurrentState("Administration");
-          updateIconSidebar(e);
-        },
-        allowedRoles: [ROLES.ADMIN], // Only admin can access these
-        subItems: [
-          {
-            id: "users",
-            label: "System Users",
-            icon: "ri-shield-user-fill",
-            link: "/users",
-            click: (e: any) => {
-              e.preventDefault();
-              setIscurrentState("Users");
-            },
-            allowedRoles: [ROLES.ADMIN]
-          },
-          {
-            id: "role",
-            label: "User Roles",
-            icon: "ri-file-list-fill",
-            link: "/roles",
-            click: (e: any) => {
-              e.preventDefault();
-              setIscurrentState("Role");
-            },
-            allowedRoles: [ROLES.ADMIN]
-          }
-        ]
+      id: "administration",
+      label: "Administration",
+      icon: "ri-settings-line", // Using a settings icon for administration
+      link: "/#",
+      stateVariables: isAdministrationOpen,
+      click: (e: any) => {
+        e.preventDefault();
+        setIsAdministrationOpen(!isAdministrationOpen);
+        setIscurrentState("Administration");
+        updateIconSidebar(e);
       },
+      allowedRoles: [ROLES.ADMIN], // Only admin can access these
+      subItems: [
+        {
+          id: "users",
+          label: "System Users",
+          link: "/users",
+          parentId: "administration",
+          allowedRoles: [ROLES.ADMIN]
+        },
+        {
+          id: "role",
+          label: "User Roles",
+          link: "/roles",
+          parentId: "administration",
+          allowedRoles: [ROLES.ADMIN]
+        }
+      ]
+    },
     // {
     //   id: "SalesRevenue",
     //   label: "Sales and Revenue",
@@ -306,45 +298,37 @@ const Navdata = () => {
     //   allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER], // All roles can see this
     // },
     {
-        id: "reports",
-        label: "Reports", // Parent menu label
-        icon: "ri-file-chart-line", // Suitable icon for reports
-        link: "#", // Use "#" for parent items that only expand
-        stateVariables: isReportsOpen, // Controls expand/collapse
-        click: (e: any) => {
-          e.preventDefault();
-          setIsReportsOpen(!isReportsOpen); // Toggle expansion
-          setIscurrentState("Reports");
-          updateIconSidebar(e);
-        },
-        allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER], // Same roles as original items
-        subItems: [
-          // Sales and Revenue (now a sub-item)
-          {
-            id: "SalesRevenue",
-            label: "Sales and Revenue",
-            icon: "ri-line-chart-line", // Kept original icon
-            link: "/sales-revenue",
-            click: (e: any) => {
-              e.preventDefault();
-              setIscurrentState("Sales and Revenue"); // Updated state name
-            },
-            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER],
-          },
-          // Payroll (now a sub-item)
-          {
-            id: "payroll",
-            label: "Payroll",
-            icon: "ri-money-dollar-circle-line", // Better icon for payroll
-            link: "/payroll",
-            click: (e: any) => {
-              e.preventDefault();
-              setIscurrentState("Payroll"); // Updated state name
-            },
-            allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER],
-          },
-        ],
+      id: "reports",
+      label: "Reports", // Parent menu label
+      icon: "ri-file-chart-line", // Suitable icon for reports
+      link: "/#", // Use "#" for parent items that only expand
+      stateVariables: isReportsOpen, // Controls expand/collapse
+      click: (e: any) => {
+        e.preventDefault();
+        setIsReportsOpen(!isReportsOpen); // Toggle expansion
+        setIscurrentState("Reports");
+        updateIconSidebar(e);
       },
+      allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER], // Same roles as original items
+      subItems: [
+        // Sales and Revenue (now a sub-item)
+        {
+          id: "SalesRevenue",
+          label: "Sales and Revenue",
+          link: "/sales-revenue",
+          parentId: "reports",
+          allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER],
+        },
+        // Payroll (now a sub-item)
+        {
+          id: "payroll",
+          label: "Payroll",
+          link: "/payroll",
+          parentId: "reports",
+          allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER],
+        },
+      ],
+    },
     // {
     //   id: "role",
     //   label: "User Roles",
