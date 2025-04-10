@@ -36,20 +36,23 @@ const Notification = () => {
     e.preventDefault(); // Prevent default form submission behavior
     setLoader(true);
 
-    const payload = {
-      title,
-      body: description,
-      image: selectedImage
-        ? URL.createObjectURL(selectedImage) // If an image is selected
-        : defaultImage,
-    };
-
     try {
-      const response = await axios.post(NOTIFICATION_ENDPOINT, payload);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("body", description);
+      if (selectedImage && selectedImage instanceof File) {
+        formData.append("image", selectedImage); // 👈 send as binary
+      }
+
+      const response = await axios.post(NOTIFICATION_ENDPOINT, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // important for FormData
+        },
+      });
+
       showSuccessToast("Send Notification Successfully");
-      setLoader(false);
+      toggleModal();
     } catch (error: any) {
-      setLoader(false);
       if (error.response && error.response.data) {
         const apiMessage = error.response.data.message;
         showErrorToast(apiMessage || "An error occurred");
@@ -57,7 +60,7 @@ const Notification = () => {
         showErrorToast(error.message || "Something went wrong");
       }
     } finally {
-      toggleModal(); // Close the modal after submission
+      setLoader(false);
     }
   };
 
