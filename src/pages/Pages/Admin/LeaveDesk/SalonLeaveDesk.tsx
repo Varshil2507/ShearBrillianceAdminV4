@@ -756,8 +756,9 @@ const RequestedLeavesTable: React.FC = () => {
                   color="success"
                   onClick={handleSubmit}
                   disabled={
-                    selectedUpdatedStatus === "pending" ||
-                    selectedLeave.barber.appointments?.length > 0
+                    (selectedUpdatedStatus === "pending" ||
+                    selectedLeave.barber.appointments?.length > 0)
+                     && selectedUpdatedStatus !== "denied"
                   } // Disable if status is not changed
                 >
                   Submit
