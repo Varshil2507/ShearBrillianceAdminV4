@@ -10,7 +10,7 @@ import { formatDate, formatHours } from "Components/Common/DateUtil";
 import PayrollDownloadButton from "./PayrollDownloadButton";
 import { showErrorToast, showWarningToast } from "slices/layouts/toastService";
 import { ROLES } from "common/data/Constants";
-
+import "./Payroll.css";
 interface SubDetail {
     id: string;
     info: string;
@@ -477,6 +477,7 @@ const Payroll = () => {
                             </AccordionHeader>
                             <AccordionBody accordionId={String(employee.id)}>
                                 <Card className="p-3 mb-3">
+                                <div className="table-wrapper">
                                     <table className="table">
                                         <thead>
                                             <tr>
@@ -503,6 +504,7 @@ const Payroll = () => {
                                             </tr>
                                         </tbody>
                                     </table>
+                                    </div>
                                     {employee.details && employee.details?.length > 0 && (
                                         <Accordion open={openDetail} toggle={toggleDetail}>
                                             {employee.details.map((detail: any, index: any) => (
@@ -511,6 +513,7 @@ const Payroll = () => {
                                                         {detail.Date} - {detail.Day}
                                                     </AccordionHeader>
                                                     <AccordionBody accordionId={String(index)}>
+                                                    <div className="table-wrapper">
                                                         <table className="table">
                                                             <thead>
                                                                 <tr>
@@ -537,9 +540,11 @@ const Payroll = () => {
                                                                 </tr>
                                                             </tbody>
                                                         </table>
+                                                        </div>
                                                         <div className="ps-5">
                                                             <h5>Completed Appointments</h5>
                                                             <hr />
+                                                            <div className="table-wrapper">
                                                             <table className="table">
                                                                 <thead>
                                                                     <tr>
@@ -569,6 +574,7 @@ const Payroll = () => {
                                                                     )}
                                                                 </tbody>
                                                             </table>
+                                                            </div>
                                                         </div>
                                                     </AccordionBody>
                                                 </AccordionItem>
