@@ -21,36 +21,42 @@ import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 export const NOTIFICATION_ENDPOINT = "/notification";
 
 const Notification = () => {
-  const [modal, setModal] = useState(false); // State to manage modal visibility
+  const [modal, setModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<any | null>(null);
   const [loader, setLoader] = useState<boolean>(false);
-  const [title, setTitle] = useState(""); // Track title input
-  const [description, setDescription] = useState(""); // Track description input
-  const toggleModal = () => setModal(!modal); // Function to toggle the modal
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const toggleModal = () => {
+    setModal(!modal);
+    if (!modal) {
+      // Reset form when closing
+      setTitle("");
+      setDescription("");
+      setSelectedImage(null);
+    }
+  };
 
   const handleAddButtonClick = () => {
-    toggleModal(); // Show the modal on button click
+    toggleModal();
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     setLoader(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("body", description);
-      if (selectedImage && selectedImage instanceof File) {
-        formData.append("image", selectedImage); // 👈 send as binary
-      }
+    const formData = new FormData();
+    formData.append("title", title.trim());
+    formData.append("body", description.trim());
+    formData.append("image", selectedImage || defaultImage); // Use selected image or default
 
+    try {
       const response = await axios.post(NOTIFICATION_ENDPOINT, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // important for FormData
+          "Content-Type": "multipart/form-data",
         },
       });
-
-      showSuccessToast("Send Notification Successfully");
+      showSuccessToast("Notification sent successfully");
       toggleModal();
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -67,23 +73,25 @@ const Notification = () => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         setSelectedImage(file); // Save the file object directly
       } else {
-        showErrorToast('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
-        event.target.value = ''; // Clear the file input
+        showErrorToast(
+          "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
+        );
+        event.target.value = ""; // Clear the file input
       }
     } else {
-      setSelectedImage(defaultImage); // Clear the selected image if no file is selected
+      setSelectedImage(null); // Reset to null if no file is selected
     }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const { key } = event;
     const inputElement = event.target as HTMLInputElement;
-    const cursorPosition = inputElement.selectionStart ?? 0; // Fallback to 0 if null
+    const cursorPosition = inputElement.selectionStart ?? 0;
     const currentValue = inputElement.value;
 
     // Prevent space at the start or multiple consecutive spaces
@@ -115,21 +123,14 @@ const Notification = () => {
           </Row>
           <div className="d-flex align-items-start justify-content-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-200">
             <div className="bg-white rounded-3xl shadow-lg max-w-lg text-center border border-gray-200 px-4 py-2">
-              {/* Notification Icon */}
               <div className="text-5xl mb-3">🔔</div>
-
-              {/* Title */}
               <h2 className="text-3xl font-extrabold text-gray-800 mb-3">
                 Stay Updated with <span className="text-blue-600">Important Alerts!</span>
               </h2>
-
-              {/* Message Content */}
               <p className="text-gray-600 mb-6 text-lg">
                 We have something exciting for you! Whether it’s <strong>exclusive deals</strong>,
                 important updates, or <strong>special announcements</strong>, we ensure you never miss out.
               </p>
-
-              {/* Benefits Section */}
               <div className="bg-blue-50 p-5 rounded-xl text-left shadow-sm">
                 <h3 className="text-xl font-semibold text-blue-700 d-flex align-items-center gap-2">
                   ✨ Why Notifications?
@@ -147,15 +148,8 @@ const Notification = () => {
           </div>
         </div>
 
-        {/* Modal */}
         <Modal isOpen={modal} toggle={toggleModal} centered backdrop="static">
-          <ModalHeader
-            className="modal-title"
-            id="myModalLabel"
-            toggle={() => {
-              toggleModal();
-            }}
-          >
+          <ModalHeader className="modal-title" id="myModalLabel" toggle={toggleModal}>
             Send Notification
           </ModalHeader>
           <Form onSubmit={handleFormSubmit}>
@@ -209,15 +203,15 @@ const Notification = () => {
                 />
               </FormGroup>
               <FormGroup>
-                <Label for="username">Title</Label>
+                <Label for="title">Title</Label>
                 <Input
                   type="text"
-                  id="username"
-                  name="username"
-                  placeholder="Enter username"
+                  id="title"
+                  name="title"
+                  placeholder="Enter title"
                   value={title}
                   onKeyDown={handleKeyDown}
-                  onChange={(e) => setTitle(e.target.value)} // Update title state
+                  onChange={(e) => setTitle(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -230,7 +224,7 @@ const Notification = () => {
                   placeholder="Enter description"
                   rows="3"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)} // Update description state
+                  onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -243,7 +237,7 @@ const Notification = () => {
                 color="primary"
                 type="submit"
                 className="btn btn-success"
-                disabled={loader || !title.trim() || !description.trim()} // Disable when fields are empty
+                disabled={loader || !title.trim() || !description.trim()}
               >
                 {loader && <Spinner size="sm" className="me-2">Loading...</Spinner>}
                 Send
@@ -252,7 +246,6 @@ const Notification = () => {
           </Form>
         </Modal>
       </Container>
-
     </React.Fragment>
   );
 };

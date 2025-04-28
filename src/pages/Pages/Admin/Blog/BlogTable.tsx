@@ -289,24 +289,34 @@ const BlogTable: React.FC = () => {
     setError(""); // Remove error if text is entered
   };
 
-  // Function to handle image file selection
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
+  
     if (file) {
       const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
       const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
-        setSelectedImage(file); // Save the file object directly
+        const maxSizeInMB = 5;
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 5 MB = 5 * 1024 * 1024 bytes
+  
+        if (file.size > maxSizeInBytes) {
+          showErrorToast(`File size should not exceed ${maxSizeInMB} MB.`);
+          event.target.value = ''; // Clear the file input
+          setSelectedImage(null); // Clear selected image
+        } else {
+          setSelectedImage(file); // Save the file object
+        }
       } else {
         showErrorToast('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
         event.target.value = ''; // Clear the file input
+        setSelectedImage(null); // Clear selected image
       }
     } else {
-      setSelectedImage(null); // Clear the selected image if no file is selected
+      setSelectedImage(null); // Clear if no file selected
     }
   };
-
+  
   // Function to add a new blog post
   const handleAddBlog = async (values: Omit<Blog, "id">) => {
 

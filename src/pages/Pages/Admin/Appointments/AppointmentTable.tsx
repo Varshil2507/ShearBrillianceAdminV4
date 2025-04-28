@@ -552,7 +552,7 @@ const AppointmentTable: React.FC = () => {
     }
   };
   const emailValidationRegex =
-    /^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]{3,}\.[a-zA-Z]{2,}$/;
+    /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   // validation
   const formik = useFormik({
     initialValues: {

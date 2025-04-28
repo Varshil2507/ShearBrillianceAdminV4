@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Modal, ModalBody, ModalHeader, Row, Spinner } from "reactstrap";
+import {
+  Button,
+  Col,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
+  Spinner,
+} from "reactstrap";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css"; // Flatpickr theme
 import { generatereport } from "Services/Insalonappointment";
@@ -7,8 +15,12 @@ import "./section.css";
 import { fetchSalons } from "Services/SalonService";
 import { fetchBarber, fetchBarberBySalon } from "Services/barberService";
 import TodaysBarber from "./TodaysBarber";
-import {formatDate} from "Components/Common/DateUtil";
-import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import { formatDate } from "Components/Common/DateUtil";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "slices/layouts/toastService";
 import { ROLES } from "common/data/Constants";
 
 const Section = (props: any) => {
@@ -90,12 +102,15 @@ const Section = (props: any) => {
 
   const showBarber = async () => {
     setIsShowBarberModal(true);
-  }
+  };
   const showToast = (message: string) => {
     showWarningToast(message); // Display warning toast message
   };
   useEffect(() => {
-    if (userRole?.role_name !== ROLES.SALON_MANAGER && userRole?.role_name !== ROLES.SALON_OWNER) {
+    if (
+      userRole?.role_name !== ROLES.SALON_MANAGER &&
+      userRole?.role_name !== ROLES.SALON_OWNER
+    ) {
       const fetchAllData = async () => {
         try {
           // Fetch both salons and barbers data in parallel
@@ -190,8 +205,8 @@ const Section = (props: any) => {
       selectedValue === "all"
         ? "all"
         : selectedValue
-          ? Number(selectedValue)
-          : null;
+        ? Number(selectedValue)
+        : null;
 
     setSelectedSalonId(salonId);
 
@@ -242,43 +257,43 @@ const Section = (props: any) => {
                 Tracking your salon’s story from day one!
               </p>
             </div>
-            {(userRole?.role_name === ROLES.ADMIN || userRole?.role_name === ROLES.SALON_MANAGER) && (
-  <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
-    {(userRole?.role_name === ROLES.SALON_MANAGER) && (
-      <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
-        <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
-          Today's Available Barber
-        </p>
-        <button
-          type="button"
-          className="btn btn-soft-info btn-icon waves-effect waves-light"
-          onClick={() => showBarber()}
-          title="Select Date Range"
-          aria-label="Select Date Range"
-        >
-          <i className="ri-file-list-line"></i>
-        </button>
-      </div>
-    )}
-    
-    {/* Show Generate Report only for ADMIN and SALON_MANAGER */}
-    <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
-      <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
-        Generate Report
-      </p>
-      <button
-        type="button"
-        className="btn btn-soft-info btn-icon waves-effect waves-light"
-        onClick={() => setShowDatePicker(!showDatePicker)}
-        title="Select Date Range"
-        aria-label="Select Date Range"
-      >
-        <i className="ri-download-line"></i>
-      </button>
-    </div>
-  </div>
-)}
+            {(userRole?.role_name === ROLES.ADMIN ||
+              userRole?.role_name === ROLES.SALON_MANAGER) && (
+              <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
+                {userRole?.role_name === ROLES.SALON_MANAGER && (
+                  <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
+                    <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+                      Today's Available Barber
+                    </p>
+                    <button
+                      type="button"
+                      className="btn btn-soft-info btn-icon waves-effect waves-light"
+                      onClick={() => showBarber()}
+                      title="Select Date Range"
+                      aria-label="Select Date Range"
+                    >
+                      <i className="ri-file-list-line"></i>
+                    </button>
+                  </div>
+                )}
 
+                {/* Show Generate Report only for ADMIN and SALON_MANAGER */}
+                <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
+                  <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
+                    Generate Report
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-soft-info btn-icon waves-effect waves-light"
+                    onClick={() => setShowDatePicker(!showDatePicker)}
+                    title="Select Date Range"
+                    aria-label="Select Date Range"
+                  >
+                    <i className="ri-download-line"></i>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {showDatePicker && (
@@ -293,8 +308,8 @@ const Section = (props: any) => {
                       selectedSalonId === "all"
                         ? "all"
                         : selectedSalonId !== null
-                          ? selectedSalonId
-                          : ""
+                        ? selectedSalonId
+                        : ""
                     }
                     onChange={handleSalonChange}
                   >
@@ -330,8 +345,9 @@ const Section = (props: any) => {
                   // } // Disable dropdown while loading
                   disabled={
                     !selectedSalonId ||
-                    isLoadingBarbers &&
-                    (userRole?.role_name !== ROLES.SALON_MANAGER || userRole?.role_name !== ROLES.ADMIN)
+                    (isLoadingBarbers &&
+                      (userRole?.role_name !== ROLES.SALON_MANAGER ||
+                        userRole?.role_name !== ROLES.ADMIN))
                   } // Disable barber dropdown if no salon is selected
                   id="barberSelect"
                   className="form-select"
@@ -421,10 +437,19 @@ const Section = (props: any) => {
           )}
         </Col>
       </Row>
-      {
-        storeUserInfo.salon && (userRole?.role_name === ROLES.SALON_MANAGER || userRole?.role_name === ROLES.SALON_OWNER) && (
-          <Modal isOpen={isShowBarberModal} toggle={() => setIsShowBarberModal(!isShowBarberModal)} centered backdrop="static" size="xl">
-            <ModalHeader toggle={() => setIsShowBarberModal(!isShowBarberModal)}>
+      {storeUserInfo.salon &&
+        (userRole?.role_name === ROLES.SALON_MANAGER ||
+          userRole?.role_name === ROLES.SALON_OWNER) && (
+          <Modal
+            isOpen={isShowBarberModal}
+            toggle={() => setIsShowBarberModal(!isShowBarberModal)}
+            centered
+            backdrop="static"
+            size="xl"
+          >
+            <ModalHeader
+              toggle={() => setIsShowBarberModal(!isShowBarberModal)}
+            >
               Today's Barber(s) Status
             </ModalHeader>
             <ModalBody className="modal-body">
@@ -446,8 +471,7 @@ const Section = (props: any) => {
               </div>
             </div>
           </Modal>
-        )
-      }
+        )}
     </React.Fragment>
   );
 };

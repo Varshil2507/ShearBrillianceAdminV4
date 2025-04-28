@@ -5,6 +5,8 @@ import SimpleBar from "simplebar-react";
 
 import smallest from "../assets/images/smallest.png"
 
+
+
 //Import Components
 import VerticalLayout from "./VerticalLayouts";
 import TwoColumnLayout from "./TwoColumnLayout";

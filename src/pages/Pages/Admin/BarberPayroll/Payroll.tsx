@@ -394,8 +394,8 @@ const Payroll = () => {
                             <div
                                 className={
                                     !storeUserInfo.salon
-                                        ? "col-sm-11 col-md-11 col-lg-11 col-11"
-                                        : "col-sm-11 col-md-11 col-lg-11 col-xl-11 col-xxl-11 col-11"
+                                        ? "col-sm-11 col-md-10 col-lg-11 col-8"
+                                        : "col-sm-4 col-md-10 col-lg-11 col-xl-11 col-xxl-11 col-8"
                                 }
                             >
                                 <Select
@@ -440,7 +440,7 @@ const Payroll = () => {
 
                             <button
                                 type="button"
-                                className="btn btn-primary"
+                                className="btn btn-primary w-50"
                                 onClick={applyDateFilter}
                                 disabled={showSpinner}
                                 style={{ whiteSpace: "nowrap" }} // Prevents button text from wrapping
@@ -473,7 +473,7 @@ const Payroll = () => {
                     {payrollData.map((employee) => (
                         <AccordionItem key={employee.id} itemID={String(employee.id)}>
                             <AccordionHeader targetId={String(employee.id)}>
-                                {employee.name} - Total: {employee.grandTotal}
+                                {employee.name} - Total: ${employee.grandTotal}
                             </AccordionHeader>
                             <AccordionBody accordionId={String(employee.id)}>
                                 <Card className="p-3 mb-3">
