@@ -74,7 +74,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   const [assignTag, setAssignTag] = useState<any>([]);
   const [selectedHairCutDetails, setSelectedHairCutDetails] = useState<any>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedStatuss, setSelectedStatus] = useState("");
+  const [selectedStatuss, setSelectedStatus] = useState<string>(""); // don't depend on card here
   const [previousOption, setPreviousOption] = useState("");
   const [appointmentId, setAppointmentId] = useState<any>();
   const [cardhead, setCardHead] = useState<any>();
@@ -190,19 +190,17 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     }
   };
 
-  const isAppointmentToday = (appointmentDateStr: string) => {
-    if (!appointmentDateStr) return false;
-
+  const isAppointmentToday = (dateStr: string) => {
+    if (!dateStr) return false;
     const today = new Date();
-    // Interpret date string in local time zone (no UTC offset applied)
-    const [year, month, day] = appointmentDateStr.split("-").map(Number);
-    const appointmentDate = new Date(year, month - 1, day);
-
-    return (
-      today.getFullYear() === appointmentDate.getFullYear() &&
-      today.getMonth() === appointmentDate.getMonth() &&
-      today.getDate() === appointmentDate.getDate()
-    );
+    const todayDateStr = today.toISOString().split("T")[0]; // "2025-05-14"
+    // If dateStr is already in YYYY-MM-DD format (e.g., appointment_date), this works
+    if (dateStr.length === 10) {
+      return dateStr === todayDateStr;
+    }
+    // Else assume it's ISO datetime (e.g., check_in_time)
+    const inputDateStr = new Date(dateStr).toISOString().split("T")[0];
+    return inputDateStr === todayDateStr;
   };
 
   const handleBarberSelect = (card: React.ChangeEvent<HTMLSelectElement>) => {
@@ -267,6 +265,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
 
   const handleStatusChange = (newStatus: string) => {
+    debugger;
     toggleModal(); // Open the confirmation modal
     setPreviousOption(selectedStatuss);
     setSelectedStatus(newStatus); // Set the new status
@@ -278,27 +277,51 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         setShowSpinner(true);
         await updateAppointmentStatus(appointmentId, {
           status: selectedStatuss,
-        }); // API call to update status
+        });
+
         setShowSpinner(false);
-        toggle();
-        toggleModal(); // Close the modal
-        // fetchAppointmentList(null, appointmentId, selectedStatuss);
+        toggle(); // Close appointment detail modal (optional)
+        toggleModal(); // Close confirmation modal
+
         showSuccessToast("Status updated successfully");
-        // Update the specific appointment in local state after a successful API call
-        // setAppointments((prevAppointments: any[]) => {
-        //   return prevAppointments.map((appointment) => {
-        //     return appointment.id === appointmentId
-        //       ? { ...appointment, status: selectedStatus }
-        //       : appointment;
-        //   });
-        // });
       }
-    } catch (error) {
-      // console.error("Failed to update appointment:", error);
-      // Optionally show error message
-      // alert("Error updating status. Please try again.");
+    } catch (error: any) {
+      setShowSpinner(false); // Always hide spinner
+
+      // ✅ Extract error message safely
+      const message =
+        error?.response?.data?.message || "Failed to update appointment status";
+
+      showErrorToast(message); // ✅ Display backend error
     }
   };
+
+  // const handleWalkinStatusChange = async (newStatus: string) => {
+  //   try {
+  //     if (!card?.id) return;
+
+  //     setShowSpinner(true);
+
+  //     await updateAppointmentStatus(card.id, { status: newStatus });
+  //    setShowSpinner(false);
+  //         toggle();
+  //         toggleModal(); // Close the modal
+  //     // ✅ Update the selectedStatus state so dropdown reflects the new value
+  //     setSelectedStatus(newStatus);
+
+  //     showSuccessToast("Status updated successfully");
+
+  //     // Optional: Close modal if needed
+  //     // toggleModal();
+  //   } catch (error: any) {
+  //     showErrorToast(
+  //       error?.response?.data?.message || "Failed to update status"
+  //     );
+  //   } finally {
+  //     setShowSpinner(false);
+  //   }
+  // };
+
   const handleTipSubmit = async (appointmentId: any) => {
     try {
       setTipSubmitting(true); // Start spinner
@@ -760,11 +783,11 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 <div className="form-group py-2 border-bottom d-flex">
                   <div style={{ width: "50%" }}>
                     <b>Total Amount: </b>
-                    <span>{card?.paymentDetails?.totalAmount || "N/A"}</span>
+                    <span>${card?.paymentDetails?.totalAmount || "N/A"}</span>
                   </div>
                   <div style={{ width: "50%" }}>
                     <b>Tip: </b>
-                    <span>{card?.paymentDetails?.tip || "N/A"}</span>
+                    <span>${card?.paymentDetails?.tip || "N/A"}</span>
                   </div>
                 </div>
               </div>
@@ -776,7 +799,8 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   className="px-2 py-1"
                   style={{
                     color:
-                      card?.paymentDetails?.paymentStatus?.toLowerCase() === "success"
+                      card?.paymentDetails?.paymentStatus?.toLowerCase() ===
+                      "success"
                         ? "green"
                         : "red",
                   }}
@@ -799,189 +823,193 @@ const BarberAppointmentList = ({ salonNames }: any) => {
               </div>
             </div>
             {/* Status Dropdown */}
-        {/* Status Dropdown */}
-<div className="row my-4">
-  {card ? (
-    <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
-      <label htmlFor="statusSelect" className="mb-2 me-2">
-        Status
-      </label>
+            {/* Status Dropdown */}
+            <div className="row my-4">
+              {card ? (
+                <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
+                  <label htmlFor="statusSelect" className="mb-2 me-2">
+                    Status
+                  </label>
 
-      {/* COMPLETED or CANCELED - Show read-only badge */}
-      {["completed", "canceled"].includes(card.status) ? (
-        <div
-          className="form-select ms-2"
-          style={{
-            color:
-              card.status === "completed"
-                ? "green"
-                : card.status === "canceled"
-                ? "red"
-                : "orange",
-            fontWeight: "bold",
-            width: "auto",
-            backgroundColor: "#F8F9FA",
-            border: "1px solid #CED4DA",
-            pointerEvents: "none",
-          }}
-        >
-          {card.status
-            .replace("_", " ")
-            .replace(/\b\w/g, (char: string) => char.toUpperCase())}
-        </div>
-      ) : card.category === 2 ? (
-        // ✅ WALK-IN CATEGORY DROPDOWN
-        <select
-          id="walkinStatusSelect"
-          className="form-select ms-2"
-          value={selectedStatus}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          style={{
-            color:
-              selectedStatus === "check_in"
-                ? "blue"
-                : selectedStatus === "in_salon"
-                ? "purple"
-                : selectedStatus === "completed"
-                ? "green"
-                : selectedStatus === "canceled"
-                ? "red"
-                : "black",
-            fontWeight: "bold",
-            width: "auto",
-          }}
-        >
-          <option
-            value="check_in"
-            disabled={selectedStatus === "check_in"}
-            style={{ color: "blue", fontWeight: "bold" }}
-          >
-            Check In
-          </option>
-          <option
-            value="in_salon"
-            disabled={selectedStatus === "in_salon"}
-            style={{ color: "purple", fontWeight: "bold" }}
-          >
-            In Salon
-          </option>
-          <option
-            value="completed"
-            disabled={selectedStatus === "completed"}
-            style={{ color: "green", fontWeight: "bold" }}
-          >
-            Completed
-          </option>
-          <option
-            value="canceled"
-            disabled={selectedStatus === "canceled"}
-            style={{ color: "red", fontWeight: "bold" }}
-          >
-            Canceled
-          </option>
-        </select>
-      ) : (
-        // ✅ APPOINTMENT CATEGORY DROPDOWN
-        <select
-          id="statusSelect"
-          className="form-select ms-2"
-          value={selectedStatus}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          style={{
-            color:
-              selectedStatus === "appointment"
-                ? "orange"
-                : selectedStatus === "completed"
-                ? "green"
-                : selectedStatus === "canceled"
-                ? "red"
-                : "black",
-            fontWeight: "bold",
-            width: "auto",
-          }}
-        >
-          <option
-            value="appointment"
-            disabled={selectedStatus === "appointment"}
-            style={{ color: "orange", fontWeight: "bold" }}
-          >
-            Appointment
-          </option>
-          {!card?.isFeatureEvent && (
-            <option
-              value="completed"
-              disabled={selectedStatus === "completed"}
-              style={{ color: "green", fontWeight: "bold" }}
-            >
-              Completed
-            </option>
-          )}
-          {!card?.isPreviousEvent && (
-            <option
-              value="canceled"
-              disabled={selectedStatus === "canceled"}
-              style={{ color: "red", fontWeight: "bold" }}
-            >
-              Canceled
-            </option>
-          )}
-        </select>
-      )}
+                  {/* COMPLETED or CANCELED - Show read-only badge */}
+                  {["completed", "canceled"].includes(card.status) ? (
+                    <div
+                      className="form-select ms-2"
+                      style={{
+                        color:
+                          card.status === "completed"
+                            ? "green"
+                            : card.status === "canceled"
+                            ? "red"
+                            : "orange",
+                        fontWeight: "bold",
+                        width: "auto",
+                        backgroundColor: "#F8F9FA",
+                        border: "1px solid #CED4DA",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {card.status
+                        .replace("_", " ")
+                        .replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                    </div>
+                  ) : card.category === 2 ? (
+                    // ✅ WALK-IN CATEGORY DROPDOWN
+                    <select
+                      id="walkinStatusSelect"
+                      className="form-select ms-2"
+                      value={selectedStatus}
+                      onChange={(e) => handleStatusChange(e.target.value)} // 👈 Use this function
+                      style={{
+                        color:
+                          selectedStatus === "check_in"
+                            ? "blue"
+                            : selectedStatus === "in_salon"
+                            ? "purple"
+                            : selectedStatus === "completed"
+                            ? "green"
+                            : selectedStatus === "canceled"
+                            ? "red"
+                            : "black",
+                        fontWeight: "bold",
+                        width: "auto",
+                      }}
+                    >
+                      <option
+                        value="check_in"
+                        disabled={selectedStatus === "check_in"}
+                        style={{ color: "blue", fontWeight: "bold" }}
+                      >
+                        Check In
+                      </option>
+                      <option
+                        value="in_salon"
+                        disabled={selectedStatus === "in_salon"}
+                        style={{ color: "purple", fontWeight: "bold" }}
+                      >
+                        In Salon
+                      </option>
+                      <option
+                        value="completed"
+                        disabled={selectedStatus === "completed"}
+                        style={{ color: "green", fontWeight: "bold" }}
+                      >
+                        Completed
+                      </option>
+                      <option
+                        value="canceled"
+                        disabled={selectedStatus === "canceled"}
+                        style={{ color: "red", fontWeight: "bold" }}
+                      >
+                        Canceled
+                      </option>
+                    </select>
+                  ) : (
+                    // ✅ APPOINTMENT CATEGORY DROPDOWN
+                    <select
+                      id="statusSelect"
+                      className="form-select ms-2"
+                      value={selectedStatus}
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      style={{
+                        color:
+                          selectedStatus === "appointment"
+                            ? "orange"
+                            : selectedStatus === "completed"
+                            ? "green"
+                            : selectedStatus === "canceled"
+                            ? "red"
+                            : "black",
+                        fontWeight: "bold",
+                        width: "auto",
+                      }}
+                    >
+                      <option
+                        value="appointment"
+                        disabled={selectedStatus === "appointment"}
+                        style={{ color: "orange", fontWeight: "bold" }}
+                      >
+                        Appointment
+                      </option>
+                      {!card?.isFeatureEvent && (
+                        <option
+                          value="completed"
+                          disabled={selectedStatus === "completed"}
+                          style={{ color: "green", fontWeight: "bold" }}
+                        >
+                          Completed
+                        </option>
+                      )}
+                      {!card?.isPreviousEvent && (
+                        <option
+                          value="canceled"
+                          disabled={selectedStatus === "canceled"}
+                          style={{ color: "red", fontWeight: "bold" }}
+                        >
+                          Canceled
+                        </option>
+                      )}
+                    </select>
+                  )}
 
-      {/* Shared Confirmation Modal */}
-      <AppointmentConfirmationModal
-        isOpen={isModalOpen}
-        toggle={toggleModal}
-        onConfirm={confirmStatusChange}
-        status={selectedStatus}
-        isAppointment={false}
-        isTransferBarber={false}
-        isService={false}
-        appointmentId={appointmentId}
-        showSpinner={showSpinner}
-      />
-    </div>
-  ) : (
-    <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
-      <label className="mb-2">Status</label>
-      <div className="ms-2 text-muted">Loading...</div>
-    </div>
-  )}
+                  {/* Shared Confirmation Modal */}
+                  <AppointmentConfirmationModal
+                    isOpen={isModalOpen}
+                    toggle={toggleModal}
+                    onConfirm={confirmStatusChange}
+                    status={selectedStatus}
+                    isAppointment={false}
+                    isTransferBarber={false}
+                    isService={false}
+                    appointmentId={appointmentId}
+                    showSpinner={showSpinner}
+                  />
+                </div>
+              ) : (
+                <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
+                  <label className="mb-2">Status</label>
+                  <div className="ms-2 text-muted">Loading...</div>
+                </div>
+              )}
 
-  {/* Shared Haircut + Tip Buttons */}
-  <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
-    <div>
-      <button
-        className="btn btn-primary mb-4"
-        data-bs-toggle="modal"
-        data-bs-target="#createboardModal"
-        onClick={handleOpen}
-        disabled={
-          !isAppointmentToday(event?.eventDate) ||
-          event?.status === "completed" ||
-          event?.status === "canceled"
-        }
-      >
-        <i className="ri-add-line align-bottom me-1"></i> Add Haircut Details
-      </button>
-    </div>
+              {/* Shared Haircut + Tip Buttons */}
+              <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
+                <div>
+                  <button
+                    className="btn btn-primary mb-4"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createboardModal"
+                    onClick={handleOpen}
+                    disabled={
+                      !isAppointmentToday(
+                        card?.appointment_date || card?.check_in_time
+                      ) ||
+                      card?.status === "completed" ||
+                      card?.status === "canceled"
+                    }
+                  >
+                    <i className="ri-add-line align-bottom me-1"></i> Add
+                    Haircut Details
+                  </button>
+                </div>
 
-    <div>
-      <Button
-        className="btn btn-primary mb-4"
-        onClick={() => setTipModalOpen(true)}
-        disabled={
-          !isAppointmentToday(event?.eventDate) ||
-          event?.status === "completed" ||
-          event?.status === "canceled"
-        }
-      >
-        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-      </Button>
-    </div>
-  </div>
-</div>
-
+                <div>
+                  <Button
+                    className="btn btn-primary mb-4"
+                    onClick={() => setTipModalOpen(true)}
+                    disabled={
+                      !isAppointmentToday(
+                        card?.appointment_date || card?.check_in_time
+                      ) ||
+                      card?.status === "completed" ||
+                      card?.status === "canceled"
+                    }
+                  >
+                    <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {card?.haircutDetails?.length ? (
               <TableContainer
