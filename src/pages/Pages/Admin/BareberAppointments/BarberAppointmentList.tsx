@@ -116,9 +116,18 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     setStartDate(today);
     setEndDate(today);
     setStatus("all");
-    setCurrentPage(1); // ✅ This is the missing piece
 
-    fetchAppointmentList(1, today, today, "all", undefined, "");
+    const initialPageIndex = 0; // ← 0-based pageIndex
+    setCurrentPage(initialPageIndex);
+
+    fetchAppointmentList(
+      initialPageIndex + 1, // ← convert to 1-based for backend
+      today,
+      today,
+      "all",
+      undefined,
+      ""
+    );
   }, []);
 
   const fetchAppointmentList = async (
@@ -232,19 +241,18 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     );
   };
 
-  const handlePageChange = (pageIndex: number) => {
-    const page = pageIndex + 1; // Convert back to 1-based for backend
-    setCurrentPage(page); // Store for UI control
+const handlePageChange = (pageIndex: number) => {
+  setCurrentPage(pageIndex); // ← 0-based index for UI
 
-    fetchAppointmentList(
-      page,
-      selectedStartDate,
-      selectedEndDate,
-      selectedStatus,
-      selectedBarber ? parseInt(selectedBarber) : undefined,
-      selectedSearchText ?? ""
-    );
-  };
+  fetchAppointmentList(
+    pageIndex + 1, // ← 1-based page number for backend
+    selectedStartDate,
+    selectedEndDate,
+    selectedStatus,
+    selectedBarber ? parseInt(selectedBarber) : undefined,
+    selectedSearchText ?? ""
+  );
+};
 
   const handleSearchText = (search: string) => {
     const page = 1;
@@ -661,7 +669,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     customPageSize={limit}
                     totalPages={selectedTotalPages ?? 0}
                     totalItems={selectedTotalItems ?? 0}
-                    currentPageIndex={selectedCurrentPage ?? 1} // ✅ Convert to 0-based index
+                    currentPageIndex={selectedCurrentPage ?? 0} // ✅ Convert to 0-based index
                     selectedDateRange={[selectedStartDate, selectedEndDate]}
                     selectedStatus={selectedStatus}
                     divClass="table-responsive text-black table-card mb-3"
