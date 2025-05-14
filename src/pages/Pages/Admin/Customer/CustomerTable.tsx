@@ -1,24 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Modal,
-  ModalBody,
-  Row,
-  Col,
-  ModalHeader,
-  Spinner,
-} from "reactstrap";
+import { Modal, ModalBody, Row, Col, ModalHeader, Spinner } from "reactstrap";
 import TableContainer from "Components/Common/TableContainer";
 import Profile from "../../../../assets/images/users/avatar-8.jpg";
 import DeleteModal from "../../../../../src/Components/Common/DeleteModal";
-import {
-  fetchUsers,
-  fetchUserById,
-} from "Services/UserService";
+import { fetchUsers, fetchUserById } from "Services/UserService";
 import Loader from "Components/Common/Loader";
 import CustomerAppointmentList from "./CustomerAppointmentList";
 import { deleteCustomer } from "Services/CustomerService";
 import { showErrorToast } from "slices/layouts/toastService";
-
 
 // Define the User type based on your database structure
 interface Customer {
@@ -32,7 +21,7 @@ interface Customer {
   google_token: string;
   apple_token: string;
   password: string; // Add this line
-  RoleId: string;// Adjust to match the expected type
+  RoleId: string; // Adjust to match the expected type
   created_at: string;
   SalonId: number;
   profile_photo: string;
@@ -42,7 +31,7 @@ interface Customer {
 
 export const USERS_ENDPOINT = "/users";
 export const SALON_ENDPOINT = "/salon/admin";
-export const ROLE_ENDPOINT = '/roles'
+export const ROLE_ENDPOINT = "/roles";
 
 const CustomerTable: React.FC = () => {
   const [customerData, setCustomerData] = useState<Customer[]>([]);
@@ -67,9 +56,7 @@ const CustomerTable: React.FC = () => {
   const toggleModal = () => setModal(!modal);
 
   useEffect(() => {
-
     getCustomers(1, null);
-
   }, []);
 
   // Search functionality
@@ -96,15 +83,22 @@ const CustomerTable: React.FC = () => {
 
   const getCustomers = async (page: any, search: any) => {
     try {
-      const response: any = await fetchUsers(null, 'customer', page === 0 ? 1 : page, limit, search ?? null);
+      const response: any = await fetchUsers(
+        null,
+        "customer",
+        page === 0 ? 1 : page,
+        limit,
+        search ?? null
+      );
       if (response?.users?.length > 0) {
         const sortedCustomers = response.users.sort(
-          (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         const users = sortedCustomers.map((usr: any) => {
           usr.fullname = usr.firstname + " " + usr.lastname;
           return usr;
-        })
+        });
         setTotalItems(response?.totalItems);
         setTotalPages(response?.totalPages);
         setCustomerData(users);
@@ -117,8 +111,7 @@ const CustomerTable: React.FC = () => {
         } else {
           setShowLoader(false); // Immediately hide loader if data is available
         }
-      }
-      else {
+      } else {
         setShowLoader(false); // Immediately hide loader if data is available
       }
     } catch (error: any) {
@@ -164,14 +157,13 @@ const CustomerTable: React.FC = () => {
         setDeleteModal(false); // Close the delete confirmation modal
         setSelectedCustomer(null); // Reset selected user ID
       } catch (error) {
-        console.error("Error deleting user:", error);
+        // console.error("Error deleting user:", error);
       }
     }
   };
   const [loadingRow, setLoadingRow] = useState<number | null>(null); // Track which row is loading
 
-  useEffect(() => {
-  }, [loadingRow]);
+  useEffect(() => {}, [loadingRow]);
   const columns = useMemo(
     () => [
       {
@@ -185,7 +177,7 @@ const CustomerTable: React.FC = () => {
               alt="Profile"
               style={{ width: "50px", height: "50px", borderRadius: "50%" }}
             />
-          )
+          );
         },
         enableColumnFilter: false,
       },
@@ -215,7 +207,7 @@ const CustomerTable: React.FC = () => {
         enableColumnFilter: false,
       },
       {
-        header: "Details",
+        header: "Actions",
         accessorKey: "id",
         enableColumnFilter: false,
         cell: (cell: { row: { original: any } }) => {
@@ -240,7 +232,6 @@ const CustomerTable: React.FC = () => {
           );
         },
       },
-
     ],
     [customerData, loadingRow]
   );
@@ -296,8 +287,7 @@ const CustomerTable: React.FC = () => {
 
       // Call your card edit function
       handleCardEdit(row);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleCardEdit = async (arg: any) => {
@@ -332,8 +322,6 @@ const CustomerTable: React.FC = () => {
 
     // toggle();
   };
-
-
 
   const toggleDeleteModal = () => {
     setDeleteModal(!deleteModal); // Toggle the delete modal visibility
@@ -389,7 +377,6 @@ const CustomerTable: React.FC = () => {
             }}
           > */}
 
-
           <div className="form-group mb-3">
             <Row>
               <Col lg={2}>
@@ -409,8 +396,8 @@ const CustomerTable: React.FC = () => {
                             selectedImage instanceof File
                               ? URL.createObjectURL(selectedImage)
                               : selectedCutomerDetails?.profile_photo
-                                ? selectedCutomerDetails?.profile_photo
-                                : Profile
+                              ? selectedCutomerDetails?.profile_photo
+                              : Profile
                           }
                           alt="Profile"
                           className="img-fluid"
@@ -424,7 +411,10 @@ const CustomerTable: React.FC = () => {
                 <div className="d-block">
                   <div className="flex-grow-2 py-2 border-bottom">
                     <b>Full Name: </b>
-                    <span>{selectedCutomerDetails?.firstname} {selectedCutomerDetails?.lastname}</span>
+                    <span>
+                      {selectedCutomerDetails?.firstname}{" "}
+                      {selectedCutomerDetails?.lastname}
+                    </span>
                   </div>
                   <div className="flex-grow-2 py-2 border-bottom">
                     <b>Email: </b>
@@ -432,7 +422,9 @@ const CustomerTable: React.FC = () => {
                   </div>
                   <div className="flex-grow-2 py-2 border-bottom">
                     <b>Mobile: </b>
-                    <span>{selectedCutomerDetails?.mobile_number ?? 'No data'}</span>
+                    <span>
+                      {selectedCutomerDetails?.mobile_number ?? "No data"}
+                    </span>
                   </div>
                 </div>
               </Col>
@@ -441,12 +433,16 @@ const CustomerTable: React.FC = () => {
           <Row className="g-6">
             <Col sm={4}>
               <div className="d-flex justify-content-between">
-                <h5>Appointments({selectedCutomerDetails?.appointments?.length})</h5>
+                <h5>
+                  Appointments({selectedCutomerDetails?.appointments?.length})
+                </h5>
               </div>
             </Col>
           </Row>
           <div className="d-block">
-            <CustomerAppointmentList appointments={selectedCutomerDetails?.appointments}></CustomerAppointmentList>
+            <CustomerAppointmentList
+              appointments={selectedCutomerDetails?.appointments}
+            ></CustomerAppointmentList>
           </div>
 
           {/* {haircutDetailData?.length ? (
@@ -465,7 +461,6 @@ const CustomerTable: React.FC = () => {
           ) : (
             <div>No Haircut Data Available</div>
           )} */}
-
         </ModalBody>
       </Modal>
       {/* Modal for adding/updating customers */}
@@ -474,11 +469,12 @@ const CustomerTable: React.FC = () => {
         onDeleteClick={handleDeleteUser}
         onCloseClick={toggleDeleteModal}
         title={
-          selectedCustomer !== null ? selectedCustomer.name.toString() : undefined
+          selectedCustomer !== null
+            ? selectedCustomer.name.toString()
+            : undefined
         }
-      // Convert to string or undefined
+        // Convert to string or undefined
       />
-
     </React.Fragment>
   );
 };

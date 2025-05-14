@@ -24,7 +24,7 @@ const handleResponse = async (response: Response) => {
 };
 
 const handleError = (error: Error) => {
-    console.error('API call failed:', error);
+    // console.error('API call failed:', error);
     throw error;
 };
 

@@ -26,7 +26,7 @@ export const fetchRequestedLeaves = async (
     return response; // Return only the data array
   } catch (error) {
     showErrorToast('Error fetching requested leaves');
-    console.error('Error fetching requested leaves:', error);
+    // console.error('Error fetching requested leaves:', error);
     throw error; // Rethrow the error so that it can be handled in the component
   }
 };

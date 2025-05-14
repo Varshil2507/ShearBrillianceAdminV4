@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Collapse, Container, UncontrolledTooltip } from 'reactstrap';
 import withRouter from '../../Components/Common/withRouter';
 
-import smallest from "../../assets/images/smallest.png";
+import smallest from "../../assets/images/small-logo.png";
 //i18n
 import { withTranslation } from "react-i18next";
 

@@ -13,7 +13,7 @@ export const fetchCustomers = async (): Promise<Customer[]> => {
         mobile_number: customer.mobile_number || "", // Fallback to empty string
       }));
     } catch (error) {
-      console.error("Error fetching customers:", error);
+    //   console.error("Error fetching customers:", error);
       throw error;
     }
   };
@@ -25,7 +25,7 @@ export const createCustomer = async (customerData: Customer): Promise<Customer> 
         const response = await apiClient.create(USERS_ENDPOINT, customerData);
         return response.data; 
     } catch (error) {
-        console.error("Error creating customer:", error);
+        // console.error("Error creating customer:", error);
         throw error; 
     }
 };
@@ -36,7 +36,7 @@ export const updateCustomer = async (id: number, updatedCustomerData: Partial<Cu
         const response = await apiClient.put(`${USERS_ENDPOINT}/${id}`, updatedCustomerData);
         return response.data;
     } catch (error) {
-        console.error("Error updating customer:", error);
+        // console.error("Error updating customer:", error);
         throw error;
     }
 };
@@ -47,7 +47,7 @@ export const deleteCustomer = async (id: number): Promise<void> => {
     try {
         await apiClient.delete(`${USERS_ENDPOINT}/${id}`);
     } catch (error) {
-        console.error("Error deleting customer:", error);
+        // console.error("Error deleting customer:", error);
         throw error; 
     }
 };
@@ -58,7 +58,7 @@ export const addCustomer = async (customerData: Customer): Promise<Customer> => 
         const response = await apiClient.create(USERS_ENDPOINT, customerData);
         return response.data;
     } catch (error) {
-        console.error("Error adding customer:", error);
+        // console.error("Error adding customer:", error);
         throw error;
     }
 };

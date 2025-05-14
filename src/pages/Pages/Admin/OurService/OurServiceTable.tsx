@@ -175,7 +175,7 @@ const ServiceTable: React.FC = () => {
         error.response?.data?.message ||
         "Error adding service, please try again later";
       showErrorToast(errorMessage);
-      console.error("Error adding service:", error);
+      // console.error("Error adding service:", error);
     }
   };
 
@@ -219,7 +219,7 @@ const ServiceTable: React.FC = () => {
         error.response?.data?.message ||
         "Error updating service, please try again later";
       showErrorToast(errorMessage);
-      console.error("Error updating service:", error);
+      // console.error("Error updating service:", error);
     }
   };
 

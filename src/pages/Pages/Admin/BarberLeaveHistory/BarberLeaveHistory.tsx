@@ -289,7 +289,7 @@ const LeaveHistoryTable: React.FC = () => {
     //     search
     //   );
     }
-    console.error("Error fetching searched leave history:", search);
+    // console.error("Error fetching searched leave history:", search);
   };
 
   return (

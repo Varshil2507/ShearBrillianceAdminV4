@@ -27,6 +27,11 @@ const DashboardEcommerce = () => {
     const getDashboardData = async () => {
       try {
         const response: any = await fetchDashboardData();
+        if(response?.salonDetails) {
+          localStorage.setItem("salonDetails", JSON.stringify(response?.salonDetails));
+        } else {
+          localStorage.removeItem("salonDetails");
+        }
         setDashboardData(response);
         setShowLoader(false);
       } catch (error: any) {
@@ -49,13 +54,12 @@ const DashboardEcommerce = () => {
           <Row>
             <Col>
               <div className="h-100">
-              <                                                      Row>
-        {/* First Section */}
-        <Col md={12}>
-
-          <Section rightClickBtn={toggleRightColumn} />
-        </Col>
-      </Row>
+                <Row>
+                  {/* First Section */}
+                  <Col md={12}>
+                    <Section rightClickBtn={toggleRightColumn} />
+                  </Col>
+                </Row>
 
                 <Row>
                   {showLoader ? (
@@ -89,7 +93,6 @@ const DashboardEcommerce = () => {
           </Row> */}
         </Container>
       </div>
-
     </React.Fragment>
   );
 };

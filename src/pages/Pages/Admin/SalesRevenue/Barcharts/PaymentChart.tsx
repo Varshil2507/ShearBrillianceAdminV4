@@ -36,7 +36,7 @@ const PaymentChart: React.FC = () => {
             // Convert back to numbers for ApexCharts
             setChartData([parseFloat(online), parseFloat(offline)]);
         } catch (error: any) {
-            console.error("Fetch Error:", error);
+            // console.error("Fetch Error:", error);
             showErrorToast(error.response?.data?.message || "Something went wrong");
             setChartData([0.00, 0.00]); // Fallback with formatted values
         } finally {

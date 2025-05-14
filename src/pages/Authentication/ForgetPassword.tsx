@@ -25,7 +25,7 @@ const { commonText } = config;
 const ForgetPasswordPage = (props: any) => {
   const [loader, setLoader] = useState<boolean>(false);
 
-  const emailValidationRegex = /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   const validation: any = useFormik({
     enableReinitialize: true,
     initialValues: {

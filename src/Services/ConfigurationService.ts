@@ -9,7 +9,7 @@ export const fetchPaymentConfig = async (): Promise<any> => {
         const response = await apiClient.get(`${CONFIGURATION_ENDPOINT}/get-payment-config`);
         return response;
     } catch (error) {
-        console.error("Error fetching Payment configuration:", error);
+        // console.error("Error fetching Payment configuration:", error);
         throw error;
     }
 };
@@ -21,7 +21,7 @@ export const updatePaymentConfig = async (updatedData: Partial<any>): Promise<an
         const response = await apiClient.put(`${CONFIGURATION_ENDPOINT}/put-payment-config`, updatedData);
         return response.data;
     } catch (error) {
-        console.error("Error updating Payment configuration:", error);
+        // console.error("Error updating Payment configuration:", error);
         throw error;
     }
 };

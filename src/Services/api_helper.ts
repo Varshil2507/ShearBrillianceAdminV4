@@ -76,6 +76,10 @@ class APIClient {
   create = (url: string, data: any): Promise<AxiosResponse> => {
     return axios.post(url, data);
   };
+  
+patch = (url: string, data: any, config = {}) => {
+  return axios.patch(url, data, config);
+};
 
   /**
    * Updates data

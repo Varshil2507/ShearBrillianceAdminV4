@@ -12,7 +12,7 @@ export const updateLeaveStatus = async (
     const response = await apiClient.put(`${LEAVE_STATUS_ENDPOINT}${id}`, dataToUpdate);
     return response; // Return the updated leave data
   } catch (error) {
-    console.error("Error updating leave status:", error);
+    // console.error("Error updating leave status:", error);
     throw error;
   }
 };

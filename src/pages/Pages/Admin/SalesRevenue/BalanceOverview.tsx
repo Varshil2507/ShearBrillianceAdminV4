@@ -119,7 +119,7 @@ const getBalanceChartsData = (filter: string) => async (dispatch: any) => {
       dispatch(updateBalanceOverviewData([...salesData]));
       dispatch(updateMetrics({ sales: totalSales, appointments: totalAppointments, profitRatio }));
     } else {
-      console.error('Invalid sales data format or empty data');
+      // console.error('Invalid sales data format or empty data');
       dispatch(updateBalanceOverviewData([]));
       dispatch(updateMetrics({ sales: 0, appointments: 0, profitRatio: 0 }));
     }
@@ -161,7 +161,7 @@ const BalanceOverview = () => {
 
   const transformChartData = (data: SalesDataItem[]) => {
     if (!data || !Array.isArray(data)) {
-      console.error("Invalid chart data format", data);
+      // console.error("Invalid chart data format", data);
       return { series: [], categories: [] };
     }
   

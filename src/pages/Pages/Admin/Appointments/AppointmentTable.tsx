@@ -10,7 +10,19 @@ import {
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
-import {Col,Modal,ModalBody,Row,Label,Input,Button,ModalHeader,FormFeedback,Form,Spinner} from "reactstrap";
+import {
+  Col,
+  Modal,
+  ModalBody,
+  Row,
+  Label,
+  Input,
+  Button,
+  ModalHeader,
+  FormFeedback,
+  Form,
+  Spinner,
+} from "reactstrap";
 import { Status } from "./AppointmentListCol";
 
 // Formik
@@ -35,10 +47,19 @@ import {
   getBarberSessionByBarber,
 } from "Services/BarberSessionService";
 import { fetchSalons } from "Services/SalonService";
-import { formatDate, formatHours, otherFormatDate } from "Components/Common/DateUtil";
-import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import {
+  formatDate,
+  formatHours,
+  otherFormatDate,
+} from "Components/Common/DateUtil";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "slices/layouts/toastService";
 import { toast } from "react-toastify";
 import { ROLES } from "common/data/Constants";
+import { strictNameValidation } from "Components/Common/Namevalidation";
 
 const Assigned = [
   { id: 1, imgId: "anna-adame", img: avatar1, name: "Anna Adame" },
@@ -116,7 +137,11 @@ const AppointmentTable: React.FC = () => {
   const [selectedTotalPages, setTotalPages] = useState<number | null>(0);
 
   const [showBarberSpinner, setShowBarberSpinner] = useState<boolean>(false);
-
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
   const limit = 10; // Items per page
   const userCategory = localStorage.getItem("userCategory");
   const userRole = localStorage.getItem("userRole");
@@ -144,12 +169,18 @@ const AppointmentTable: React.FC = () => {
       formik.resetForm();
       if (
         storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-        storeRoleInfo?.role_name === ROLES.SALON_OWNER
+        storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+        storesalonDetailInfo
       ) {
-        formik.setFieldValue("salon_id", salonUserInfo.id);
-        getBarberSessionsData(salonUserInfo.id);
+        formik.setFieldValue(
+          "salon_id",
+          storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo.id
+        );
+        getBarberSessionsData(
+          storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo.id
+        );
       }
-      if (userCategory ===ROLES.WALKIN_BARBER) {
+      if (userCategory === ROLES.WALKIN_BARBER) {
         if (storeUserInfo.berber) {
           formik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
           formik.setFieldValue("barber_id", storeUserInfo.berber.id);
@@ -286,10 +317,16 @@ const AppointmentTable: React.FC = () => {
   useEffect(() => {
     if (
       storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-      storeRoleInfo?.role_name === ROLES.SALON_OWNER
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      storesalonDetailInfo
     ) {
-      formik.setFieldValue("salon_id", salonUserInfo.id);
-      getBarberSessionsData(salonUserInfo.id);
+      formik.setFieldValue(
+        "salon_id",
+        storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo.id
+      );
+      getBarberSessionsData(
+        storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo.id
+      );
     }
     if (userCategory === ROLES.WALKIN_BARBER) {
       if (storeUserInfo.berber) {
@@ -329,51 +366,98 @@ const AppointmentTable: React.FC = () => {
 
   const getBarberSessionsData = async (salonId: any) => {
     try {
-      const response: any = await fetchBarberSession(salonId);
+      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+
+      const response = await fetchBarberSession(salonId);
+
       if (response?.length > 0) {
-       
-        let barberArray: any = [];
-        response[0].barbers
-          .filter((brbr: any) => brbr.barber.category === 2 && brbr.barber.availability_status === "available")
-          .map((brbr: any) => {
-            const today = new Date().toISOString().split("T")[0];
-            const todayScheduleInfo = brbr.barber?.schedule.find(
-              (day: any) => day.date === today
+        const salon = response[0].salon;
+
+        const openTime = new Date(`${today}T${salon.open_time}`);
+        const closeTime = new Date(`${today}T${salon.close_time}`);
+
+        // Check if salon is open 
+        const isSalonOpen = now >= openTime && now < closeTime;
+
+        if (!isSalonOpen) {
+          setBarberSessionsData([]); // salon is closed
+          setIsAppointmentAvailable(false);
+          return;
+        }
+
+        const formattedBarbers = response[0].barbers
+          .filter((brbr: any) => {
+            return (
+              brbr.barber.category === 2 &&
+              brbr.barber.availability_status === "available" &&
+              brbr.barber.schedule?.some((session: any) => {
+                const sessionDate = session.date;
+                if (
+                  sessionDate !== today ||
+                  !session.startTime ||
+                  !session.endTime
+                )
+                  return false;
+
+                const start = new Date(`${sessionDate}T${session.startTime}`);
+                const end = new Date(`${sessionDate}T${session.endTime}`);
+
+                // ✅ Ensure session is live AND within salon time
+                return (
+                  now >= start &&
+                  now < end &&
+                  start >= openTime &&
+                  end <= closeTime
+                );
+              })
             );
-            const obj = {
-              id: brbr.barber?.id,
-              name: brbr.barber.name,
-              start_time: todayScheduleInfo
-                ? todayScheduleInfo.startTime
-                : null,
-              end_time: todayScheduleInfo ? todayScheduleInfo.endTime : null,
-              availability_status: brbr.barber.availability_status,
-              barberInfo: brbr.barber,
-            };
-            barberArray.push(obj);
-          });
-        setBarberSessionsData(barberArray);
-        setShowBarberSpinner(false);
-        const timer = setTimeout(() => {
-          setShowLoader(false);
-        }, 5000); // Hide loader after 5 seconds
-        return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
-        // const barberArray = response.barberSessions.map((item: any) => item.barber);
+          })
+          .flatMap((brbr: any) =>
+            brbr.barber.schedule
+              .filter((session: any) => {
+                const sessionDate = session.date;
+                if (
+                  sessionDate !== today ||
+                  !session.startTime ||
+                  !session.endTime
+                )
+                  return false;
+
+                const start = new Date(`${sessionDate}T${session.startTime}`);
+                const end = new Date(`${sessionDate}T${session.endTime}`);
+
+                // ✅ Ensure session is live AND within salon time
+                return (
+                  now >= start &&
+                  now < end &&
+                  start >= openTime &&
+                  end <= closeTime
+                );
+              })
+              .map((session: any) => ({
+                id: brbr.barber.id,
+                name: brbr.barber.name,
+                start_time: session.startTime,
+                end_time: session.endTime,
+                availability_status: brbr.barber.availability_status,
+                estimated_wait_time: brbr.barber.estimated_wait_time,
+                services: brbr.barber.servicesWithPrices || [],
+                barberInfo: brbr.barber,
+              }))
+          );
+
+        setBarberSessionsData(formattedBarbers);
       } else {
         setBarberSessionsData([]);
-        setShowBarberSpinner(false);
         setIsAppointmentAvailable(false);
-        setShowLoader(false); // Immediately hide loader if data is available
       }
     } catch (error: any) {
-      // Check if the error has a response property (Axios errors usually have this)
-      if (error.response && error.response.data) {
-        const apiMessage = error.response.data.message; // Extract the message from the response
-        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-      } else {
-        // Fallback for other types of errors
-        showErrorToast(error.message || "Something went wrong");
-      }
+      const apiMessage = error?.response?.data?.message;
+      showErrorToast(apiMessage || error.message || "Something went wrong");
+    } finally {
+      setShowBarberSpinner(false);
+      setShowLoader(false);
     }
   };
 
@@ -401,7 +485,9 @@ const AppointmentTable: React.FC = () => {
         return usr;
       });
       const sortedAppointents = appointments.sort(
-        (a: any, b: any) => new Date(a.check_in_time).getTime() - new Date(b.check_in_time).getTime()
+        (a: any, b: any) =>
+          new Date(a.check_in_time).getTime() -
+          new Date(b.check_in_time).getTime()
       );
 
       setTotalItems(response?.totalItems);
@@ -531,7 +617,6 @@ const AppointmentTable: React.FC = () => {
     }
   };
 
-
   const calculateFinalAmount = (total: any, tip: any, custom: any) => {
     if (!tip || tip === null) {
       setFinalAmount(total); // No tip, just use total
@@ -551,8 +636,7 @@ const AppointmentTable: React.FC = () => {
       event.preventDefault();
     }
   };
-  const emailValidationRegex =
-    /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   // validation
   const formik = useFormik({
     initialValues: {
@@ -575,10 +659,8 @@ const AppointmentTable: React.FC = () => {
         userCategory === ROLES.WALKIN_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
-      firstname: Yup.string()
-        .matches(/^[a-zA-Z]+$/, "First name must only contain letters")
-        .required("First name is required"),
-      lastname: Yup.string().required("Last name is required"),
+      firstname: strictNameValidation.required("First name is required"),
+      lastname: strictNameValidation.required("Last name is required"),
       email: Yup.string()
         .matches(emailValidationRegex, "Enter valid email!!")
         .email("Invalid email")
@@ -742,14 +824,15 @@ const AppointmentTable: React.FC = () => {
           const todayScheduleInfo = scheduleArray.find(
             (info: any) => info.day === dayName.toLowerCase()
           );
-          return `${todayScheduleInfo &&
-              todayScheduleInfo.startTime &&
-              todayScheduleInfo.endTime
+          return `${
+            todayScheduleInfo &&
+            todayScheduleInfo.startTime &&
+            todayScheduleInfo.endTime
               ? `${formatHours(todayScheduleInfo.startTime)} to ${formatHours(
-                todayScheduleInfo.endTime
-              )}`
+                  todayScheduleInfo.endTime
+                )}`
               : "Unavailable"
-            }`; // Combine and display
+          }`; // Combine and display
         },
       },
       {
@@ -833,8 +916,8 @@ const AppointmentTable: React.FC = () => {
 
                 const price = barberService
                   ? parseFloat(barberService?.barber_price) ??
-                  parseFloat(barberService?.min_price) ??
-                  0
+                    parseFloat(barberService?.min_price) ??
+                    0
                   : parseFloat(service.min_price);
 
                 return acc + price;
@@ -849,8 +932,8 @@ const AppointmentTable: React.FC = () => {
 
                   const price = barberService
                     ? parseFloat(barberService?.barber_price) ??
-                    parseFloat(barberService?.min_price) ??
-                    0
+                      parseFloat(barberService?.min_price) ??
+                      0
                     : parseFloat(service.min_price);
 
                   return acc + price;
@@ -1033,7 +1116,7 @@ const AppointmentTable: React.FC = () => {
                   ]}
                   selectedStatus={selectedStatus ?? ""}
                   divClass="table-responsive table-card mb-3"
-                  tableClass="align-middle table-nowrap mb-0"
+                  tableClass="align-middle table-nowrap mb-3"
                   theadClass="table-light text-muted"
                   isTaskListFilter={true}
                   SearchPlaceholder="Search by barber, salon or name"
@@ -1066,32 +1149,33 @@ const AppointmentTable: React.FC = () => {
                 />
               </Col>
 
-              {storeRoleInfo.role_name ===ROLES.ADMIN && (
-                <Col lg={12}>
-                  <div>
-                    <Label htmlFor="salon" className="form-label">
-                      Salon Name
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={formik.values.salon_id}
-                      onChange={handleSalonChange}
-                    >
-                      <option value="">Select a salon</option>
-                      {salonData.map((salon) => (
-                        <option key={salon.salon_id} value={salon.salon_id}>
-                          {salon.salon_name}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.salon_id && formik.errors.salon_id && (
-                      <div className="invalid-feedback">
-                        {formik.errors.salon_id}
-                      </div>
-                    )}
-                  </div>
-                </Col>
-              )}
+              {storeRoleInfo.role_name === ROLES.ADMIN &&
+                !storesalonDetailInfo && (
+                  <Col lg={12}>
+                    <div>
+                      <Label htmlFor="salon" className="form-label">
+                        Salon Name
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={formik.values.salon_id}
+                        onChange={handleSalonChange}
+                      >
+                        <option value="">Select a salon</option>
+                        {salonData.map((salon) => (
+                          <option key={salon.salon_id} value={salon.salon_id}>
+                            {salon.salon_name}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.salon_id && formik.errors.salon_id && (
+                        <div className="invalid-feedback">
+                          {formik.errors.salon_id}
+                        </div>
+                      )}
+                    </div>
+                  </Col>
+                )}
               {/* Barber ID */}
               {userCategory !== ROLES.WALKIN_BARBER && (
                 <Col lg={12}>
@@ -1106,27 +1190,46 @@ const AppointmentTable: React.FC = () => {
                     </Label>
                     <select
                       className="form-select"
+                      id="barber"
                       value={formik.values.barber_id}
                       onChange={handleBarberChange}
+                      disabled={
+                        selectedOptions.length === 0 ||
+                        barberSessionsData?.length === 0
+                      }
                     >
-                      <option value="">Select a barber</option>
-                      {barberSessionsData?.map((barber: any) => (
-                        <option
-                          key={barber?.id}
-                          value={barber?.id}
-                          disabled={
-                            barber.availability_status !== "available" ||
-                            (!barber.start_time && !barber.end_time)
-                          }
-                        >
-                          {`${barber.name} - (${barber.start_time && barber.end_time
-                              ? `${formatHours(
-                                barber.start_time
-                              )} to ${formatHours(barber.end_time)}`
-                              : "Unavailable"
-                            })`}
+                      {barberSessionsData?.length === 0 ? (
+                        <option disabled selected>
+                          No barbers available
                         </option>
-                      ))}
+                      ) : (
+                        <>
+                          <option value="">Select a barber</option>
+                          {barberSessionsData?.map((barber: any) => (
+                            <option
+                              key={barber.id}
+                              value={barber.id}
+                              disabled={
+                                barber.availability_status !== "available" ||
+                                !barber.start_time ||
+                                !barber.end_time
+                              }
+                            >
+                              {`${barber.name} - ${
+                                barber.start_time && barber.end_time
+                                  ? `${formatHours(
+                                      barber.start_time
+                                    )} to ${formatHours(
+                                      barber.end_time
+                                    )} (Wait: ${
+                                      barber.estimated_wait_time
+                                    } min)`
+                                  : "Unavailable"
+                              }`}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </select>
                     {formik.touched.barber_id && formik.errors.barber_id && (
                       <div className="invalid-feedback">
@@ -1283,10 +1386,11 @@ const AppointmentTable: React.FC = () => {
               </Col>
               <Col lg={12}>
                 <Label className="form-label me-1">Tip</Label>
-                <div className="btn-group">
+                <div className="btn-group btn-group d-flex flex-wrap">
                   <Label
-                    className={`btn btn-outline-primary ${tipPercentage === 0 ? "active" : ""
-                      }`}
+                    className={`btn btn-outline-primary ${
+                      tipPercentage === 0 ? "active" : ""
+                    }`}
                   >
                     <Input
                       type="radio"
@@ -1301,8 +1405,9 @@ const AppointmentTable: React.FC = () => {
                   {[20, 25, 30, 40].map((percentage) => (
                     <Label
                       key={percentage}
-                      className={`btn btn-outline-primary ${tipPercentage == percentage ? "active" : ""
-                        }`}
+                      className={`btn btn-outline-primary ${
+                        tipPercentage == percentage ? "active" : ""
+                      }`}
                     >
                       <Input
                         type="radio"
@@ -1316,8 +1421,9 @@ const AppointmentTable: React.FC = () => {
                     </Label>
                   ))}
                   <Label
-                    className={`btn btn-outline-primary ${tipPercentage === "custom" ? "active" : ""
-                      }`}
+                    className={`btn btn-outline-primary ${
+                      tipPercentage === "custom" ? "active" : ""
+                    }`}
                   >
                     <Input
                       type="radio"
@@ -1441,8 +1547,8 @@ const AppointmentTable: React.FC = () => {
                   price = barberService.barber_price
                     ? barberService.barber_price
                     : barberService.min_price
-                      ? barberService.min_price
-                      : 0;
+                    ? barberService.min_price
+                    : 0;
                 }
                 return (
                   <li key={index}>

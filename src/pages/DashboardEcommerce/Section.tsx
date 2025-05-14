@@ -31,6 +31,7 @@ const Section = (props: any) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [isShowBarberModal, setIsShowBarberModal] = useState<boolean>(false);
+  const [selectedSalonInfo, setSelectedSalonInfo] = useState<any | null>(null); // Selected salon
 
   const [salonData, setSalonData] = useState<any[]>([]); // List of all barbers
   const [salonBarberData, setSalonBarberData] = useState<any[]>([]); // Barbers filtered by selected salon
@@ -49,6 +50,12 @@ const Section = (props: any) => {
   if (authUser) {
     storeUserInfo = JSON.parse(authUser);
     userRole = storeUserInfo.user.role;
+  }
+
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
   }
   useEffect(() => {
     const updateGreeting = () => {
@@ -107,6 +114,7 @@ const Section = (props: any) => {
     showWarningToast(message); // Display warning toast message
   };
   useEffect(() => {
+    if (!storesalonDetailInfo) {
     if (
       userRole?.role_name !== ROLES.SALON_MANAGER &&
       userRole?.role_name !== ROLES.SALON_OWNER
@@ -133,6 +141,7 @@ const Section = (props: any) => {
 
       fetchAllData();
     }
+  }
   }, []);
 
   // const formatDate = (dateString: any) => {
@@ -181,21 +190,12 @@ const Section = (props: any) => {
   };
 
   useEffect(() => {
-    if (storeUserInfo.berber) {
-      setSelectedSalonId(storeUserInfo.berber.SalonId);
-      setSelectedBarberId(storeUserInfo.berber.id);
-      // setTimeout(() => {
-      //   applyDateFilter(
-      //     storeUserInfo.berber.SalonId,
-      //     storeUserInfo.berber.id
-      //   );
-      // }, 500);
+    if ((storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) || storesalonDetailInfo) {
+        setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
+        setSelectedSalonInfo(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon);
+        getSalonBabrer(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
     }
-    if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
-      setSelectedSalonId(storeUserInfo.salon.id);
-      getSalonBabrer(storeUserInfo.salon.id);
-    }
-  }, []);
+}, [])
 
   const handleSalonChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -224,7 +224,7 @@ const Section = (props: any) => {
       try {
         await getSalonBabrer(salonId); // Fetch barbers
       } catch (error) {
-        console.error("Error fetching barbers:", error);
+        // console.error("Error fetching barbers:", error);
         showErrorToast("Failed to fetch barbers.");
       } finally {
         setIsLoadingBarbers(false); // Hide spinner after fetching
@@ -262,7 +262,7 @@ const Section = (props: any) => {
               <div className="mt-3 mt-lg-0 d-flex flex-wrap align-items-center justify-center gap-2">
                 {userRole?.role_name === ROLES.SALON_MANAGER && (
                   <div className="d-flex flex-wrap justify-content-between align-items-center col-auto p-2 bg-light">
-                    <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+                    <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
                       Today's Available Barber
                     </p>
                     <button
@@ -299,7 +299,8 @@ const Section = (props: any) => {
           {showDatePicker && (
             <div className="row align-items-center mt-3 g-2">
               {/* Salon Dropdown */}
-              {!storeUserInfo.berber && !storeUserInfo.salon && (
+              {!storesalonDetailInfo && !storeUserInfo.berber && !storeUserInfo.salon && (
+
                 <div className="col-lg-3 col-md-6 col-sm-6">
                   <select
                     id="salonSelect"

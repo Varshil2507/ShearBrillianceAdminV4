@@ -27,6 +27,15 @@ export interface Blog {
   photo: string;
 }
 
+export interface Notification {
+  id: number;
+  createdAt: string;
+  title: string;
+  body: string;
+  image_url: string;
+}
+
+
 export interface Role {
   id: number;
   role_name: string;

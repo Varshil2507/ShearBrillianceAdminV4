@@ -44,7 +44,7 @@ const Login = (props: any) => {
             });
         }
     }, [user, userLogin.email, userLogin.password]);
-    const emailValidationRegex = /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
 
     const validation: any = useFormik({
         enableReinitialize: true,

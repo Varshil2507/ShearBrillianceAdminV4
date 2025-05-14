@@ -27,7 +27,7 @@ const useChartColors = (chartId: string) => {
       if (Array.isArray(colors)) {
         setChartColors(colors);
       } else {
-        console.error('getChartColorsArray did not return an array:', colors);
+        // console.error('getChartColorsArray did not return an array:', colors);
         setChartColors([]); // Fallback to an empty array
       }
     } catch (error: any) {

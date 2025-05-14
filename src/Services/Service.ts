@@ -11,7 +11,7 @@ export const fetchServices = async (): Promise<any> => {
         const response = await apiClient.get(SERVICE_ENDPOINT);
         return response; // Access the 'data' property
     } catch (error) {
-        console.error("Error fetching services:", error);
+        // console.error("Error fetching services:", error);
         throw error; // Rethrow to let the calling function handle it
     }
 };
@@ -22,7 +22,7 @@ export const addService = async (serviceData: Omit<any, 'id'>): Promise<any> => 
         const response = await apiClient.create(SERVICE_ENDPOINT, serviceData);
         return response; // Access the 'data' property
     } catch (error) {
-        console.error("Error adding service:", error);
+        // console.error("Error adding service:", error);
         throw error;
     }
 };
@@ -32,7 +32,7 @@ export const updateService= async (id: number, serviceData: Omit<any, 'id'>): Pr
     try {
         await apiClient.put(`${SERVICE_ENDPOINT}/${id}`, serviceData);
     } catch (error) {
-        console.error("Error updating service:", error);
+        // console.error("Error updating service:", error);
         throw error;
     }
 };
@@ -43,7 +43,7 @@ export const updatePatchStatus = async (id: number, updatedUserData: Partial<any
         const response = await axios.patch(`${SERVICE_ENDPOINT}/${id}/status`, updatedUserData);
         return response;
     } catch (error) {
-        console.error("Error updating status:", error);
+        // console.error("Error updating status:", error);
         throw error;
     }
 };
@@ -53,7 +53,7 @@ export const deleteService = async (id: number): Promise<void> => {
     try {
       await apiClient.delete(`${SERVICE_ENDPOINT}/${id}`);
     } catch (error) {
-      console.error("Error deleting service:", error);
+    //   console.error("Error deleting service:", error);
       throw error;
     }
   };

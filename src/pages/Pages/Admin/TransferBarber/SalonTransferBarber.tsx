@@ -301,7 +301,7 @@ const SalonTransferBarber: React.FC = () => {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: "20px",
                   }}
                 >
@@ -358,7 +358,7 @@ const SalonTransferBarber: React.FC = () => {
                                         ? "#ffffff"
                                         : "#000000",
                                     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                    width: "50%",
+                                    width: "70%",
                                     textAlign: "center",
                                     ...provided.draggableProps.style,
                                   }}
@@ -426,7 +426,7 @@ const SalonTransferBarber: React.FC = () => {
                                         ? "#ffffff"
                                         : "#000000",
                                     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                    width: "50%",
+                                    width: "70%",
                                     textAlign: "center",
                                     ...provided.draggableProps.style,
                                   }}

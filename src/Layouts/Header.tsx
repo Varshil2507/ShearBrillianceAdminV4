@@ -319,7 +319,7 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </div> */}
-              {(storeRoleInfo?.role_name ===ROLES.ADMIN) && (
+              {(storeRoleInfo?.role_name === ROLES.ADMIN) && (
                 <div className="form-check form-switch form-switch-secondary">
                   <Input className="form-check-input" type="checkbox" role="switch" id="SwitchCheck2"
                     checked={isChecked}
@@ -382,8 +382,8 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
           Are you sure you want to change the payment {isChecked ? "Online" : "Offline"} to{" "}
           {isChecked ? "Offline" : "Online"}?
         </ModalBody>
-        <ModalFooter>
-          <Button color="secondary" onClick={handleCancel}>
+        <ModalFooter className="flex-nowrap">
+          <Button color="secondary " onClick={handleCancel}>
             Cancel
           </Button>
           <Button color="primary" onClick={handleConfirm}>

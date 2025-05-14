@@ -18,7 +18,7 @@ export const fetchBarber = async (
     // Return the entire Axios response object
     return response;
   } catch (error) {
-    console.error("Error fetching barbers:", error);
+    // console.error("Error fetching barbers:", error);
     throw error;
   }
 };

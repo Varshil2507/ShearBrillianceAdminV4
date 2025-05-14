@@ -156,7 +156,7 @@ const CheckinOverview = () => {
 
   const transformChartData = (data: SalesDataItem[]) => {
     if (!data || !Array.isArray(data)) {
-      console.error("Invalid chart data format", data);
+      // console.error("Invalid chart data format", data);
       return { series: [], categories: [] };
     }
   

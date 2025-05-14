@@ -22,7 +22,8 @@ const Widgets = (props: any) => {
   return (
     <React.Fragment>
       {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
-        storeRoleInfo.role_name !== ROLES.SALON_OWNER && storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER &&
+        storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
           <Col xl={3} md={6}>
             <Card className="card-animate">
               <CardBody>
@@ -47,10 +48,7 @@ const Widgets = (props: any) => {
                           />
                         </span>
                       </h4>
-                      <Link
-                        to="/salons"
-                        className="text-info"
-                      >
+                      <Link to="/salons" className="text-info">
                         View Salons
                       </Link>
                     </div>
@@ -95,10 +93,7 @@ const Widgets = (props: any) => {
                       />
                     </span>
                   </h4>
-                  <Link
-                    to="/barbers"
-                    className="text-info"
-                  >
+                  <Link to="/barbers" className="text-info">
                     View Barbers
                   </Link>
                 </div>
@@ -141,10 +136,7 @@ const Widgets = (props: any) => {
                         />
                       </span>
                     </h4>
-                    <Link
-                      to="/customers"
-                      className="text-info"
-                    >
+                    <Link to="/customers" className="text-info">
                       View Customers
                     </Link>
                   </div>
@@ -308,7 +300,8 @@ const Widgets = (props: any) => {
                       <CountUp
                         start={0}
                         end={formatCount(
-                          props?.dashboard?.pendingFutureAppointmentsCount)}
+                          props?.dashboard?.pendingFutureAppointmentsCount
+                        )}
                         // decimal={item.decimals}
                         suffix=""
                         duration={3}
@@ -348,7 +341,8 @@ const Widgets = (props: any) => {
                       <CountUp
                         start={0}
                         end={formatCount(
-                          props?.dashboard?.completedWalkInCount)}
+                          props?.dashboard?.completedWalkInCount
+                        )}
                         // decimal={item.decimals}
                         suffix=""
                         duration={3}
@@ -550,9 +544,7 @@ const Widgets = (props: any) => {
                     <span className="counter-value">
                       <CountUp
                         start={0}
-                        end={
-                          props?.dashboard?.revenue?.online?.toFixed(2)
-                        }
+                        end={props?.dashboard?.revenue?.online?.toFixed(2)}
                         decimals={2}
                         prefix="$"
                         duration={3}
@@ -574,57 +566,61 @@ const Widgets = (props: any) => {
           </CardBody>
         </Card>
       </Col>
-      <Col xl={3} md={6}>
-        <Card className="card-animate">
-          <CardBody>
-            <div className="d-block">
-              <div className="d-flex align-items-center">
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
-                    Top Services
-                  </p>
-                </div>
-              </div>
-              <div className="d-block mt-3">
-                {props?.dashboard?.topServicesWithDetails?.filter(
-                  (service: any) => service.serviceisActive
-                ).length > 0 ? (
-                  props?.dashboard?.topServicesWithDetails
-                    ?.filter((service: any) => service.serviceisActive)
-                    .map((service: any) => (
-                      <div
-                        key={service.serviceId}
-                        className="d-flex justify-content-between align-items-center py-2 border-bottom"
-                      >
-                        <span
-                          className="fw-medium fs-14 text-truncate"
-                          style={{ maxWidth: "70%" }}
-                        >
-                          {service.serviceName}
-                        </span>
-                        <span className="fw-semibold fs-14">
-                          <CountUp
-                            start={0}
-                            end={formatCount(service.usageCount)}
-                            suffix=""
-                            duration={3}
-                          />
-                        </span>
-                      </div>
-                    ))
-                ) : (
-                  <span className="text-muted text-center w-100">
-                    <i>No active services available!!!</i>
-                  </span>
-                )}
-              </div>
-            </div>
-          </CardBody>
-
-        </Card>
-      </Col>
       {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
-        storeRoleInfo.role_name !== ROLES.SALON_OWNER && storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER &&
+        storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
+          <Col xl={3} md={6}>
+            <Card className="card-animate">
+              <CardBody>
+                <div className="d-block">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-grow-1 overflow-hidden">
+                      <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+                        Top Services
+                      </p>
+                    </div>
+                  </div>
+                  <div className="d-block mt-3">
+                    {props?.dashboard?.topServicesWithDetails?.filter(
+                      (service: any) => service.serviceisActive
+                    ).length > 0 ? (
+                      props?.dashboard?.topServicesWithDetails
+                        ?.filter((service: any) => service.serviceisActive)
+                        .map((service: any) => (
+                          <div
+                            key={service.serviceId}
+                            className="d-flex justify-content-between align-items-center py-2 border-bottom"
+                          >
+                            <span
+                              className="fw-medium fs-14 text-truncate"
+                              style={{ maxWidth: "70%" }}
+                            >
+                              {service.serviceName}
+                            </span>
+                            <span className="fw-semibold fs-14">
+                              <CountUp
+                                start={0}
+                                end={formatCount(service.usageCount)}
+                                suffix=""
+                                duration={3}
+                              />
+                            </span>
+                          </div>
+                        ))
+                    ) : (
+                      <span className="text-muted text-center w-100">
+                        <i>No active services available!!!</i>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+        )}
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER &&
+        storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
           <Col xl={3} md={6}>
             <Card className="card-animate">
               <CardBody>
@@ -675,57 +671,58 @@ const Widgets = (props: any) => {
           </Col>
         )}
 
-      {storeRoleInfo.role_name !== ROLES.SALON_BARBER && (
-        <Col xl={3} md={6}>
-          <Card className="card-animate">
-            <CardBody>
-              <div className="d-block">
-                <div className="d-flex align-items-center">
-                  <div className="flex-grow-1 overflow-hidden">
-                    <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
-                      Top Rated Barber
-                    </p>
+      {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
+        storeRoleInfo.role_name !== ROLES.SALON_OWNER &&
+        storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
+          <Col xl={3} md={6}>
+            <Card className="card-animate">
+              <CardBody>
+                <div className="d-block">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-grow-1 overflow-hidden">
+                      <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+                        Top Rated Barber
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="d-block mt-3">
+                    {props?.dashboard?.topBarbersWithDetails?.length > 0 ? (
+                      props?.dashboard?.topBarbersWithDetails?.map(
+                        (barber: any, index: any) => (
+                          <div
+                            key={barber.barberId}
+                            className="d-flex justify-content-between align-items-center py-2 border-bottom"
+                          >
+                            <span
+                              className="fw-medium fs-14 text-truncate"
+                              style={{ maxWidth: "70%" }}
+                            >
+                              {barber.barberName}
+                            </span>
+                            <span className="fw-semibold fs-14 ">
+                              <CountUp
+                                start={0}
+                                end={formatCount(barber.appointmentsCount)}
+                                // decimal={item.decimals}
+                                suffix=""
+                                duration={3}
+                              />
+                            </span>
+                          </div>
+                        )
+                      )
+                    ) : (
+                      <span className="text-muted text-center w-100">
+                        <i>No data available!!!</i>
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                <div className="d-block mt-3">
-                  {props?.dashboard?.topBarbersWithDetails?.length > 0 ? (
-                    props?.dashboard?.topBarbersWithDetails?.map(
-                      (barber: any, index: any) => (
-                        <div
-                          key={barber.barberId}
-                          className="d-flex justify-content-between align-items-center py-2 border-bottom"
-                        >
-                          <span
-                            className="fw-medium fs-14 text-truncate"
-                            style={{ maxWidth: "70%" }}
-                          >
-                            {barber.barberName}
-                          </span>
-                          <span className="fw-semibold fs-14 ">
-                            <CountUp
-                              start={0}
-                              end={formatCount(barber.appointmentsCount)}
-                              // decimal={item.decimals}
-                              suffix=""
-                              duration={3}
-                            />
-                          </span>
-                        </div>
-                      )
-                    )
-                  ) : (
-                    <span className="text-muted text-center w-100">
-                      <i>No data available!!!</i>
-                    </span>
-                  )}
-                </div>
-
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-      )}
+              </CardBody>
+            </Card>
+          </Col>
+        )}
       {/* {ecomWidgets.map((item, key) => (
                 <Col xl={3} md={6} key={key}>
                     <Card className="card-animate">
@@ -764,11 +761,8 @@ const Widgets = (props: any) => {
                         </CardBody>
                     </Card>
                 </Col>))} */}
-
     </React.Fragment>
   );
-
 };
-
 
 export default Widgets;

@@ -65,6 +65,8 @@ import CalenderScheduleInfo from "pages/Pages/Admin/CalenderSchedule";
 import BasicPasswReset from "pages/Authentication/BasicPasswReset";
 import BarberPayroll from "pages/Pages/Admin/BarberPayroll";
 import {ROLES} from "../common/data/Constants"
+import BarberAppointmentTable from "pages/Pages/Admin/BareberAppointments/BarberAppointmentTable";
+import ReactBarberAppointmentTable from "pages/Pages/Admin/BareberAppointments";
 
 
 const authProtectedRoutes = [
@@ -79,6 +81,7 @@ const authProtectedRoutes = [
 
   //Tables
   { path: "/customers", component: <CustomerTable />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER,ROLES.SALON_MANAGER] },  // Only admins can access},
+  { path: "/barber-appointments", component: <ReactBarberAppointmentTable/>, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER,ROLES.SALON_MANAGER] }, 
   { path: "/users", component: <UserTable />, allowedRoles: [ROLES.ADMIN] },
   { path: "/barbers", component: <BarberTable />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER] },
   { path: "/barber-schedule", component: <BarberSessions />, allowedRoles: [ROLES.ADMIN, ROLES.SALON_MANAGER] },

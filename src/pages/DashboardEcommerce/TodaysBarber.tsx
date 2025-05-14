@@ -45,7 +45,7 @@ const TodaysBarber = (props: any) => {
         setShowLoader(false);
       }
     } catch (error: any) {
-      console.error("Error fetching barbers:", error);
+      // console.error("Error fetching barbers:", error);
       if (error.response && error.response.data) {
         showErrorToast(error.response.data.message || "An error occurred");
       } else {
@@ -101,9 +101,9 @@ const TodaysBarber = (props: any) => {
                             barber.photo ? barber.photo : Profile
                           } alt={barber.name} className="rounded img-thumbnail me-2" style={{ width: "70px", height: "70px" }} />
                           <div className="w-100">
-                            <div className="d-flex justify-content-between w-100">
+                            <div className="d-lg-flex justify-content-between w-100">
                               <CardTitle style={{ fontWeight: 600 }}>{barber.name}</CardTitle>
-                              <p className="mb-0">
+                              <p className="mb-0" style={{fontSize: window.innerWidth < 992 ? "11px" : "14px"}}>
                                 <i className="ri-time-line"></i>{" "}
                                 {barber?.session?.startTime ? formatHours(barber.session?.startTime) : "N/A"} - {barber?.session?.endTime ? formatHours(barber?.session?.endTime) : 'N/A'}
                               </p>
@@ -134,9 +134,9 @@ const TodaysBarber = (props: any) => {
                           barber.photo ? barber.photo : Profile
                         } alt={barber.name} className="rounded img-thumbnail me-2" style={{ width: "70px", height: "70px" }} />
                         <div className="w-100">
-                          <div className="d-flex justify-content-between w-100">
+                          <div className="d-lg-flex justify-content-between w-100">
                             <CardTitle style={{ fontWeight: 600 }}>{barber.name}</CardTitle>
-                            <p className="mb-0">
+                            <p className="mb-0" style={{fontSize: window.innerWidth < 992 ? "11px" : "14px"}}>
                               <i className="ri-time-line"></i>{" "}
                               {barber?.session?.startTime ? formatHours(barber.session?.startTime) : "N/A"} - {barber?.session?.endTime ? formatHours(barber?.session?.endTime) : 'N/A'}
                             </p>

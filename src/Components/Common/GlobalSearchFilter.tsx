@@ -415,6 +415,84 @@ const NFTRankingGlobalFilter = () => {
         </React.Fragment>
     );
 };
+
+interface TaskListStatusFilterProps {
+  onFilterSubmit: (filters: { dateRange: Date[] | null; status: string }) => void;
+  initialStatus?: string;
+  appointmentType: "appointment" | "check_in";
+}
+
+
+const TaskListStatusFilter: React.FC<TaskListStatusFilterProps> = ({
+  onFilterSubmit,
+   initialStatus = "all",
+  appointmentType
+}) => {
+  const [dateRange, setDateRange] = useState<Date[] | null>(null);
+  const [status, setStatus] = useState<string>("all");
+
+  useEffect(() => {
+    setStatus(initialStatus);
+  }, [initialStatus]);
+
+  const handleFiltersClick = () => {
+    if (onFilterSubmit) {
+      onFilterSubmit({ dateRange, status });
+    }
+  };
+
+  const getStatusOptions = () => {
+    if (appointmentType === "appointment") {
+      return (
+        <><option defaultValue="all">All</option>
+          <option value="appointment">Appointment</option>
+          <option value="completed">Completed</option>
+          <option value="canceled">Cancelled</option>
+        </>
+      );
+    }
+    return (
+      <><option defaultValue="all">All</option>
+        <option value="checked_in">Checked In</option>
+        <option value="in_salon">In Salon</option>
+        <option value="completed">Completed</option>
+        <option value="canceled">Cancelled</option>
+      </>
+    );
+  };
+
+  return (
+    <React.Fragment>
+      <div className="col-xxl-2 col-sm-2 mb-2">
+        <div className="input-light">
+          <select
+            className="form-control"
+            data-choices
+            data-choices-search-false
+            name="status"
+            id="idStatus"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+         
+            {getStatusOptions()}
+          </select>
+        </div>
+      </div>
+
+      <div className="col-xxl-2 col-sm-2">
+        <button
+          type="button"
+          className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-1"
+          onClick={handleFiltersClick}
+        >
+          <i className="bx bx-search"></i> Search
+        </button>
+      </div>
+    </React.Fragment>
+  );
+};
+
 // Define the type for the filter submission callback
 interface TaskListGlobalFilterProps {
     onFilterSubmit: (filters: { dateRange: Date[] | null; status: string }) => void;
@@ -442,7 +520,7 @@ const TaskListGlobalFilter: React.FC<TaskListGlobalFilterProps> = ({ onFilterSub
     };
     return (
         <React.Fragment>
-            <div className="col-xxl-3 col-sm-3">
+            <div className="col-xxl-3 col-sm-3 mb-2">
                 <Flatpickr
                     placeholder="Select date range"
                     className="form-control bg-light border-light"
@@ -455,7 +533,7 @@ const TaskListGlobalFilter: React.FC<TaskListGlobalFilterProps> = ({ onFilterSub
                 />
             </div>
 
-            <div className="col-xxl-2 col-sm-2">
+            <div className="col-xxl-2 col-sm-2 mb-2">
                 <div className="input-light">
                     <select className="form-control" data-choices data-choices-search-false name="status" id="idStatus"
                         value={status} // Bind select value to state
@@ -465,7 +543,7 @@ const TaskListGlobalFilter: React.FC<TaskListGlobalFilterProps> = ({ onFilterSub
                         <option value="checked_in">Checked In</option>
                         <option value="in_salon">In Salon</option>
                         <option value="completed">Completed</option>
-                        <option value="canceled">Cancel</option>
+                        <option value="canceled">Cancelled</option>
                     </select>
                 </div>
             </div>
@@ -613,16 +691,16 @@ const LeadsGlobalFilter = ({ onClickDelete }: any) => {
 };
 
 export {
-    ProductsGlobalFilter,
-    CustomersGlobalFilter,
-    OrderGlobalFilter,
-    ContactsGlobalFilter,
-    CompaniesGlobalFilter,
-    CryptoOrdersGlobalFilter,
-    InvoiceListGlobalSearch,
-    TicketsListGlobalFilter,
-    NFTRankingGlobalFilter,
-    TaskListGlobalFilter,
-    LeadsGlobalFilter,
-    TaskStatusGlobalFilter
+  ProductsGlobalFilter,
+  CustomersGlobalFilter,
+  OrderGlobalFilter,
+  ContactsGlobalFilter,
+  CompaniesGlobalFilter,
+  CryptoOrdersGlobalFilter,
+  InvoiceListGlobalSearch,
+  TicketsListGlobalFilter,
+  NFTRankingGlobalFilter,
+  TaskListGlobalFilter,
+  LeadsGlobalFilter,
+  TaskStatusGlobalFilter, TaskListStatusFilter
 };

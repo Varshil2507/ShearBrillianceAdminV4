@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import { changePassword, updatePatchUser, updateUser } from 'Services/UserService';
 import config from 'config';
 import { showErrorToast, showSuccessToast, showWarningToast } from 'slices/layouts/toastService';
+import { strictNameValidation } from 'Components/Common/Namevalidation';
 
 export const USERS_ENDPOINT = "/users";
 
@@ -38,8 +39,8 @@ const Settings: React.FC = () => {
     }, []);
 
     const userSchema = Yup.object().shape({
-        firstname: Yup.string().required("First name is required"),
-        lastname: Yup.string().required("Last name is required"),
+        firstname: strictNameValidation.required("First name is required"),
+        lastname: strictNameValidation.required("Last name is required"),
         mobile_number: Yup.string().required("Mobile number is required").matches(
             /^(?:\(\d{3}\)\s?|\d{3}-?)\d{3}-?\d{4}$/,
             "Mobile number must be 10 digits"

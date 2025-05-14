@@ -17,20 +17,19 @@ export const formatDate = (dateString: any): string => {
 };
 export const formatUTCDate = (dateString: any): string => {
   if (!dateString) return "";
-  
+
   // Create date object and immediately get ISO string to avoid timezone shifts
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "";
 
   // Extract the date parts in UTC to avoid timezone conversion
   const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
 
   // Format as YYYY-MM-DD (Canadian format)
   return `${year}-${month}-${day}`;
 };
-
 
 export const otherFormatDate = (dateString: any): string => {
   if (!dateString) return "";
@@ -50,8 +49,17 @@ export const formatDateShort = (date: string | Date): string => {
   return parsedDate.toISOString().split("T")[0];
 };
 
-export  const formatTime = (time: string) => {
-  const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
+export const formatTime = (time: string | null | undefined) => {
+  if (!time || typeof time !== "string" || !time.includes(":")) {
+    return "-"; // fallback if time is null, undefined, or malformed
+  }
+
+  const [hour, minute] = time.split(":").map(Number); // Assuming 'HH:mm' or 'HH:mm:ss'
+
+  if (isNaN(hour) || isNaN(minute)) {
+    return "-"; // invalid time values
+  }
+
   const date = new Date();
   date.setHours(hour, minute);
 
@@ -59,10 +67,10 @@ export  const formatTime = (time: string) => {
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-  }).format(date); // Format as 'hh:mm AM/PM'
+  }).format(date);
 };
 
-export  const formatDateHours = (dateString: string): string => {
+export const formatDateHours = (dateString: string): string => {
   const date = new Date(dateString);
 
   const padZero = (num: number) => String(num).padStart(2, "0");
@@ -96,4 +104,3 @@ export const formatHours = (timeString: string) => {
 
   return `${padZero(hours)}:${minutes} ${ampm}`;
 };
-

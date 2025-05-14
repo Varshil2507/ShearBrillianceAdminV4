@@ -31,7 +31,7 @@ export const fetchCalendarAppointments = async (params: {
       throw new Error('Invalid response format: Expected an array of appointments.');
     }
   } catch (error) {
-    console.error('Error fetching calendar appointments:', error);
+    // console.error('Error fetching calendar appointments:', error);
     throw error; // Rethrow error for handling in the calling function
   }
 };

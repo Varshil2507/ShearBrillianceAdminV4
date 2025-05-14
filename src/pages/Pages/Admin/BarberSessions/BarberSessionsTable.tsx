@@ -43,10 +43,10 @@ const BarberSessionsTable: React.FC = () => {
   const [showLoader, setShowLoader] = useState(true);
   const [existBarber, setExistBarber] = useState(true);
 
-  const [newBarberSession, setNewBarberSession] = useState<BarberSessions | null>(null);
+  const [newBarberSession, setNewBarberSession] =
+    useState<BarberSessions | null>(null);
 
-
-  // Delete Task 
+  // Delete Task
   const [modal, setModal] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState(false); // Track if we are editing
   const [selectedSalonId, setSelectedSalonId] = useState<number | null>(null);
@@ -125,7 +125,6 @@ const BarberSessionsTable: React.FC = () => {
   // };
 
   useEffect(() => {
-
     getBarberSessionsData();
     const fetchBarbersList = async () => {
       try {
@@ -171,7 +170,7 @@ const BarberSessionsTable: React.FC = () => {
   }, []);
 
   // Accordions with Plus Icon
-  const [openPlusIcon, setOpenPlusIcon] = useState('');
+  const [openPlusIcon, setOpenPlusIcon] = useState("");
   const togglePlusIcon = (id: any) => {
     setOpenPlusIcon(openPlusIcon === id ? "" : id);
   };
@@ -187,12 +186,14 @@ const BarberSessionsTable: React.FC = () => {
   //     hour12: true,
   //   }).format(date); // Format as 'hh:mm AM/PM'
   // };
-  
+
   // Convert time string "HH:mm" to a Date object for proper comparison
   const parseTime = (time: any) => {
     if (!time) return null;
     const [hour, minute] = time.split(":").map(Number); // Assuming 'time' is in 'HH:mm' format
-    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+    return `${hour.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const getBarberSessionsData = async () => {
@@ -204,12 +205,16 @@ const BarberSessionsTable: React.FC = () => {
           const closeTime: any = info ? parseTime(info.salon.close_time) : null;
           info.salon.open_time_temp = openTime;
           info.salon.close_time_temp = closeTime;
-          const salonStartTimeAMPM = info ? formatTime(info.salon.open_time) : null;
-          const salonCloseTimeAMPM = info ? formatTime(info.salon.close_time) : null;
+          const salonStartTimeAMPM = info
+            ? formatTime(info.salon.open_time)
+            : null;
+          const salonCloseTimeAMPM = info
+            ? formatTime(info.salon.close_time)
+            : null;
           info.startTimeAMPM = salonStartTimeAMPM;
           info.closeTimeAMPM = salonCloseTimeAMPM;
           return info;
-        })
+        });
         setBarberSessionsData(tempData);
       } else {
         setBarberSessionsData(response);
@@ -232,7 +237,7 @@ const BarberSessionsTable: React.FC = () => {
         showErrorToast(error.message || "Something went wrong");
       }
     }
-  }
+  };
 
   // validation
   const formik = useFormik({
@@ -241,9 +246,13 @@ const BarberSessionsTable: React.FC = () => {
       id: newBarberSession?.id ? newBarberSession?.id : 0,
       SalonId: newBarberSession?.SalonId ? newBarberSession?.SalonId : 0,
       BarberId: newBarberSession?.BarberId ? newBarberSession?.BarberId : 0,
-      start_time: newBarberSession?.start_time ? newBarberSession?.start_time : "",
+      start_time: newBarberSession?.start_time
+        ? newBarberSession?.start_time
+        : "",
       end_time: newBarberSession?.end_time ? newBarberSession?.end_time : "",
-      created_date: newBarberSession?.created_date ? newBarberSession?.created_date : "",
+      created_date: newBarberSession?.created_date
+        ? newBarberSession?.created_date
+        : "",
     },
     validationSchema: Yup.object({
       SalonId:
@@ -251,7 +260,8 @@ const BarberSessionsTable: React.FC = () => {
           ? Yup.number()
           : Yup.number().required("Salon is required"), // Add this line
       BarberId:
-        userCategory === ROLES.WALKIN_BARBER || userCategory === ROLES.APPOINTMENT_BARBER
+        userCategory === ROLES.WALKIN_BARBER ||
+        userCategory === ROLES.APPOINTMENT_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
     }),
@@ -323,20 +333,31 @@ const BarberSessionsTable: React.FC = () => {
         header: "Available Time",
         accessorKey: "availabe_time",
         enableColumnFilter: false,
-        cell: ({ row }: { row: { original: { start_time: string; end_time: string } } }) => {
+        cell: ({
+          row,
+        }: {
+          row: { original: { start_time: string; end_time: string } };
+        }) => {
           const { start_time, end_time } = row.original; // Access start_time and end_time
-          return `${start_time ? formatHours(start_time) : 'null'} - ${end_time ? formatHours(end_time) : 'null'}`; // Combine and display
+          return `${start_time ? formatHours(start_time) : "null"} - ${
+            end_time ? formatHours(end_time) : "null"
+          }`; // Combine and display
         },
       },
       {
         header: "Actions",
-        accessorKey: 'actions',
+        accessorKey: "actions",
         enableColumnFilter: false,
         cell: (cell: { row: { original: BarberSessions } }) => (
           <div>
             <i
               className="ri-edit-2-fill"
-              style={{ cursor: "pointer", marginRight: "20px", color: "grey", fontSize: "20px" }}
+              style={{
+                cursor: "pointer",
+                marginRight: "20px",
+                color: "grey",
+                fontSize: "20px",
+              }}
               onClick={() => handleEdit(cell.row.original)}
             ></i>
             {/*<i
@@ -434,8 +455,12 @@ const BarberSessionsTable: React.FC = () => {
           <div className="card" id="tasksList">
             <div className="card-header border-0">
               <div className="d-flex align-items-center">
-                <h5 className="card-title mb-0 flex-grow-1">Barber Schedules</h5>
-                <b className="text-danger">Unavailable barber not shown in the schedule</b>
+                <h5 className="card-title mb-0 flex-grow-1">
+                  Barber Schedules
+                </h5>
+                <b className="text-danger">
+                  Unavailable barber not shown in the schedule
+                </b>
                 <div className="flex-shrink-0">
                   {/* {(isCurrentWeekDay(today.getDate().toString()) || isSunday()) && ( */}
                   {/* <div className="d-flex flex-wrap gap-2">
@@ -459,24 +484,39 @@ const BarberSessionsTable: React.FC = () => {
               {showLoader ? (
                 <Loader />
               ) : (
-                <Accordion className="custom-accordionwithicon-plus" id="accordionWithplusicon" open={openPlusIcon} toggle={togglePlusIcon}>
+                <Accordion
+                  className="custom-accordionwithicon-plus"
+                  id="accordionWithplusicon"
+                  open={openPlusIcon}
+                  toggle={togglePlusIcon}
+                >
                   {barberSessionsData?.length > 0 ? (
                     barberSessionsData.map((salonName: any, index: any) => (
                       <AccordionItem key={`salon-${index}`}>
                         <AccordionHeader targetId={String(index)}>
                           <h4 className="m-0 d-flex justify-content-between align-items-center">
                             {salonName.salon.name}
-                            <span className="badge text-success">({salonName.barbers.length} Barbers)</span>
-                            <span className="badge text-primary">({salonName.startTimeAMPM} - {salonName.closeTimeAMPM})</span>
+                            <span className="badge text-success">
+                              ({salonName.barbers.length} Barbers)
+                            </span>
+                            <span className="badge text-primary">
+                              ({salonName.startTimeAMPM} -{" "}
+                              {salonName.closeTimeAMPM})
+                            </span>
                           </h4>
                         </AccordionHeader>
                         <AccordionBody accordionId={String(index)}>
-                          <BarberScheduleList salonNames={salonName} onReload={getBarberSessionsData}></BarberScheduleList>
+                          <BarberScheduleList
+                            salonNames={salonName}
+                            onReload={getBarberSessionsData}
+                          ></BarberScheduleList>
                         </AccordionBody>
                       </AccordionItem>
                     ))
                   ) : (
-                    <div className="text-center py-3 w-100">No schedule data available for this week</div>
+                    <div className="text-center py-3 w-100">
+                      No schedule data available for this week
+                    </div>
                   )}
                 </Accordion>
                 // <TableContainer
@@ -495,14 +535,21 @@ const BarberSessionsTable: React.FC = () => {
         </Col>
       </div>
 
-      <Modal isOpen={modal} toggle={toggle} centered backdrop="static" size="lg">
+      <Modal
+        isOpen={modal}
+        toggle={toggle}
+        centered
+        backdrop="static"
+        size="lg"
+      >
         <ModalHeader toggle={toggle}>
           {isEditing ? "Update Barber Schedule" : "Barber Schedule"}
         </ModalHeader>
         <Form className="tablelist-form" onSubmit={formik.handleSubmit}>
           <ModalBody className="modal-body">
             <Row className="g-3">
-              {(storeRoleInfo.role_name === ROLES.ADMIN|| storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
+              {(storeRoleInfo.role_name === ROLES.ADMIN ||
+                storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={6}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -529,7 +576,8 @@ const BarberSessionsTable: React.FC = () => {
                 </Col>
               )}
               {/* Barber ID */}
-              {(storeRoleInfo.role_name ===ROLES.ADMIN || storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
+              {(storeRoleInfo.role_name === ROLES.ADMIN ||
+                storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={6}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -556,9 +604,7 @@ const BarberSessionsTable: React.FC = () => {
                 </Col>
               )}
             </Row>
-            <Row className="mt-3 g-3">
-
-            </Row>
+            <Row className="mt-3 g-3"></Row>
           </ModalBody>
           <div className="modal-footer">
             <div className="gap-2 hstack justify-content-between w-100">

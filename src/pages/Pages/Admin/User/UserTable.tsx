@@ -28,6 +28,7 @@ import Loader from "Components/Common/Loader";
 import { fetchSalons } from "Services/SalonService";
 import { fetchRoles } from "Services/RoleService";
 import { ROLES } from "common/data/Constants";
+import { strictNameValidation } from "Components/Common/Namevalidation";
 
 // Define the User type based on your database structure
 interface User {
@@ -251,15 +252,15 @@ const UserTable: React.FC = () => {
       event.preventDefault();
     }
   };
-  const emailValidationRegex =
-    /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const userSchema = (isEdit = false) =>
     Yup.object().shape({
-      username: Yup.string().required("Username is required"),
-      firstname: Yup.string().required("First name is required"),
-      lastname: Yup.string().required("Last name is required"),
+      username: strictNameValidation.required("Username is required"),
+      firstname:strictNameValidation.required("First name is required"),
+      lastname: strictNameValidation.required("Last name is required"),
       mobile_number: Yup.string()
         .required("Mobile number is required")
         .matches(

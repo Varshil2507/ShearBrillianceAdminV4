@@ -14,7 +14,7 @@ export const fetchTimeSlots = async (BarberId: string, slot_date: string, period
         
       
     } catch (error) {
-      console.error("Error fetching time slots:", error);
+      // console.error("Error fetching time slots:", error);
       throw error;
     }
   };

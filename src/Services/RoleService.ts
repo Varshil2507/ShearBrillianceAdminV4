@@ -10,7 +10,7 @@ export const fetchRoles = async (): Promise<any> => {
         const response = await apiClient.get(ROLE_ENDPOINT);
         return response; // Access the 'data' property
     } catch (error) {
-        console.error("Error fetching roles:", error);
+        // console.error("Error fetching roles:", error);
         throw error; // Rethrow to let the calling function handle it
     }
 };
@@ -21,7 +21,7 @@ export const addRole = async (roleData: Omit<any, 'id'>): Promise<any> => {
         const response = await apiClient.create(ROLE_ENDPOINT, roleData);
         return response; // Access the 'data' property
     } catch (error) {
-        console.error("Error adding role:", error);
+        // console.error("Error adding role:", error);
         throw error;
     }
 };
@@ -31,7 +31,7 @@ export const updateRole = async (id: number, roleData: Omit<Role, 'id'>): Promis
     try {
         await apiClient.put(`${ROLE_ENDPOINT}/${id}`, roleData);
     } catch (error) {
-        console.error("Error updating role:", error);
+        // console.error("Error updating role:", error);
         throw error;
     }
 };
@@ -41,7 +41,7 @@ export const deleteRole = async (id: number): Promise<void> => {
     try {
         await apiClient.delete(`${ROLE_ENDPOINT}/${id}`);
     } catch (error) {
-        console.error("Error deleting role:", error);
+        // console.error("Error deleting role:", error);
         throw error;
     }
 };

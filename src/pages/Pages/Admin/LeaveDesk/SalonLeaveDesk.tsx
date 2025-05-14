@@ -29,10 +29,17 @@ import {
   fetchAvailableBarber,
   saveTransferAppointments,
 } from "Services/barberService";
-import { formatDate, formatHours, formatTime, otherFormatDate,formatUTCDate } from "Components/Common/DateUtil";
+import {
+  formatDate,
+  formatHours,
+  formatTime,
+  otherFormatDate,
+  formatUTCDate,
+} from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 
 interface RequestedLeave {
+  availability_status: string;
   id: number;
   barber_name: string;
   date: string[]; // Multiple dates for leave
@@ -40,6 +47,8 @@ interface RequestedLeave {
   selectedLeaveDate: string;
   start_time: string;
   end_time: string;
+  start_date: string;
+  end_date: string;
   barber: Barber;
   reason: string;
   status: string;
@@ -84,6 +93,17 @@ const RequestedLeavesTable: React.FC = () => {
   const limit = 10;
 
   // const [leaveStatus, setLeaveStatus] = useState<string>("approved");
+  const isWithinLeaveTime = (row: any, leave: any) => {
+    const leaveStart = leave.start_time;
+    const leaveEnd = leave.end_time;
+    const leaveDate = leave.start_date?.slice(0, 10);
+
+    return (
+      row.appointment_date === leaveDate &&
+      row.appointment_start_time >= leaveStart &&
+      row.appointment_end_time <= leaveEnd
+    );
+  };
 
   const fetchrequestedLeaveData = async (
     page: any,
@@ -154,7 +174,6 @@ const RequestedLeavesTable: React.FC = () => {
     // setStatus(leave?.status || "pending"); // Set status from leave or default to 'pending'
     setModalOpen(true);
   };
-
 
   const handleAppointmentDetails = async (appointment: any) => {
     try {
@@ -274,10 +293,9 @@ const RequestedLeavesTable: React.FC = () => {
           " "
         );
         showSuccessToast("Leave status updated successfully");
-        
       } catch (error) {
         showErrorToast("Error submitting leave status");
-        console.error("Error submitting leave status:", error);
+        // console.error("Error submitting leave status:", error);
       } finally {
         setIsSubmitting(false); // Reset loading state
       }
@@ -440,36 +458,45 @@ const RequestedLeavesTable: React.FC = () => {
   const confirmAppointmentChange = async () => {
     try {
       if (appointmentId) {
-        await cancelAppointment(appointmentId); // API call with appointment ID
-        showSuccessToast("Cancel appointment successfully");
-        setAppointmentId(null);
-        toggleConfirmModal(); // Close modal
-        // Ensure selectedLeave and barber exist before modifying appointments
+        await cancelAppointment(appointmentId);
+        showSuccessToast("Appointment canceled successfully");
+
+        // ✅ Remove appointment from modal data
         if (
           selectedLeave &&
           selectedLeave.barber &&
-          selectedLeave.barber.appointments
+          Array.isArray(selectedLeave.barber.appointments)
         ) {
           const updatedAppointments = selectedLeave.barber.appointments.filter(
-            (appointment: any) => appointment.id !== appointmentId
+            (appt: any) => appt.id !== appointmentId
           );
 
-          // Create a new barber object with updated appointments
           const updatedBarber = {
             ...selectedLeave.barber,
             appointments: updatedAppointments,
           };
 
-          // Update the selectedLeave object with a new reference
-          const updatedSelectedLeave = {
+          setSelectedLeave({
             ...selectedLeave,
             barber: updatedBarber,
-          };
-          setSelectedLeave(updatedSelectedLeave); // Update state or wherever selectedLeave is stored
+          });
         }
+
+        // Re-fetch paginated list (optional, if you want to refresh main table)
+        await fetchrequestedLeaveData(
+          selectedCurrentPage === 0 ? 1 : selectedCurrentPage + 1,
+          selectedStartDate,
+          selectedEndDate,
+          selectedStatus,
+          selectedSearchText ?? ""
+        );
+
+        setAppointmentId(null);
+        toggleConfirmModal();
       }
     } catch (error) {
-      console.error("Failed to update status:", error);
+      // console.error("Failed to cancel appointment:", error);
+      showErrorToast("Failed to cancel appointment.");
     }
   };
 
@@ -607,7 +634,7 @@ const RequestedLeavesTable: React.FC = () => {
           toggle={() => setModalOpen(!modalOpen)}
           centered
           backdrop="static"
-          size="lg"
+          size="xl"
         >
           <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
             Leave Details
@@ -642,7 +669,11 @@ const RequestedLeavesTable: React.FC = () => {
                 <div>
                   <Label htmlFor="salon" className="form-label">
                     Reason:{" "}
-                    <b className="text-muted"> {selectedLeave?.reason} </b>
+                    <b className="text-muted">
+                      {selectedLeave?.reason
+                        ?.replace(/[^a-zA-Z\s]/g, " ")
+                        .toUpperCase() || "-"}
+                    </b>
                   </Label>
                 </div>
               </Col>
@@ -653,6 +684,27 @@ const RequestedLeavesTable: React.FC = () => {
                     <b className="text-muted">
                       {" "}
                       {selectedLeave?.selectedLeaveDate}{" "}
+                    </b>
+                  </Label>
+                </div>
+              </Col>
+            </Row>
+            <Row className="g-3">
+              <Col lg={6}>
+                {/* <div>
+                  <Label htmlFor="salon" className="form-label">
+                    Reason:{" "}
+                    <b className="text-muted"> {selectedLeave?.reason} </b>
+                  </Label>
+                </div> */}
+              </Col>
+              <Col lg={6}>
+                <div>
+                  <Label htmlFor="salon" className="form-label">
+                    Available Timing:{" "}
+                    <b className="text-muted">
+                      {formatTime(selectedLeave?.start_time)} -{" "}
+                      {formatTime(selectedLeave?.end_time)}
                     </b>
                   </Label>
                 </div>
@@ -679,7 +731,7 @@ const RequestedLeavesTable: React.FC = () => {
             </Row>
             {/* Show rejection reason textarea only if status is 'denied' */}
             {selectedUpdatedStatus === "denied" && (
-              <Row className="g-3">
+              <Row className="g-3 pt-2">
                 <Col lg={12}>
                   <div>
                     <Label htmlFor="salon" className="form-label">
@@ -707,19 +759,128 @@ const RequestedLeavesTable: React.FC = () => {
                         <th>Name</th>
                         <th>No. Of Peoples</th>
                         <th>Mobile</th>
-                        <th>Start Time</th>
+                        <th>Appointment Date</th>
+                        <th>Appointment Time</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedLeave?.barber.appointments?.length > 0 ? (
-                        selectedLeave?.barber.appointments.map((row: any) => {
-                          return (
+                      {selectedLeave?.barber.appointments?.filter(
+                        (row: any) => {
+                          const leaveStartDate =
+                            selectedLeave.start_date?.slice(0, 10);
+                          const leaveEndDate = selectedLeave.end_date?.slice(
+                            0,
+                            10
+                          );
+                          const appointmentDate = row.appointment_date;
+
+                          const leaveStartDateTime = new Date(
+                            `${leaveStartDate}T${selectedLeave.start_time}`
+                          );
+                          const leaveEndDateTime = new Date(
+                            `${leaveEndDate}T${selectedLeave.end_time}`
+                          );
+                          const appointmentStart = new Date(
+                            `${appointmentDate}T${row.appointment_start_time}`
+                          );
+                          const appointmentEnd = new Date(
+                            `${appointmentDate}T${row.appointment_end_time}`
+                          );
+
+                          if (
+                            selectedLeave.availability_status === "unavailable"
+                          ) {
+                            return (
+                              appointmentDate >= leaveStartDate &&
+                              appointmentDate <= leaveEndDate
+                            );
+                          } else {
+                            return (
+                              appointmentStart < leaveStartDateTime || // before leave starts
+                              appointmentStart >= leaveEndDateTime || // after leave ends
+                              (appointmentStart < leaveEndDateTime &&
+                                appointmentEnd > leaveEndDateTime) // overlaps after
+                            );
+                          }
+                        }
+                      )?.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            className="text-center py-3 text-muted"
+                          >
+                            No Appointments Available
+                          </td>
+                        </tr>
+                      ) : (
+                        selectedLeave.barber.appointments
+                          .filter((row: any) => {
+                            const leaveStartDate =
+                              selectedLeave.start_date?.slice(0, 10);
+                            const leaveEndDate = selectedLeave.end_date?.slice(
+                              0,
+                              10
+                            );
+                            const appointmentDate = row.appointment_date;
+
+                            const leaveStartDateTime = new Date(
+                              `${leaveStartDate}T${selectedLeave.start_time}`
+                            );
+                            const leaveEndDateTime = new Date(
+                              `${leaveEndDate}T${selectedLeave.end_time}`
+                            );
+                            const appointmentStart = new Date(
+                              `${appointmentDate}T${row.appointment_start_time}`
+                            );
+                            const appointmentEnd = new Date(
+                              `${appointmentDate}T${row.appointment_end_time}`
+                            );
+
+                            if (
+                              selectedLeave.availability_status ===
+                              "unavailable"
+                            ) {
+                              return (
+                                appointmentDate >= leaveStartDate &&
+                                appointmentDate <= leaveEndDate
+                              );
+                            } else {
+                              return (
+                                appointmentStart < leaveStartDateTime ||
+                                appointmentStart >= leaveEndDateTime ||
+                                (appointmentStart < leaveEndDateTime &&
+                                  appointmentEnd > leaveEndDateTime)
+                              );
+                            }
+                          })
+                          .sort((a: any, b: any) => {
+                            const dateTimeA = new Date(
+                              `${a.appointment_date}T${a.appointment_start_time}`
+                            );
+                            const dateTimeB = new Date(
+                              `${b.appointment_date}T${b.appointment_start_time}`
+                            );
+                            return dateTimeA.getTime() - dateTimeB.getTime();
+                          })
+                          .map((row: any) => (
                             <tr key={row.id}>
-                              <td>{row.name}</td>
-                              <td>{row.number_of_people}</td>
+                              <td className="text-center">{row.name}</td>
+                              <td className="text-center">
+                                {row.number_of_people}
+                              </td>
                               <td>{row.mobile_number}</td>
-                              <td>{formatTime(row.appointment_start_time)}</td>
+                              <td>{row.appointment_date}</td>
+                              <td>
+                                {row.appointment_start_time &&
+                                row.appointment_end_time
+                                  ? `${formatTime(
+                                      row.appointment_start_time
+                                    )} - ${formatTime(
+                                      row.appointment_end_time
+                                    )}`
+                                  : "-"}
+                              </td>
                               <td>
                                 <Button
                                   color="btn btn-sm btn-primary me-2"
@@ -737,14 +898,7 @@ const RequestedLeavesTable: React.FC = () => {
                                 </Button>
                               </td>
                             </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="text-center py-3">
-                            No Data Available
-                          </td>
-                        </tr>
+                          ))
                       )}
                     </tbody>
                   </Table>
@@ -756,12 +910,49 @@ const RequestedLeavesTable: React.FC = () => {
                   color="success"
                   onClick={handleSubmit}
                   disabled={
-                    (selectedUpdatedStatus === "pending" ||
-                    selectedLeave.barber.appointments?.length > 0)
-                     && selectedUpdatedStatus !== "denied"
-                  } // Disable if status is not changed
+                    isSubmitting ||
+                    ((selectedUpdatedStatus === "pending" ||
+                      selectedLeave.barber.appointments?.filter((row: any) => {
+                        const leaveStartDateTime = new Date(
+                          `${selectedLeave.start_date.slice(0, 10)}T${
+                            selectedLeave.start_time
+                          }`
+                        );
+                        const leaveEndDateTime = new Date(
+                          `${selectedLeave.end_date.slice(0, 10)}T${
+                            selectedLeave.end_time
+                          }`
+                        );
+
+                        const appointmentStart = new Date(
+                          `${row.appointment_date}T${row.appointment_start_time}`
+                        );
+                        const appointmentEnd = new Date(
+                          `${row.appointment_date}T${row.appointment_end_time}`
+                        );
+
+                        return (
+                          appointmentStart >= leaveStartDateTime &&
+                          appointmentEnd <= leaveEndDateTime
+                        );
+                      })?.length > 0) &&
+                      selectedUpdatedStatus !== "denied") ||
+                    (selectedUpdatedStatus === "approved" &&
+                      selectedLeave.barber.appointments?.length > 0)
+                  }
                 >
-                  Submit
+                  {isSubmitting ? (
+                    <span>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Submitting...
+                    </span>
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               </div>
             </div>

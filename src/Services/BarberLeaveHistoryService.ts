@@ -35,7 +35,7 @@ export const fetchLeaveHistory = async (
       throw new Error('Invalid response: Data field missing.');
     }
   } catch (error) {
-    console.error('Error fetching barber leave history:', error);
+    // console.error('Error fetching barber leave history:', error);
     throw error; // Re-throw the error to be handled by the calling function
   }
 };

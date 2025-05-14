@@ -22,7 +22,7 @@ export const fetchUsers = async (salonId = null, type = "customer", page = 1, li
     });
     return response;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    // console.error("Error fetching users:", error);
     throw error;
   }
 };
@@ -37,7 +37,7 @@ export const fetchUserById = async (userId: any): Promise<any> => {
     });
     return response;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    // console.error("Error fetching users:", error);
     throw error;
   }
 };
@@ -52,7 +52,7 @@ export const createUser = async (userData: any): Promise<any> => {
     });
     return response;
   } catch (error) {
-    console.error("Error creating user:", error);
+    // console.error("Error creating user:", error);
     throw error;
   }
 };
@@ -74,7 +74,7 @@ export const updateUser = async (
     );
     return response.data;
   } catch (error) {
-    console.error("Error updating user:", error);
+    // console.error("Error updating user:", error);
     throw error;
   }
 };
@@ -91,7 +91,7 @@ export const updatePatchUser = async (
     );
     return response;
   } catch (error) {
-    console.error("Error updating user:", error);
+    // console.error("Error updating user:", error);
     throw error;
   }
 };
@@ -101,7 +101,7 @@ export const deleteUser = async (id: number): Promise<void> => {
   try {
     await apiClient.delete(`${USERS_ENDPOINT}/${id}`);
   } catch (error) {
-    console.error("Error deleting user:", error);
+    // console.error("Error deleting user:", error);
     throw error;
   }
 };
@@ -112,7 +112,7 @@ export const addUser = async (userData: User): Promise<User> => {
     const response = await apiClient.create(USERS_ENDPOINT, userData);
     return response.data;
   } catch (error) {
-    console.error("Error adding user:", error);
+    // console.error("Error adding user:", error);
     throw error;
   }
 };
@@ -126,7 +126,7 @@ export const changePassword = async (userData: any): Promise<any> => {
     );
     return response;
   } catch (error) {
-    console.error("Error change password:", error);
+    // console.error("Error change password:", error);
     throw error;
   }
 };

@@ -2,6 +2,15 @@ import axios from 'axios';
 
 const APPOINTMENT_ENDPOINT = 'appointments';
 
+interface FetchAppointmentsParams {
+  page?: number;
+  limit?: number;
+  startDate: string;
+  endDate: string;
+  search?: string;
+  barberId?: number;
+  salonId?: number;
+}
 // Fetch the list of all appointments
 export const fetchAppointments = async (page: any, limit: any, startDate: any, endDate: any, status: any, category: any, search: any): Promise<any> => {
     try {
@@ -12,6 +21,44 @@ export const fetchAppointments = async (page: any, limit: any, startDate: any, e
         throw error;
     }
 };
+
+export const fetchBarbersAppointments = async ({
+  startDate,
+  endDate,
+  search = "",
+  barberId,
+  salonId,
+}: {
+
+  startDate: string;
+  endDate: string;
+  search?: string;
+  barberId?: number;
+  salonId?: number;
+}): Promise<any> => {
+  try {
+    const params: any = {
+      startDate,
+      endDate,
+    };
+
+    if (search) params.search = search;
+    if (barberId) params.barberId = barberId;
+    if (salonId) params.salonId = salonId;
+
+    const response = await axios.get(`${APPOINTMENT_ENDPOINT}/barber/category`, {
+      params,
+    });
+    return response; // Access .data directly
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || error.message || "Failed to fetch appointments"
+    );
+  }
+};
+
+
+
 
 // Fetch the list of all appointments
 export const fetchBoardAppointments = async (page: any, limit: any) => {

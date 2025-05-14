@@ -21,6 +21,11 @@ const Salesrevenue = () => {
   const [selectedBarberId, setSelectedBarberId] = useState<any | null>(null); // Selected barber
   // const [barberDisabled, setBarberDisabled] = useState(false);
   const [barberDisabled, setBarberDisabled] = useState(true); // Initially disabled
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
 
   const [isLoadingBarbers, setIsLoadingBarbers] = useState(false);
   let authUser = localStorage.getItem("authUser");
@@ -31,7 +36,7 @@ const Salesrevenue = () => {
     userRole = storeUserInfo.user.role;
   }
 
-  
+
   const applyDateFilter = async () => {
     setShowSpinner(true);
     setShowLoader(true);
@@ -93,27 +98,29 @@ const Salesrevenue = () => {
   //     storeRoleInfo = JSON.parse(userRole);
   //   }
   useEffect(() => {
-    if (userRole?.role_name !== ROLES.SALON_MANAGER) {
-      const fetchAllData = async () => {
-        try {
-          // Fetch both salons and barbers data in parallel
-          const [salonsResponse] = await Promise.all([
-            fetchSalons(1, null, null),
-          ]);
-          // Set the fetched data to the respective states
-          setSalonData(salonsResponse?.salons || []);
-        } catch (error: any) {
-          // Check if the error has a response property (Axios errors usually have this)
-          if (error.response && error.response.data) {
-            const apiMessage = error.response.data.message; // Extract the message from the response
-            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-          } else {
-            // Fallback for other types of errors
-            showErrorToast(error.message || "Something went wrong");
+    if (!storesalonDetailInfo) {
+      if (userRole?.role_name !== ROLES.SALON_MANAGER) {
+        const fetchAllData = async () => {
+          try {
+            // Fetch both salons and barbers data in parallel
+            const [salonsResponse] = await Promise.all([
+              fetchSalons(1, null, null),
+            ]);
+            // Set the fetched data to the respective states
+            setSalonData(salonsResponse?.salons || []);
+          } catch (error: any) {
+            // Check if the error has a response property (Axios errors usually have this)
+            if (error.response && error.response.data) {
+              const apiMessage = error.response.data.message; // Extract the message from the response
+              showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+            } else {
+              // Fallback for other types of errors
+              showErrorToast(error.message || "Something went wrong");
+            }
           }
-        }
-      };
-      fetchAllData();
+        };
+        fetchAllData();
+      }
     }
   }, []);
 
@@ -153,9 +160,9 @@ const Salesrevenue = () => {
       //   );
       // }, 500);
     }
-    if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
-      setSelectedSalonId(storeUserInfo.salon.id);
-      getSalonBabrer(storeUserInfo.salon.id);
+    if ((storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) || storesalonDetailInfo) {
+      setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
+      getSalonBabrer(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
     }
   }, []);
 
@@ -167,8 +174,8 @@ const Salesrevenue = () => {
       selectedValue === "all"
         ? "all"
         : selectedValue
-        ? Number(selectedValue)
-        : null;
+          ? Number(selectedValue)
+          : null;
 
     setSelectedSalonId(salonId);
 
@@ -186,7 +193,7 @@ const Salesrevenue = () => {
       try {
         await getSalonBabrer(salonId); // Fetch barbers
       } catch (error) {
-        console.error("Error fetching barbers:", error);
+        // console.error("Error fetching barbers:", error);
         showErrorToast("Failed to fetch barbers.");
       } finally {
         setIsLoadingBarbers(false); // Hide spinner after fetching
@@ -213,7 +220,7 @@ const Salesrevenue = () => {
         <Col xs={12}>
           <div className="d-flex justify-content-end align-items-lg-center flex-lg-row flex-column">
             {userRole?.role_name === ROLES.ADMIN ||
-            userRole?.role_name === ROLES.SALON_MANAGER ? (
+              userRole?.role_name === ROLES.SALON_MANAGER ? (
               <div className="mt-3 mt-lg-0">
                 <div className="d-flex justify-content-between align-items-center col-auto p-2 bg-light">
                   <p className="text-uppercase fw-medium text-muted text-truncate mb-0 me-2">
@@ -236,7 +243,7 @@ const Salesrevenue = () => {
           {showDatePicker && (
             <div className="row align-items-center mt-3 g-2">
               {/* Salon Dropdown */}
-              {!storeUserInfo.berber && !storeUserInfo.salon && (
+              {((!storeUserInfo.berber && !storeUserInfo.salon) && !storesalonDetailInfo) && (
                 <div className="col-lg-3 col-md-6 col-sm-6">
                   <select
                     id="salonSelect"
@@ -245,8 +252,8 @@ const Salesrevenue = () => {
                       selectedSalonId === "all"
                         ? "all"
                         : selectedSalonId !== null
-                        ? selectedSalonId
-                        : ""
+                          ? selectedSalonId
+                          : ""
                     }
                     onChange={handleSalonChange}
                   >

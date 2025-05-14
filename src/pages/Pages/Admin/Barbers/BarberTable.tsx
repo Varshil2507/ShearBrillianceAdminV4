@@ -30,6 +30,7 @@ import { fetchServices } from "Services/Service";
 import { formatDate, formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 import { ROLES } from "common/data/Constants";
+import { strictNameValidation } from "Components/Common/Namevalidation";
 
 // Define the User type based on your database structure
 interface Barber {
@@ -152,7 +153,11 @@ const BarberTable: React.FC = () => {
   if (userRole) {
     storeRoleInfo = JSON.parse(userRole);
   }
-
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
   const days = [
     { value: 1, label: "Monday" },
     { value: 2, label: "Tuesday" },
@@ -185,10 +190,10 @@ const BarberTable: React.FC = () => {
   useEffect(() => {
     if (
       storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
-      storeRoleInfo.role_name === ROLES.SALON_OWNER
+      storeRoleInfo.role_name === ROLES.SALON_OWNER || storesalonDetailInfo
     ) {
-      setSelectedSalonId(storeUserInfo.salon.id);
-      formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
+      setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
+      formik.setFieldValue("SalonId", storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo?.salon.id);
     }
     const fetchSalonsList = async () => {
       try {
@@ -319,10 +324,11 @@ const BarberTable: React.FC = () => {
     value: string
   ) => {
     const updatedSchedule = [...schedule];
-    updatedSchedule[index][type] = value;
+    // Ensure only HH:mm is saved
+    updatedSchedule[index][type] = value?.slice(0, 5);
     setSchedule(updatedSchedule);
   };
-
+  
   const validateStartTime = (startTime: any, endTime: any, index: any) => {
     if (
       startTime &&
@@ -506,14 +512,13 @@ const BarberTable: React.FC = () => {
       event.preventDefault();
     }
   };
-  const emailValidationRegex =
-    /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const barberSchema = (isEdit = false) =>
     Yup.object().shape({
-      firstname: Yup.string().required("First name is required"), // Add this line
-      lastname: Yup.string().required("Last name is required"), // Add this line
+      firstname: strictNameValidation.required("First name is required"), // Add this line
+      lastname: strictNameValidation.required("Last name is required"), // Add this line
       mobile_number: Yup.string()
         .matches(
           /^(?:\(\d{3}\)\s?|\d{3}-?)\d{3}-?\d{4}$/,
@@ -533,7 +538,7 @@ const BarberTable: React.FC = () => {
               passwordRegex,
               "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
             )
-            .required("Password is required"), // Add this line
+            .required("Password is required"), // Add this line // Add this line
       // address: Yup.string().required("Address is required"), // Add this line
       availability_status: Yup.string().required("Status is required"),
       // created_at: Yup.date().required("Creation date is required"),
@@ -1199,23 +1204,26 @@ const BarberTable: React.FC = () => {
   const setSalonInformation = () => {
     if (
       storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
-      storeRoleInfo.role_name === ROLES.SALON_OWNER
+      storeRoleInfo.role_name === ROLES.SALON_OWNER || storesalonDetailInfo
     ) {
-      setSelectedSalonId(storeUserInfo.salon.id);
-      formik.setFieldValue("SalonId", storeUserInfo?.salon.id);
-      const openTime: any = storeUserInfo
-        ? parseTime(storeUserInfo.salon.open_time)
+      const salonId = storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id;
+      setSelectedSalonId(salonId);
+      formik.setFieldValue("SalonId", salonId);
+     const salonInfo = salonData.find((salonInfo: any) => salonInfo.salon_id === salonId);
+
+      const openTime: any = salonInfo
+        ? parseTime(salonInfo.salon.open_time)
         : null;
-      const closeTime: any = storeUserInfo
-        ? parseTime(storeUserInfo.salon.close_time)
+      const closeTime: any = salonInfo
+        ? parseTime(salonInfo.salon.close_time)
         : null;
       selectedSalonOpenTimeRef.current = openTime;
       selectedSalonCloseTimeRef.current = closeTime;
-      selectedSalonOpenTimeAMPMRef.current = storeUserInfo.salon
-        ? formatTime(storeUserInfo.salon.open_time)
+      selectedSalonOpenTimeAMPMRef.current = salonInfo?.salon
+        ? formatTime(salonInfo.salon.open_time)
         : null;
-      selectedSalonCloseTimeAMPMRef.current = storeUserInfo.salon
-        ? formatTime(storeUserInfo.salon.close_time)
+      selectedSalonCloseTimeAMPMRef.current = salonInfo?.salon
+        ? formatTime(salonInfo.salon.close_time)
         : null;
       setSalonOpenTime(openTime);
       setSalonCloseTime(closeTime);
@@ -1472,8 +1480,8 @@ const BarberTable: React.FC = () => {
               </Col>
 
               {/* Salon ID */}
-              {storeRoleInfo.role_name !== ROLES.SALON_MANAGER &&
-                storeRoleInfo.role_name !== ROLES.SALON_OWNER && (
+              {((storeRoleInfo.role_name !== ROLES.SALON_MANAGER &&
+                storeRoleInfo.role_name !== ROLES.SALON_OWNER) && !storesalonDetailInfo) && (
                   <Col lg={4}>
                     <div className="mb-3">
                       <Label htmlFor="salon" className="form-label">
@@ -1538,13 +1546,13 @@ const BarberTable: React.FC = () => {
               {!newBarber?.id && (
                 <Col lg={4}>
                   <div className="mb-3">
-                    <Label htmlFor="password-input" className="form-label">
+                    <Label className="form-label" htmlFor="password-input">
                       Password
                     </Label>
                     <div className="position-relative auth-pass-inputgroup mb-3">
                       <Input
                         type={passwordShow ? "text" : "password"}
-                        className={`form-control ${
+                        className={`form-control pe-5${
                           formik.touched.password && formik.errors.password
                             ? "is-invalid"
                             : ""
@@ -1552,10 +1560,10 @@ const BarberTable: React.FC = () => {
                         id="password"
                         placeholder="Enter your password"
                         value={formik.values.password}
-                        onChange={formik.handleChange}
-                        onKeyDown={preventSpaceKey}
-                        onBlur={formik.handleBlur}
                         autoComplete="new-password"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        onKeyDown={preventSpaceKey}
                       />
                       <button
                         className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted"
@@ -1566,7 +1574,7 @@ const BarberTable: React.FC = () => {
                       </button>
                     </div>
                     {formik.touched.password && formik.errors.password && (
-                      <div className="invalid-feedback">
+                      <div className="text-danger">
                         {typeof formik.errors.password === "string"
                           ? formik.errors.password
                           : ""}

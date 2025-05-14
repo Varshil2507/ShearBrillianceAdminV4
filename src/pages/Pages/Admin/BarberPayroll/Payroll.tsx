@@ -53,7 +53,6 @@ type OptionType = {
 const Payroll = () => {
     const [selectedStartDate, setStartDate] = useState<any>(new Date());
     const [selectedEndDate, setEndDate] = useState<any>(new Date());
-    const [showReportSpinner, setShowReportSpinner] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showSpinner, setShowSpinner] = useState<boolean>(false);
     const [showDownload, setShowDownload] = useState<boolean>(false);
@@ -67,8 +66,11 @@ const Payroll = () => {
     // const [barberDisabled, setBarberDisabled] = useState(false);
     const [barberDisabled, setBarberDisabled] = useState(true); // Initially disabled
     const [barberError, setBarberError] = useState(false);
-    const [salonError, setSalonError] = useState(false);
-
+    let salonDetails = localStorage.getItem("salonDetails");
+    let storesalonDetailInfo: any;
+    if (salonDetails) {
+        storesalonDetailInfo = JSON.parse(salonDetails);
+    }
     const [isReady, setIsReady] = useState(false);
 
 
@@ -203,27 +205,29 @@ const Payroll = () => {
     // };
 
     useEffect(() => {
-        if (userRole?.role_name !== ROLES.SALON_MANAGER) {
-            const fetchAllData = async () => {
-                try {
-                    // Fetch both salons and barbers data in parallel
-                    const [salonsResponse] = await Promise.all([
-                        fetchSalons(1, null, null),
-                    ]);
-                    // Set the fetched data to the respective states
-                    setSalonData(salonsResponse?.salons || []);
-                } catch (error: any) {
-                    // Check if the error has a response property (Axios errors usually have this)
-                    if (error.response && error.response.data) {
-                        const apiMessage = error.response.data.message; // Extract the message from the response
-                        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-                    } else {
-                        // Fallback for other types of errors
-                        showErrorToast(error.message || "Something went wrong");
+        if (!storesalonDetailInfo) {
+            if (userRole?.role_name !== ROLES.SALON_MANAGER) {
+                const fetchAllData = async () => {
+                    try {
+                        // Fetch both salons and barbers data in parallel
+                        const [salonsResponse] = await Promise.all([
+                            fetchSalons(1, null, null),
+                        ]);
+                        // Set the fetched data to the respective states
+                        setSalonData(salonsResponse?.salons || []);
+                    } catch (error: any) {
+                        // Check if the error has a response property (Axios errors usually have this)
+                        if (error.response && error.response.data) {
+                            const apiMessage = error.response.data.message; // Extract the message from the response
+                            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+                        } else {
+                            // Fallback for other types of errors
+                            showErrorToast(error.message || "Something went wrong");
+                        }
                     }
-                }
-            };
-            fetchAllData();
+                };
+                fetchAllData();
+            }
         }
     }, []);
 
@@ -259,10 +263,10 @@ const Payroll = () => {
     };
 
     useEffect(() => {
-        if (storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) {
-            setSelectedSalonId(storeUserInfo.salon.id);
-            setSelectedSalonInfo(storeUserInfo.salon);
-            getSalonBabrer(storeUserInfo.salon.id);
+        if ((storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) || storesalonDetailInfo) {
+            setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
+            setSelectedSalonInfo(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon);
+            getSalonBabrer(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
         }
     }, []);
 
@@ -282,7 +286,7 @@ const Payroll = () => {
             try {
                 await getSalonBabrer(salonId); // Fetch barbers
             } catch (error) {
-                console.error("Error fetching barbers:", error);
+                // console.error("Error fetching barbers:", error);
                 showErrorToast("Failed to fetch barbers.");
             } finally {
                 setIsLoadingBarbers(false); // Hide spinner after fetching
@@ -360,7 +364,7 @@ const Payroll = () => {
                             </div>
                         </div>
                         {/* Salon Dropdown */}
-                        {!storeUserInfo.berber && !storeUserInfo.salon && (
+                        {!storesalonDetailInfo && !storeUserInfo.berber && !storeUserInfo.salon && (
                             <div className="col-lg-4 col-md-6 col-sm-6">
                                 <select
                                     id="salonSelect"
@@ -393,7 +397,7 @@ const Payroll = () => {
                             {/* Barber Dropdown */}
                             <div
                                 className={
-                                    !storeUserInfo.salon
+                                    !storeUserInfo.salon || !storesalonDetailInfo
                                         ? "col-sm-11 col-md-10 col-lg-11 col-8"
                                         : "col-sm-4 col-md-10 col-lg-11 col-xl-11 col-xxl-11 col-8"
                                 }
@@ -477,33 +481,33 @@ const Payroll = () => {
                             </AccordionHeader>
                             <AccordionBody accordionId={String(employee.id)}>
                                 <Card className="p-3 mb-3">
-                                <div className="table-wrapper">
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Total Hours</th>
-                                                <th>Working Hours</th>
-                                                <th>Appointments</th>
-                                                <th>Services</th>
-                                                <th>Tips</th>
-                                                <th>Tax</th>
-                                                <th>Total (with Tax)</th>
-                                                <th>Total (without Tax)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{employee.totalHours}</td>
-                                                <td>{employee.workingHours}</td>
-                                                <td>{employee.appointments}</td>
-                                                <td>{employee.services} (${employee.servicesAmount})</td>
-                                                <td>${employee.tips}</td>
-                                                <td>${employee.tax}</td>
-                                                <td>${employee.grandTotal}</td>
-                                                <td>${employee.grandTotalWithoutTax}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div className="table-wrapper">
+                                        <table className="table tablle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Total Time</th>
+                                                    <th>Working Time</th>
+                                                    <th>Appointments</th>
+                                                    <th>Services</th>
+                                                    <th>Tips</th>
+                                                    <th>Tax</th>
+                                                    <th>Total (with Tax)</th>
+                                                    <th>Total (without Tax)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{employee.totalHours}</td>
+                                                    <td>{employee.workingHours}</td>
+                                                    <td>{employee.appointments}</td>
+                                                    <td>{employee.services} (${employee.servicesAmount})</td>
+                                                    <td>${employee.tips}</td>
+                                                    <td>${employee.tax}</td>
+                                                    <td>${employee.grandTotal}</td>
+                                                    <td>${employee.grandTotalWithoutTax}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                     {employee.details && employee.details?.length > 0 && (
                                         <Accordion open={openDetail} toggle={toggleDetail}>
@@ -513,67 +517,67 @@ const Payroll = () => {
                                                         {detail.Date} - {detail.Day}
                                                     </AccordionHeader>
                                                     <AccordionBody accordionId={String(index)}>
-                                                    <div className="table-wrapper">
-                                                        <table className="table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Total Hours</th>
-                                                                    <th>Working Hours</th>
-                                                                    <th>Appointments</th>
-                                                                    <th>Services</th>
-                                                                    <th>Tips</th>
-                                                                    <th>Tax</th>
-                                                                    <th>Total (with Tax)</th>
-                                                                    <th>Total (without Tax)</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>{detail.TotalHours}</td>
-                                                                    <td>{detail.WorkingHours}</td>
-                                                                    <td>{detail.Appointments}</td>
-                                                                    <td>{detail.Services} (${detail.ServicesAmount})</td>
-                                                                    <td>${detail.Tips}</td>
-                                                                    <td>${detail.Tax}</td>
-                                                                    <td>${detail.GrandTotal}</td>
-                                                                    <td>${detail.GrandTotalWithoutTax}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
+                                                        <div className="table-wrapper">
+                                                            <table className="table tablle">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Total Time</th>
+                                                                        <th>Working Time</th>
+                                                                        <th>Appointments</th>
+                                                                        <th>Services</th>
+                                                                        <th>Tips</th>
+                                                                        <th>Tax</th>
+                                                                        <th>Total (with Tax)</th>
+                                                                        <th>Total (without Tax)</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>{detail.TotalHours}</td>
+                                                                        <td>{detail.WorkingHours}</td>
+                                                                        <td>{detail.Appointments}</td>
+                                                                        <td>{detail.Services} (${detail.ServicesAmount})</td>
+                                                                        <td>${detail.Tips}</td>
+                                                                        <td>${detail.Tax}</td>
+                                                                        <td>${detail.GrandTotal}</td>
+                                                                        <td>${detail.GrandTotalWithoutTax}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                         <div className="ps-5">
                                                             <h5>Completed Appointments</h5>
                                                             <hr />
                                                             <div className="table-wrapper">
-                                                            <table className="table">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Duration</th>
-                                                                        <th>Amount</th>
-                                                                        <th>Payment Mode</th>
-                                                                        <th>Tips</th>
-                                                                        <th>Tax</th>
-                                                                        <th>Grand Total</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {detail.CompletedAppointments?.length > 0 ? (
-                                                                        detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
-                                                                            <tr>
-                                                                                <td>{completedAppointments.WorkingHours}</td>
-                                                                                <td>${completedAppointments.ServicesAmount}</td>
-                                                                                <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
-                                                                                <td>${completedAppointments.Tips}</td>
-                                                                                <td>${completedAppointments.Tax}</td>
-                                                                                <td>${completedAppointments.GrandTotal}</td>
-                                                                            </tr>
-                                                                        ))) : (
+                                                                <table className="table tablle">
+                                                                    <thead>
                                                                         <tr>
-                                                                            <td colSpan={7} className="text-center">No completed appointments available</td>
+                                                                            <th>Duration</th>
+                                                                            <th>Amount</th>
+                                                                            <th>Payment Mode</th>
+                                                                            <th>Tips</th>
+                                                                            <th>Tax</th>
+                                                                            <th>Grand Total</th>
                                                                         </tr>
-                                                                    )}
-                                                                </tbody>
-                                                            </table>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {detail.CompletedAppointments?.length > 0 ? (
+                                                                            detail.CompletedAppointments.map((completedAppointments: any, index: any) => (
+                                                                                <tr>
+                                                                                    <td>{completedAppointments.WorkingHours}</td>
+                                                                                    <td>${completedAppointments.ServicesAmount}</td>
+                                                                                    <td>{completedAppointments.PaymentMode === "Pay_Online" ? "Pay Online" : "Pay at Salon"}</td>
+                                                                                    <td>${completedAppointments.Tips}</td>
+                                                                                    <td>${completedAppointments.Tax}</td>
+                                                                                    <td>${completedAppointments.GrandTotal}</td>
+                                                                                </tr>
+                                                                            ))) : (
+                                                                            <tr>
+                                                                                <td colSpan={7} className="text-center">No completed appointments available</td>
+                                                                            </tr>
+                                                                        )}
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
                                                         </div>
                                                     </AccordionBody>

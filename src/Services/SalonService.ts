@@ -13,7 +13,7 @@ export const fetchSalons = async (page: number, limit: any, search: any): Promis
 
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error fetching salons:", error);
+    // console.error("Error fetching salons:", error);
     throw error; // Rethrow to let the calling function handle it
   }
 };
@@ -30,7 +30,7 @@ export const addSalon = async (salonData: FormData): Promise<any> => {
    
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error adding salon:", error);
+    // console.error("Error adding salon:", error);
     throw error;
   }
 };
@@ -45,7 +45,7 @@ export const updateSalon = async (id: number, salonData: FormData): Promise<any>
     });
     return response; // Return the updated salon data
   } catch (error) {
-    console.error("Error updating salon:", error);
+    // console.error("Error updating salon:", error);
     throw error;
   }
 };
@@ -56,7 +56,7 @@ export const updateSalonStatus = async (id: number, status: any): Promise<any> =
     const response = await axios.patch(`${SALON_ENDPOINT}/status/${id}`, status);
     return response; // Return the updated salon data
   } catch (error) {
-    console.error("Error updating salon:", error);
+    // console.error("Error updating salon:", error);
     throw error;
   }
 };
@@ -66,7 +66,7 @@ export const deleteSalon = async (id: number): Promise<void> => {
   try {
     await apiClient.delete(`${SALON_ENDPOINT}/${id}`);
   } catch (error) {
-    console.error("Error deleting salon:", error);
+    // console.error("Error deleting salon:", error);
     throw error;
   }
 };

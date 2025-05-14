@@ -147,6 +147,10 @@ const RightSidebar = (props: any) => {
         }
     }, [pathName]);
 
+    const changeThemeMode = (mode: any) => {
+        localStorage.setItem("theme", mode); // Persist the theme in localStorage
+        dispatch(changeLayoutMode(mode));
+    };
 
     return (
         <React.Fragment>
@@ -337,8 +341,9 @@ const RightSidebar = (props: any) => {
                                                     value={LAYOUT_MODE_TYPES.LIGHTMODE}
                                                     checked={layoutModeType === LAYOUT_MODE_TYPES.LIGHTMODE}
                                                     onChange={e => {
-                                                        if (e.target.checked) {
-                                                            dispatch(changeLayoutMode(e.target.value));
+                                                        if (e.target.checked) { 
+                                                            changeThemeMode(e.target.value);
+                                                            // dispatch(changeLayoutMode(e.target.value));
                                                         }
                                                     }}
                                                 />
@@ -375,7 +380,8 @@ const RightSidebar = (props: any) => {
                                                     checked={layoutModeType === LAYOUT_MODE_TYPES.DARKMODE}
                                                     onChange={e => {
                                                         if (e.target.checked) {
-                                                            dispatch(changeLayoutMode(e.target.value));
+                                                            changeThemeMode(e.target.value);
+                                                            // // dispatch(changeLayoutMode(e.target.value));
                                                         }
                                                     }}
                                                 />
@@ -413,7 +419,7 @@ const RightSidebar = (props: any) => {
                                                     value={SIDEBAR_VISIBILITY_TYPES.SHOW}
                                                     checked={sidebarVisibilitytype === SIDEBAR_VISIBILITY_TYPES.SHOW}
                                                     onChange={e => {
-                                                        if (e.target.checked) {
+                                                        if (e.target.checked) { 
                                                             dispatch(changeSidebarVisibility(e.target.value));
                                                         }
                                                     }} />

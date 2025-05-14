@@ -11,7 +11,7 @@ export const fetchHaircutDetails = async (): Promise<any> => {
         const response = await axios.get(HAIRCUT_DETAILS_ENDPOINT);
         return response; // Return the haircut details data
     } catch (error) {
-        console.error("Error fetching haircut details:", error);
+        // console.error("Error fetching haircut details:", error);
         throw error; // Rethrow for handling in the calling function
     }
 };
@@ -22,7 +22,7 @@ export const addHaircutDetail = async (haircutData: Omit<any, 'id'>): Promise<an
         const response = await apiClient.create(HAIRCUT_DETAILS_ENDPOINT, haircutData);
         return response; // Return the newly created haircut detail
     } catch (error) {
-        console.error("Error adding haircut detail:", error);
+        // console.error("Error adding haircut detail:", error);
         throw error; // Rethrow for handling
     }
 };
@@ -33,7 +33,7 @@ export const updateHaircutDetail = async (id: number, haircutData: Omit<HaircutD
         const response = await apiClient.put(`${HAIRCUT_DETAILS_ENDPOINT}/${id}`, haircutData);
         return response.data; // Return the updated haircut detail
     } catch (error) {
-        console.error("Error updating haircut detail:", error);
+        // console.error("Error updating haircut detail:", error);
         throw error; // Rethrow for handling
     }
 };
@@ -43,7 +43,7 @@ export const deleteHaircutDetail = async (id: number): Promise<void> => {
     try {
         await apiClient.delete(`${HAIRCUT_DETAILS_ENDPOINT}/${id}`);
     } catch (error) {
-        console.error("Error deleting haircut detail:", error);
+        // console.error("Error deleting haircut detail:", error);
         throw error; // Rethrow for handling
     }
 };

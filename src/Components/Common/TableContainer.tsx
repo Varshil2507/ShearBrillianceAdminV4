@@ -30,6 +30,7 @@ import {
   NFTRankingGlobalFilter,
   TaskListGlobalFilter,
   TaskStatusGlobalFilter,
+  TaskListStatusFilter,
 } from "../../Components/Common/GlobalSearchFilter";
 
 // Column Filter
@@ -109,7 +110,7 @@ interface TableContainerProps {
   isTicketsListFilter?: any;
   isNFTRankingFilter?: any;
   isTaskListFilter?: any;
-
+isStatusFilter?:any;
   isStatusListFilter?: any;
   isLeaveFilter?: any;
   handleTaskClick?: any;
@@ -133,6 +134,7 @@ interface TableContainerProps {
   totalItems?: number; // Add this prop
   currentPageIndex?: number; // Add this prop
   onChangeIndex?: any;
+  appointmentType?: "appointment" | "check_in";
 }
 
 const TableContainer = ({
@@ -151,6 +153,7 @@ const TableContainer = ({
   isNFTRankingFilter,
   isTaskListFilter,
   isStatusListFilter,
+  isStatusFilter,
   isLeaveFilter,
   customPageSize,
   selectedDateRange,
@@ -168,6 +171,7 @@ const TableContainer = ({
   totalItems,
   currentPageIndex,
   onChangeIndex,
+  appointmentType
 }: TableContainerProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -328,11 +332,23 @@ const TableContainer = ({
                     initialStatus={selectedStatus} // Pre-selected status
                   />
                 )}
+
+                                {isStatusFilter && (
+  <TaskListStatusFilter
+    onFilterSubmit={handleFilterSubmit}
+    initialStatus={selectedStatus}
+    appointmentType={appointmentType || "check_in"} // FIX: Use prop, not undefined variable
+  />
+)}
+
+
                 {isTaskListFilter && (
                   <TaskListGlobalFilter
                     onFilterSubmit={handleFilterSubmit}
                     initialDateRange={selectedDateRange} // Pre-selected range
-                    initialStatus={selectedStatus} // Pre-selected status
+                    initialStatus={selectedStatus}
+                    
+ // Pre-selected status
                   />
                 )}
               </Row>

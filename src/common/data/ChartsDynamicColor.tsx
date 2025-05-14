@@ -23,7 +23,7 @@ const getChartColorsArray = (colors: string | undefined): string[] => {
             }
         });
     } catch (error) {
-        console.error("Error parsing colors JSON:", error);
+        // console.error("Error parsing colors JSON:", error);
         return [];
     }
 };

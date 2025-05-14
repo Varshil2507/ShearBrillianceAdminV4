@@ -85,7 +85,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ show, onOkClick, 
         <div className="mt-2">
           <div className="mt-4 pt-2 fs-15">
             <p className="text-muted mb-0">
-              Are you sure you want to move this appointment
+              Are you sure you want to move this appointment &nbsp; 
               <span className="text-info">&nbsp;
                 {isButtonClick ? oldStatus === 'in_salon' ? 'In Salon' : oldStatus === 'check_in' ? 'Check In' : oldStatus : sourceLine?.nameAlias} </span>
               to <span className="text-info">

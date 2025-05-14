@@ -26,6 +26,7 @@ import * as Yup from "yup";
 import Loader from "Components/Common/Loader";
 import { formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { strictNameValidation } from "Components/Common/Namevalidation";
 // Define the Salon type based on your database structure
 interface Salon {
   id: number;
@@ -77,12 +78,14 @@ const SalonTable: React.FC = () => {
 
   useEffect(() => {
     fetchSalonsList(1, null);
-
   }, []);
   const fetchSalonsList = async (page: any, search: any) => {
-
     try {
-      const response: any = await fetchSalons(page === 0 ? 1 : page, limit, search ?? null);
+      const response: any = await fetchSalons(
+        page === 0 ? 1 : page,
+        limit,
+        search ?? null
+      );
       const salonArray = response.salons.map((item: any) => item.salon);
       setTotalItems(response?.totalItems);
       setTotalPages(response?.totalPages);
@@ -91,12 +94,20 @@ const SalonTable: React.FC = () => {
         return salon;
       });
       setSalonData(salons);
-      if (salonData?.length === 0) {
+      if (salons?.length === 0) {
+        localStorage.removeItem("salonDetails");
         const timer = setTimeout(() => {
           setShowLoader(false);
         }, 500); // Hide loader after 5 seconds
         return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
       } else {
+        if (salons?.length === 1) {
+          if (salons) {
+            localStorage.setItem("salonDetails", JSON.stringify(salons[0]));
+          }
+        } else {
+          localStorage.removeItem("salonDetails");
+        }
         setShowLoader(false); // Immediately hide loader if data is available
       }
     } catch (error: any) {
@@ -155,7 +166,7 @@ const SalonTable: React.FC = () => {
         header: "Status",
         accessorKey: "status",
         enableColumnFilter: false,
-        cell: (cell: { getValue: () => number; row: { original: Salon } }) => (
+        cell: (cell: { getValue: () => number; row: { original: Salon } }) =>
           cell.row.original.status === "open" ? (
             <span
               className="btn btn-success cursor-auto"
@@ -174,8 +185,7 @@ const SalonTable: React.FC = () => {
             >
               Close
             </span>
-          )
-        ),
+          ),
       },
       {
         header: "Owner Name",
@@ -263,7 +273,6 @@ const SalonTable: React.FC = () => {
   );
 
   const handleEdit = (salon: any) => {
-
     if (salon.phone_number) {
       const phoneInfo = formatPhoneNumber(salon.phone_number);
       salon.phone_number = phoneInfo;
@@ -302,13 +311,16 @@ const SalonTable: React.FC = () => {
         //   prevSalons.filter((salon) => salon.id !== selectedSalonId)
         // );
         setDeleteModal(false); // Close the modal
-        fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+        fetchSalonsList(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null
+        );
         setSelectedSalon(null);
         setShowSpinner(false);
       }
     } catch (error) {
       setShowSpinner(false);
-      console.error("Error deleting salon:", error);
+      // console.error("Error deleting salon:", error);
     }
   };
 
@@ -324,7 +336,7 @@ const SalonTable: React.FC = () => {
     setIsEditing(false);
     setShowSpinner(false);
     toggleModal();
-  }
+  };
   const handleAddButtonClick = () => {
     setNewSalon(null);
     setSelectedImages([]);
@@ -405,17 +417,32 @@ const SalonTable: React.FC = () => {
     // Handle page change logic here
   };
 
+  const statusOptions = ["open", "close"];
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove extra spaces at the start or in sequence
+    const value = event.target.value.replace(/^\s+|\s{2,}/g, " ");
+    formik.setFieldValue("name", value);
+  };
+
+  const preventSpaceKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+  };
   const handleSearchText = (search: any) => {
     selectedSearch(search);
     if (search) {
       fetchSalonsList(1, search);
     } else {
-      fetchSalonsList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, search);
+      fetchSalonsList(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        search
+      );
     }
     // Handle page change logic here
   };
   const handleAddSalon = async (values: any) => {
-
     const formData = new FormData();
 
     // Append all form data (same as before)
@@ -480,7 +507,8 @@ const SalonTable: React.FC = () => {
             if (fieldError) {
               // Display the field-specific error in a toast message
               showErrorToast(
-                `${field.charAt(0).toUpperCase() + field.slice(1)
+                `${
+                  field.charAt(0).toUpperCase() + field.slice(1)
                 }: ${fieldError}`,
                 { autoClose: 3000 }
               );
@@ -492,7 +520,7 @@ const SalonTable: React.FC = () => {
         }
       }
 
-      console.error("Error adding salon:", error); // Log detailed error for debugging
+      // console.error("Error adding salon:", error); // Log detailed error for debugging
     }
   };
 
@@ -559,23 +587,9 @@ const SalonTable: React.FC = () => {
     }
   };
 
-
-  const statusOptions = ["open", "close"];
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove extra spaces at the start or in sequence
-    const value = event.target.value.replace(/^\s+|\s{2,}/g, " ");
-    formik.setFieldValue("name", value);
-  };
-
-  const preventSpaceKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === " ") {
-      event.preventDefault();
-    }
-  };
-
-  const emailValidationRegex = /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -599,25 +613,30 @@ const SalonTable: React.FC = () => {
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Salon name is required"),
-      firstname: Yup.string().required("First name is required"), // Add this line
-      lastname: Yup.string().required("Last name is required"), // Add this line
+      firstname: strictNameValidation.required("First name is required"), // Add this line
+      lastname:strictNameValidation.required("Last name is required"), // Add this line
       address: Yup.string().required("Address is required"),
-      email: newSalon?.id ? Yup.string() : Yup.string().matches(emailValidationRegex, "Enter valid email!!")
-        .email("Invalid email format")
-        .required("Email is required"),
+      email: newSalon?.id
+        ? Yup.string()
+        : Yup.string()
+            .matches(emailValidationRegex, "Enter valid email!!")
+            .email("Invalid email format")
+            .required("Email is required"),
       password: newSalon?.id
         ? Yup.string()
         : Yup.string()
-          .matches(passwordRegex, "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!")
-          .required("Password is required"), // Add this line
+            .matches(
+              passwordRegex,
+              "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
+            )
+            .required("Password is required"), // Add this line
       phone_number: Yup.string()
         .required("Phone number is required")
         .matches(
           /^(?:\(\d{3}\)\s?|\d{3}-?)\d{3}-?\d{4}$/,
           "Phone number must be 10 digits"
         ),
-      open_time: Yup.string()
-        .required("Opening time is required"),
+      open_time: Yup.string().required("Opening time is required"),
       close_time: Yup.string().required("Closing time is required"),
       google_url: Yup.string()
         .test("is-valid-url", "Invalid URL", (value) =>
@@ -686,7 +705,6 @@ const SalonTable: React.FC = () => {
           SearchPlaceholder="Search..."
           onChangeIndex={handlePageChange}
         />
-
       )}
 
       {/* Modal for adding/editing a salon */}
@@ -731,7 +749,7 @@ const SalonTable: React.FC = () => {
                       <div className="avatar-title bg-light rounded-circle">
                         {/* Display selected images */}
                         {Array.isArray(selectedImages) &&
-                          selectedImages.length > 0 ? (
+                        selectedImages.length > 0 ? (
                           selectedImages.map((imageUrl, index) => (
                             <img
                               key={index}
@@ -802,10 +820,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.name && formik.errors.name
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.name && formik.errors.name
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="name"
                     placeholder="Enter salon name"
                     value={formik.values.name}
@@ -826,10 +845,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.firstname && formik.errors.firstname
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.firstname && formik.errors.firstname
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="firstname"
                     placeholder="Enter first name"
                     value={formik.values.firstname}
@@ -860,10 +880,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.lastname && formik.errors.lastname
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.lastname && formik.errors.lastname
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="lastname"
                     placeholder="Enter last name"
                     value={formik.values.lastname}
@@ -894,10 +915,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.address && formik.errors.address
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.address && formik.errors.address
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="address"
                     placeholder="Enter salon address"
                     value={formik.values.address}
@@ -918,10 +940,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.phone_number && formik.errors.phone_number
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.phone_number && formik.errors.phone_number
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="phone_number"
                     placeholder="Enter salon phone number"
                     value={formik.values.phone_number}
@@ -946,10 +969,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="email"
-                    className={`form-control ${formik.touched.email && formik.errors.email
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.email && formik.errors.email
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="email"
                     placeholder="Enter email"
                     value={formik.values.email}
@@ -978,12 +1002,12 @@ const SalonTable: React.FC = () => {
                     </Label>
                     <div className="position-relative auth-pass-inputgroup mb-3">
                       <Input
-
                         type={passwordShow ? "text" : "password"}
-                        className={`form-control pe-5${formik.touched.password && formik.errors.password
-                          ? "is-invalid"
-                          : ""
-                          }`}
+                        className={`form-control pe-5${
+                          formik.touched.password && formik.errors.password
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         id="password"
                         placeholder="Enter your password"
                         value={formik.values.password}
@@ -1019,10 +1043,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="time"
-                    className={`form-control ${formik.touched.open_time && formik.errors.open_time
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.open_time && formik.errors.open_time
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="open_time"
                     value={formik.values.open_time}
                     onChange={formik.handleChange}
@@ -1042,10 +1067,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="time"
-                    className={`form-control ${formik.touched.close_time && formik.errors.close_time
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.close_time && formik.errors.close_time
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="close_time"
                     value={formik.values.close_time}
                     onChange={formik.handleChange}
@@ -1091,10 +1117,11 @@ const SalonTable: React.FC = () => {
                   </Label>
                   <Input
                     type="text"
-                    className={`form-control ${formik.touched.google_url && formik.errors.google_url
-                      ? "is-invalid"
-                      : ""
-                      }`}
+                    className={`form-control ${
+                      formik.touched.google_url && formik.errors.google_url
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     id="google_url"
                     placeholder="Enter Google Map URL"
                     value={formik.values.google_url}
@@ -1135,11 +1162,12 @@ const SalonTable: React.FC = () => {
                       </Label>
                       <Input
                         type="time"
-                        className={`form-control ${formik.touched.weekend_start &&
+                        className={`form-control ${
+                          formik.touched.weekend_start &&
                           formik.errors.weekend_start
-                          ? "is-invalid"
-                          : ""
-                          }`}
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         id="weekend_start"
                         value={formik.values.weekend_start}
                         onChange={formik.handleChange}
@@ -1162,11 +1190,12 @@ const SalonTable: React.FC = () => {
                       </Label>
                       <Input
                         type="time"
-                        className={`form-control ${formik.touched.weekend_end &&
+                        className={`form-control ${
+                          formik.touched.weekend_end &&
                           formik.errors.weekend_end
-                          ? "is-invalid"
-                          : ""
-                          }`}
+                            ? "is-invalid"
+                            : ""
+                        }`}
                         id="weekend_end"
                         value={formik.values.weekend_end}
                         onChange={formik.handleChange}
@@ -1208,29 +1237,48 @@ const SalonTable: React.FC = () => {
               </Col> */}
 
               {/* Buttons */}
-              <Col lg={12} className="hstack gap-2 justify-content-end">
-                <Button className="btn btn-light" onClick={closeModal}>
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  color="primary"
-                  className="btn btn-success"
-                  disabled={
-                    showSpinner
-                  } // Disable button when loader is active
-                >
-                  {showSpinner && (
-                    <Spinner
-                      size="sm"
-                      className="me-2"
+              <Row lg={12}>
+                {formik.values.id && (
+                  <Col lg={6}>
+                    <p
+                      className="badge bg-warning text-wrap text-start"
+                      style={{
+                        lineHeight: "1.5",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                      }}
                     >
-                      Loading...
-                    </Spinner>
-                  )}
-                  Save
-                </Button>
-              </Col>
+                      <span style={{ fontSize: "16px", fontWeight: 500 }}>
+                        Note:{" "}
+                      </span>
+                      If you change the salon's open or close time, it may take
+                      a few moments to reflect the changes across all schedules.
+                    </p>
+                  </Col>
+                )}
+
+                <Col
+                  lg={formik.values.id ? 6 : 12}
+                  className="hstack gap-2 justify-content-end"
+                >
+                  <Button className="btn btn-light" onClick={closeModal}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    className="btn btn-success"
+                    disabled={showSpinner} // Disable button when loader is active
+                  >
+                    {showSpinner && (
+                      <Spinner size="sm" className="me-2">
+                        Loading...
+                      </Spinner>
+                    )}
+                    Save
+                  </Button>
+                </Col>
+              </Row>
             </Row>
           </form>
         </ModalBody>

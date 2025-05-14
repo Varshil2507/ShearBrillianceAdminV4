@@ -9,7 +9,7 @@ export const fetchDashboardData = async (): Promise<any> => {
     const response = await apiClient.get(DASHBOARD_ENDPOINT);
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error fetching dashboard dat:", error);
+    // console.error("Error fetching dashboard dat:", error);
     throw error; // Rethrow to let the calling function handle it
   }
 };
@@ -22,7 +22,7 @@ export const fetchAppointmentDashboardData = async (): Promise<any> => {
     );
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error fetching dashboard dat:", error);
+    // console.error("Error fetching dashboard dat:", error);
     throw error; // Rethrow to let the calling function handle it
   }
 };
@@ -36,7 +36,7 @@ export const fetchAppointmentStatus = async (filter: string): Promise<any> => {
     );
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error fetching appointment status:", error);
+    // console.error("Error fetching appointment status:", error);
     throw error; // Rethrow to let the calling function handle it
   }
 };
@@ -49,7 +49,7 @@ export const fetchCutomerStatus = async (filter: string): Promise<any> => {
     );
     return response; // Access the 'data' property
   } catch (error) {
-    console.error("Error fetching appointment status:", error);
+    // console.error("Error fetching appointment status:", error);
     throw error; // Rethrow to let the calling function handle it
   }
 };
@@ -63,7 +63,7 @@ export const fetchCustomerYearlyStatus = async (
     );
     return response;
   } catch (error) {
-    console.error("Error fetching customer yearly status:", error);
+    // console.error("Error fetching customer yearly status:", error);
     throw error; // Rethrow for handling in calling function
   }
 };
@@ -75,7 +75,7 @@ export const fetchBarberPayroll = async (
     const response = await apiClient.create(`${DASHBOARD_ENDPOINT}/payroll`, filterData);
     return response;
   } catch (error) {
-    console.error("Error fetching customer yearly status:", error);
+    // console.error("Error fetching customer yearly status:", error);
     throw error; // Rethrow for handling in calling function
   }
 };

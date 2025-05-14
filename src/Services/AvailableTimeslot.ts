@@ -12,7 +12,7 @@ export const fetchTimeSlots = async (BarberId: string, slot_date: string): Promi
         });
         return response; // Extract and return the data field
     } catch (error) {
-        console.error("Error fetching barbers:", error);
+        // console.error("Error fetching barbers:", error);
         throw error;
     }
 };

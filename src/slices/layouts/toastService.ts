@@ -12,16 +12,16 @@ export const showSuccessToast = (message: string, options: ToastOptions = defaul
 };
 
 // Error Toast
-export const showErrorToast = (message: string, options: ToastOptions = { autoClose: 3000 }) => {
+export const showErrorToast = (message: string, options: ToastOptions = defaultOptions) => {
   toast.error(message, options); // ✅ Call toast.error
 };
 
 // Warning Toast
-export const showWarningToast = (message: string, options: ToastOptions = { autoClose: 2500 }) => {
+export const showWarningToast = (message: string, options: ToastOptions = defaultOptions) => {
   toast.warning(message, options); // ✅ Call toast.warning
 };
 
 // Info Toast
-export const showInfoToast = (message: string, options: ToastOptions = { autoClose: 2500 }) => {
+export const showInfoToast = (message: string, options: ToastOptions = defaultOptions) => {
   toast.info(message, options); // ✅ Call toast.info
 };

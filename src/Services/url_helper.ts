@@ -55,3 +55,5 @@ export const SALES_PAYMENT_ENDPOINT ='/sales/payment'
 export const TIMESLOT_ENDPOINT = '/slots/available'
 
 export const APPOINTMNER_BARBER_ENDPOINT = '/appointments/barber/create'
+
+export const TIP_ENDPOINT = "/payment/update-tip";

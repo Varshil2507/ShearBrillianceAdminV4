@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 
 import {
   Col,
@@ -17,6 +12,7 @@ import {
   CardBody,
   FormFeedback,
   Spinner,
+  Button,
 } from "reactstrap";
 
 // Formik
@@ -43,6 +39,7 @@ import { Link } from "react-router-dom";
 import { format, isAfter, isBefore, isToday } from "date-fns";
 import { formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { updateTipAmount } from "Services/Tipservice";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -105,10 +102,24 @@ const CalenderScheduleInfo: React.FC = () => {
   const [previousOption, setPreviousOption] = useState("");
   const [appointmentId, setAppointmentId] = useState<any>();
   const today = format(new Date(), "yyyy-MM-dd");
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [tipPercentage, setTipPercentage] = useState<any>(0);
+  const [customTip, setCustomTip] = useState("");
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [finalAmount, setFinalAmount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [tipAmount, setTipAmount] = useState(0);
+  const [tipSubmitting, setTipSubmitting] = useState(false);
+
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
     setSelectedStatus(previousOption);
-  }
+  };
 
   const userRole = localStorage.getItem("userRole");
   let storeRoleInfo: any;
@@ -121,7 +132,6 @@ const CalenderScheduleInfo: React.FC = () => {
     storeUserInfo = JSON.parse(authUSer);
   }
   useEffect(() => {
-
     if (storeUserInfo.berber) {
       setSelectedSalonId(storeUserInfo.berber.SalonId);
       setSelectedBarberId(storeUserInfo.berber.id);
@@ -132,13 +142,22 @@ const CalenderScheduleInfo: React.FC = () => {
         );
       }, 500);
     }
-    if (storeUserInfo.salon) {
-      setSelectedSalonId(storeUserInfo.salon.id);
-      getSalonBabrer(storeUserInfo.salon.id);
+    if (storeUserInfo.salon || storesalonDetailInfo) {
+      setSelectedSalonId(
+        storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id
+      );
+      getSalonBabrer(
+        storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id
+      );
     }
   }, []);
 
-  const filterAppointment = async (salonId?: any, barberId?: any, updatedAppointmentId?: any, newStatus?: any) => {
+  const filterAppointment = async (
+    salonId?: any,
+    barberId?: any,
+    updatedAppointmentId?: any,
+    newStatus?: any
+  ) => {
     setShowSpinner(true);
     salonId = selectedSalonId ?? salonId;
     barberId = selectedBarberId ?? barberId;
@@ -149,13 +168,20 @@ const CalenderScheduleInfo: React.FC = () => {
     }
 
     try {
-      await fetchAppointments(salonId, barberId, startDate, endDate, updatedAppointmentId, newStatus);
+      await fetchAppointments(
+        salonId,
+        barberId,
+        startDate,
+        endDate,
+        updatedAppointmentId,
+        newStatus
+      );
       setIsSearchClicked(true); // Set the button click state to true
 
       // Pass both salonId and barberId
     } catch (error) {
       setShowSpinner(false);
-      console.error("Error fetching appointments:", error);
+      // console.error("Error fetching appointments:", error);
     }
   };
 
@@ -165,7 +191,9 @@ const CalenderScheduleInfo: React.FC = () => {
       const barberResponse = await fetchBarberBySalon(salonId, 1);
       // Check if the barberResponse itself has data or is not empty
       if (barberResponse && barberResponse.length > 0) {
-        const barbers = barberResponse.filter((b: any) => b.availability_status === 'available'); // Assuming the response is directly the list of barbers
+        const barbers = barberResponse.filter(
+          (b: any) => b.availability_status === "available"
+        ); // Assuming the response is directly the list of barbers
         setSalonBarberData(barbers); // Update barber data
       } else {
         setSalonBarberData([]); // No barbers found, clear barber data
@@ -181,7 +209,7 @@ const CalenderScheduleInfo: React.FC = () => {
       }
       setSalonBarberData([]); // Clear barber data in case of error
     }
-  }
+  };
   const fetchAppointments = async (
     salonId: number,
     barberId: number,
@@ -205,9 +233,17 @@ const CalenderScheduleInfo: React.FC = () => {
         setShowSpinner(false);
         const formattedAppointments = response.map((appointment: any) => {
           const { appointment_date, time_slot, Services, User } = appointment;
-          const isTodayEvent = appointment.appointment_date ? isToday(appointment.appointment_date) ? true : false : false;
-          const isPreviousEvent = appointment.appointment_date ? isBefore(appointment.appointment_date, today) : false;
-          const isFeatureEvent = appointment.appointment_date ? isAfter(appointment.appointment_date, today) : false;
+          const isTodayEvent = appointment.appointment_date
+            ? isToday(appointment.appointment_date)
+              ? true
+              : false
+            : false;
+          const isPreviousEvent = appointment.appointment_date
+            ? isBefore(appointment.appointment_date, today)
+            : false;
+          const isFeatureEvent = appointment.appointment_date
+            ? isAfter(appointment.appointment_date, today)
+            : false;
           return {
             date: appointment.appointment_date,
             id: appointment.id,
@@ -276,9 +312,8 @@ const CalenderScheduleInfo: React.FC = () => {
               }
             }
             calendarApi.refetchEvents(); // Ensure the calendar refreshes events
-
           }
-          setShowLoader(false);; // Reset fetching flag
+          setShowLoader(false); // Reset fetching flag
         }, 500);
       }
     } catch (error: any) {
@@ -311,7 +346,6 @@ const CalenderScheduleInfo: React.FC = () => {
   // Re-run when these values change
   useEffect(() => {
     const fetchAllData = async () => {
-
       try {
         // Fetch both salons and barbers data in parallel
         const [salonsResponse] = await Promise.all([
@@ -337,7 +371,6 @@ const CalenderScheduleInfo: React.FC = () => {
   const handleSalonChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-
     const salonId = event.target.value ? Number(event.target.value) : null;
     setSelectedSalonId(salonId);
     if (salonId !== null) {
@@ -356,6 +389,93 @@ const CalenderScheduleInfo: React.FC = () => {
     if (!selectedSalonId) {
       alert("Please select a salon first.");
     }
+  };
+  const handleTipChange = (e: any) => {
+    const value = e.target.value;
+    setTipPercentage(value);
+    if (value !== "custom") {
+      setCustomTip("");
+      calculateFinalAmount(totalPrice, value, "");
+    } else {
+      setCustomTip("");
+      calculateFinalAmount(totalPrice, "custom", "");
+    }
+  };
+
+  // const handleTipSubmit = async (appointmentId: any) => {
+  //   try {
+  //     const finalTipAmount = Number(tipAmount); // already in dollars
+
+  //     if (isNaN(finalTipAmount) || finalTipAmount < 0) {
+  //       showErrorToast("Please enter a valid tip amount");
+  //       return;
+  //     }
+
+  //     await updateTipAmount(appointmentId, finalTipAmount); // ✅ pass dollar value
+  //     showSuccessToast("Tip submitted successfully!");
+  //     setTipModalOpen(false);
+  //   } catch (error) {
+  //     showErrorToast("Failed to update tip.");
+  //   }
+  // };
+  const [formData, setFormData] = useState({
+    tipAmount: "", // Add this if not already present
+  });
+  const handleTipSubmit = async (appointmentId: any) => {
+    try {
+      setTipSubmitting(true); // Start spinner
+
+      const newTip = Number(formData.tipAmount);
+      const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
+      const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
+
+      // 💡 Updated Validation
+      if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+        showErrorToast("Please enter a valid tip amount.");
+        return;
+      }
+
+      const updatedTip = oldTip + newTip;
+      const updatedTotal = oldTotal + newTip;
+
+      // ✅ Send final updated tip to backend
+      await updateTipAmount(appointmentId, updatedTip);
+
+      // ✅ Toast message
+      showSuccessToast("Tip submitted successfully!");
+
+      setTipModalOpen(false);
+      setFormData({ ...formData, tipAmount: "" }); // Reset tip input
+    } catch (error) {
+      showErrorToast("Failed to update tip.");
+    } finally {
+      setTipSubmitting(false); // Stop spinner
+    }
+  };
+
+  const handleCustomTipChange = (e: any) => {
+    const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+    if (value.length <= 4) {
+      setCustomTip(value);
+      setIsInvalid(false);
+      calculateFinalAmount(totalPrice, "custom", value);
+    } else {
+      setIsInvalid(true);
+    }
+  };
+  const calculateFinalAmount = (total: number, tip: any, custom: any) => {
+    // 'total' here is assumed to include tax.
+    let calculatedTip = 0;
+
+    if (tip === "custom") {
+      calculatedTip = parseFloat(custom || "0");
+    } else if (!isNaN(parseFloat(tip))) {
+      // Calculate tip percentage over the full current total (which includes tax)
+      calculatedTip = (total * parseFloat(tip)) / 100;
+    }
+
+    setTipAmount(calculatedTip);
+    setFinalAmount(total + calculatedTip);
   };
 
   /**
@@ -493,11 +613,9 @@ const CalenderScheduleInfo: React.FC = () => {
     }
   };
   const handleEventClick = (arg: any) => {
-
     cancelPopoverRemoval(); // Stop previous popover removal process
     // Ensure old popovers are removed
     removeFullCalendarPopovers();
-
     const event = arg.event;
     const st_date = event.start;
     const ed_date = event.end;
@@ -598,6 +716,22 @@ const CalenderScheduleInfo: React.FC = () => {
     // setNewBarber(barber); // Set the user to be updated
     // toggleModal(); // Open the modal for editing
   };
+  useEffect(() => {
+    if (!event?.paymentDetails || !event?.paymentDetails.amount) return;
+
+    const base = parseFloat(event.paymentDetails.amount || "0");
+
+    let calculatedTip = 0;
+
+    if (tipPercentage === "custom") {
+      calculatedTip = parseFloat(customTip || "0");
+    } else {
+      calculatedTip = (Number(tipPercentage) / 100) * base; // ✅ percentage of base
+    }
+
+    setTotalPrice(base);
+    setFinalAmount(base + calculatedTip);
+  }, [tipPercentage, customTip]);
 
   const handlePrint = () => {
     printJS({
@@ -637,7 +771,6 @@ const CalenderScheduleInfo: React.FC = () => {
           autoClose: 2000,
         });
       } catch (error: any) {
-        
         setShowSpinner(false);
         // Check if the error has a response property (Axios errors usually have this)
         if (error.response && error.response.data) {
@@ -717,7 +850,6 @@ const CalenderScheduleInfo: React.FC = () => {
 
   const confirmStatusChange = async () => {
     try {
-
       if (appointmentId) {
         setShowSpinner(true);
         await updateAppointmentStatus(appointmentId, {
@@ -725,7 +857,7 @@ const CalenderScheduleInfo: React.FC = () => {
         }); // API call to update status
         setShowSpinner(false);
         toggle();
-        toggleModal(); // Close the modal 
+        toggleModal(); // Close the modal
         filterAppointment(null, null, appointmentId, selectedStatus);
         showSuccessToast("Status updated successfully");
         // Update the specific appointment in local state after a successful API call
@@ -738,7 +870,7 @@ const CalenderScheduleInfo: React.FC = () => {
         // });
       }
     } catch (error) {
-      console.error("Failed to update appointment:", error);
+      // console.error("Failed to update appointment:", error);
       // Optionally show error message
       // alert("Error updating status. Please try again.");
     }
@@ -746,18 +878,32 @@ const CalenderScheduleInfo: React.FC = () => {
 
   const subtractMinutes = (timeString: string | undefined, minutes: number) => {
     if (!timeString) return "";
-  
+
     let [time, period] = timeString.split(" ");
     let [hours, mins] = time.split(":").map(Number);
-  
-    let totalMins = (hours % 12) * 60 + mins - minutes + (period === "PM" ? 720 : 0);
+
+    let totalMins =
+      (hours % 12) * 60 + mins - minutes + (period === "PM" ? 720 : 0);
     let newHours = Math.floor((totalMins % 1440) / 60) || 12;
     let newMinutes = (totalMins % 60).toString().padStart(2, "0");
     let newPeriod = totalMins >= 720 ? "PM" : "AM";
-  
+
     return `${newHours}:${newMinutes} ${newPeriod}`;
   };
-  
+  const isAppointmentToday = (appointmentDateStr: string) => {
+    if (!appointmentDateStr) return false;
+
+    const today = new Date();
+    // Interpret date string in local time zone (no UTC offset applied)
+    const [year, month, day] = appointmentDateStr.split("-").map(Number);
+    const appointmentDate = new Date(year, month - 1, day);
+
+    return (
+      today.getFullYear() === appointmentDate.getFullYear() &&
+      today.getMonth() === appointmentDate.getMonth() &&
+      today.getDate() === appointmentDate.getDate()
+    );
+  };
 
   return (
     <React.Fragment>
@@ -772,35 +918,41 @@ const CalenderScheduleInfo: React.FC = () => {
               </div>
 
               {/* Dropdowns container moved to left side */}
-              {!storeUserInfo.berber && (
-                <div className="row mt-4 d-flex align-items-center">
-                  {/* Dropdown for selecting Salon */}
-                  {!storeUserInfo.salon && (
-                    <div className="col-sm-3 col-3 custom-align">
-                      <select
-                        id="salonSelect"
-                        className="form-select"
-                        value={selectedSalonId !== null ? selectedSalonId : ""}
-                        onChange={handleSalonChange}
-                      >
-                        <option value="" disabled>
-                          Select Salon
-                        </option>
-                        {salonData.length > 0 ? (
-                          salonData.map((salon: any) => (
-                            <option key={salon.salon.id} value={salon.salon.id}>
-                              {salon.salon.name}
-                            </option>
-                          ))
-                        ) : (
+              {(!storeUserInfo.berber || !storesalonDetailInfo) &&
+                !storeUserInfo.berber && (
+                  <div className="row mt-4 d-flex align-items-center gap-2 gap-lg-0">
+                    {/* Dropdown for selecting Salon */}
+                    {!storeUserInfo.salon && !storesalonDetailInfo && (
+                      <div className=" col-lg-3 custom-align">
+                        <select
+                          id="salonSelect"
+                          className="form-select"
+                          value={
+                            selectedSalonId !== null ? selectedSalonId : ""
+                          }
+                          onChange={handleSalonChange}
+                        >
                           <option value="" disabled>
-                            No salons available
+                            Select Salon
                           </option>
-                        )}
-                      </select>
+                          {salonData.length > 0 ? (
+                            salonData.map((salon: any) => (
+                              <option
+                                key={salon.salon.id}
+                                value={salon.salon.id}
+                              >
+                                {salon.salon.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option value="" disabled>
+                              No salons available
+                            </option>
+                          )}
+                        </select>
 
-                      {/* Instructional Text Below the Salon Dropdown */}
-                      {/* <div className="mt-2">
+                        {/* Instructional Text Below the Salon Dropdown */}
+                        {/* <div className="mt-2">
                         {selectedSalonId === null ? (
                           <p className="text-muted">
                             Please select a salon to view available barbers.
@@ -811,36 +963,50 @@ const CalenderScheduleInfo: React.FC = () => {
                           </p>
                         )}
                       </div> */}
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  {/* Dropdown for selecting Barber */}
-                  <div className={!storeUserInfo.salon ? "col-sm-3 col-3" : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"}>
-                    <select
-                      id="barberSelect"
-                      className="form-select"
-                      value={selectedBarberId !== null ? selectedBarberId : ""}
-                      onChange={handleBarberChange}
-                      disabled={!selectedSalonId} // Disable barber dropdown if no salon is selected
+                    {/* Dropdown for selecting Barber */}
+                    <div
+                      className={
+                        !storeUserInfo.salon
+                          ? "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"
+                          : "col-sm-6 col-md-6 col-lg-6 col-xl-9 col-xxl-6 col-8"
+                      }
                     >
-                      <option value="" disabled>
-                        Select Barber
-                      </option>
-                      {salonBarberData.length > 0 ? (
-                        salonBarberData.map((barber: any) => (
-                          <option key={barber.id} value={barber.id} disabled={barber.availability_status !== 'available'}>
-                            {barber.name}
-                          </option>
-                        ))
-                      ) : (
+                      <select
+                        id="barberSelect"
+                        className="form-select"
+                        value={
+                          selectedBarberId !== null ? selectedBarberId : ""
+                        }
+                        onChange={handleBarberChange}
+                        disabled={!selectedSalonId} // Disable barber dropdown if no salon is selected
+                      >
                         <option value="" disabled>
-                          No barbers available
+                          Select Barber
                         </option>
-                      )}
-                    </select>
+                        {salonBarberData.length > 0 ? (
+                          salonBarberData.map((barber: any) => (
+                            <option
+                              key={barber.id}
+                              value={barber.id}
+                              disabled={
+                                barber.availability_status !== "available"
+                              }
+                            >
+                              {barber.name}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>
+                            No barbers available
+                          </option>
+                        )}
+                      </select>
 
-                    {/* Instructional Text Below the Barber Dropdown */}
-                    {/* <div className="mt-2">
+                      {/* Instructional Text Below the Barber Dropdown */}
+                      {/* <div className="mt-2">
                       {selectedSalonId === null ? (
                         <p className="text-muted">
                           Please select a salon first.
@@ -854,28 +1020,36 @@ const CalenderScheduleInfo: React.FC = () => {
                         </p>
                       )}
                     </div> */}
-                  </div>
+                    </div>
 
-                  {/* Search Button */}
-                  <div className={!storeUserInfo.salon ? "col-sm-2 col-4" : "col-sm-4 col-md-3 col-lg-3 col-xl-3 col-xxl-3 col-6"}>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      style={{ width: "126px" }}
-                      id="btn-delete-event"
-                      onClick={filterAppointment}
-                      disabled={showSpinner} // Disable button when loader is active
+                    {/* Search Button */}
+                    <div
+                      className={
+                        !storeUserInfo.salon
+                          ? "col-sm-2 col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-2"
+                          : "col-sm-4 col-md-3 col-lg-3 col-xl-3 col-xxl-3 col-6"
+                      }
                     >
-                      {showSpinner && (
-                        <Spinner size="sm" className="me-2">
-                          Loading...
-                        </Spinner>
-                      )}
-                      <i className="ri-search-line align-bottom"></i> Search
-                    </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        style={{
+                          width: window.innerWidth < 992 ? "100%" : "126px",
+                        }}
+                        id="btn-delete-event"
+                        onClick={filterAppointment}
+                        disabled={showSpinner} // Disable button when loader is active
+                      >
+                        {showSpinner && (
+                          <Spinner size="sm" className="me-2">
+                            Loading...
+                          </Spinner>
+                        )}
+                        <i className="ri-search-line align-bottom"></i> Search
+                      </button>
 
-                    {/* Conditional Message Based on Button Click */}
-                    {/* <div className="mt-2">
+                      {/* Conditional Message Based on Button Click */}
+                      {/* <div className="mt-2">
                       {isSearchClicked ? (
                         <p className="text-muted">Searched</p>
                       ) : (
@@ -884,14 +1058,14 @@ const CalenderScheduleInfo: React.FC = () => {
                         </p>
                       )}
                     </div> */}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             <CardBody>
               <div className="demo-app-main">
-                {showLoader && <Loader />}
+                {/* {showLoader && <Loader />} */}
                 <FullCalendar
                   ref={calendarRef}
                   // key={appointments?.length} // Changes key when appointments array updates
@@ -924,14 +1098,14 @@ const CalenderScheduleInfo: React.FC = () => {
                     minute: "2-digit",
                     meridiem: "short",
                   }}
-                  slotMinTime="08:00:00" // Start time at 8 AM
-                  slotMaxTime="21:00:00" // End time at 9 PM
+                  slotMinTime="00:00:00" // Start time at 12 AM
+                  slotMaxTime="24:00:00" // End time at 11:45 PM
                   eventDidMount={(info) => {
                     const status = info.event.extendedProps?.status;
                     info.el.style.backgroundColor = getEventColor(status);
                     info.el.style.borderColor = getEventColor(status);
                   }}
-                // contentHeight="auto" // Adjust height dynamically
+                  contentHeight="700Px" // Adjust height dynamically
                 />
               </div>
             </CardBody>
@@ -949,14 +1123,21 @@ const CalenderScheduleInfo: React.FC = () => {
         >
           <ModalHeader toggle={toggle} className="w-100">
             Appointment Details
-            <span style={{ position: "absolute", right: "6%" }}>
-            {event?.eventDate} ({event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - {event?.eventEndTime ? formatTime(event?.eventEndTime) : "N/A"})
-
-  {/* {event?.eventDate} (
+            <span
+              style={{
+                position: "absolute",
+                right: window.innerWidth < 992 ? "8%" : "6%",
+              }}
+            >
+              {event?.eventDate} (
+              {event?.eventStartTime
+                ? formatTime(event?.eventStartTime)
+                : "N/A"}{" "}
+              - {event?.eventEndTime ? formatTime(event?.eventEndTime) : "N/A"})
+              {/* {event?.eventDate} (
   {event?.eventStartTime ? formatTime(event?.eventStartTime) : "N/A"} - 
   {event?.eventEndTime ? subtractMinutes(formatTime(event?.eventEndTime), 15) : "N/A"}) */}
-</span>
-
+            </span>
           </ModalHeader>
           <ModalBody>
             <Form
@@ -979,14 +1160,16 @@ const CalenderScheduleInfo: React.FC = () => {
                             overflow: "hidden",
                           }}
                         >
-                          {event?.userImages?.map((picturedata: any, idx: any) => (
-                            <img
-                              key={idx}
-                              src={picturedata.img}
-                              alt="User"
-                              className="rounded-circle img-fluid"
-                            />
-                          ))}
+                          {event?.userImages?.map(
+                            (picturedata: any, idx: any) => (
+                              <img
+                                key={idx}
+                                src={picturedata.img}
+                                alt="User"
+                                className="rounded-circle img-fluid"
+                              />
+                            )
+                          )}
                         </div>
                       </div>
                     </div>
@@ -996,7 +1179,7 @@ const CalenderScheduleInfo: React.FC = () => {
                 {/* Right Section: Fields and Labels */}
                 <div className="col-lg-8">
                   <div className="form-group py-2 border-bottom">
-                    <b>User Name: </b>
+                    <b>Customer Name: </b>
                     <span>{event?.username || "N/A"}</span>
                   </div>
                   <div className="form-group py-2 border-bottom">
@@ -1011,7 +1194,6 @@ const CalenderScheduleInfo: React.FC = () => {
                     <b>Mobile Number: </b>
                     <span>{event?.mobile_number || "N/A"}</span>
                   </div>
-
 
                   <div className="form-group py-2 border-bottom">
                     <b>Services: </b>
@@ -1031,7 +1213,7 @@ const CalenderScheduleInfo: React.FC = () => {
                     </span>
                   </div>
                   <div className="form-group py-2 border-bottom d-flex">
-                    <div style={{ width: "50%" }} >
+                    <div style={{ width: "50%" }}>
                       <b>Total Amount: </b>
                       <span>{event?.paymentDetails?.totalAmount || "N/A"}</span>
                     </div>
@@ -1039,7 +1221,6 @@ const CalenderScheduleInfo: React.FC = () => {
                       <b>Tip: </b>
                       <span>{event?.paymentDetails?.tip || "N/A"}</span>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -1049,13 +1230,16 @@ const CalenderScheduleInfo: React.FC = () => {
                   <b
                     className="px-2 py-1"
                     style={{
-                      color: event?.paymentStatus?.toLowerCase() === 'success' ? 'green' : 'red',
+                      color:
+                        event?.paymentStatus?.toLowerCase() === "success"
+                          ? "green"
+                          : "red",
                     }}
                   >
-                    {event?.paymentStatus ?? 'Pending'}
+                    {event?.paymentStatus ?? "Pending"}
                   </b>
-                  {
-                    event?.paymentStatus?.toLowerCase() === 'success' && event?.paymentMode !== "Pay_In_Person" && (
+                  {event?.paymentStatus?.toLowerCase() === "success" &&
+                    event?.paymentMode !== "Pay_In_Person" && (
                       <Link
                         to={event?.paymentDetails?.receiptUrl}
                         target="_blank"
@@ -1066,14 +1250,13 @@ const CalenderScheduleInfo: React.FC = () => {
                       >
                         <i className="ri-download-line"></i> Receipt
                       </Link>
-                    )
-                  }
+                    )}
                 </div>
               </div>
               {/* Status Dropdown */}
               <div className="row my-4">
                 {/* Status Dropdown */}
-                <div className="col-lg-6 d-flex align-items-center justify-content-start">
+                <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
                   <label htmlFor="statusSelect" className="mb-2">
                     Status
                   </label>
@@ -1082,17 +1265,19 @@ const CalenderScheduleInfo: React.FC = () => {
                     className="form-select ms-2"
                     value={selectedStatus}
                     onChange={(e) => handleStatusChange(e.target.value)}
-                    disabled={event?.status === "completed" || event?.status === "canceled"}
+                    disabled={
+                      event?.status === "completed" ||
+                      event?.status === "canceled"
+                    }
                     style={{
                       color:
                         selectedStatus === "completed"
                           ? "green"
                           : selectedStatus === "canceled"
-                            ? "red"
-                            : "orange",
+                          ? "red"
+                          : "orange",
                       fontWeight: "bold",
-                      width: "auto"
-
+                      width: "auto",
                     }}
                   >
                     <option
@@ -1136,15 +1321,39 @@ const CalenderScheduleInfo: React.FC = () => {
                 </div>
 
                 {/* Haircut Details Button */}
-                <div className="col-lg-6 d-flex align-items-center justify-content-end mb-4">
-                  <button
-                    className="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createboardModal"
-                    onClick={handleOpen}
-                  >
-                    <i className="ri-add-line align-bottom me-1" style={{ marginTop: "30px" }}></i> Add Haircut Details
-                  </button>
+                <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
+                  {/* Left: Add Haircut Details */}
+                  <div>
+                    <button
+                      className="btn btn-primary mb-4"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createboardModal"
+                      onClick={handleOpen}
+                      disabled={
+                        !isAppointmentToday(event?.eventDate) ||
+                        event?.status === "completed" ||
+                        event?.status === "canceled"
+                      }
+                    >
+                      <i className="ri-add-line align-bottom me-1"></i> Add
+                      Haircut Details
+                    </button>
+                  </div>
+
+                  {/* Right: Add Tip */}
+                  <div>
+                    <Button
+                      className="btn btn-primary mb-4"
+                      onClick={() => setTipModalOpen(true)}
+                      disabled={
+                        !isAppointmentToday(event?.eventDate) ||
+                        event?.status === "completed" ||
+                        event?.status === "canceled"
+                      }
+                    >
+                      <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -1163,8 +1372,106 @@ const CalenderScheduleInfo: React.FC = () => {
             </Form>
           </ModalBody>
         </Modal>
+        <Modal
+          id="tipModal"
+          isOpen={tipModalOpen}
+          toggle={() => setTipModalOpen(false)}
+          centered={true}
+          backdrop="static"
+        >
+          <ModalHeader toggle={() => setTipModalOpen(false)}>
+            Add Tip
+          </ModalHeader>
+          <ModalBody>
+            <Col lg={12}>
+              <div className="mb-3">
+                <Label className="form-label" htmlFor="customTipInput">
+                  Enter Tip Amount
+                </Label>
+                <Input
+                  type="number"
+                  id="customTipInput"
+                  placeholder="Enter tip amount"
+                  value={formData.tipAmount}
+                  min="0"
+                  onChange={(e) =>
+                    setFormData({ ...formData, tipAmount: e.target.value })
+                  }
+                  className={`form-control ${
+                    formData.tipAmount === "" || Number(formData.tipAmount) <= 0
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                />
+              </div>
+            </Col>
 
+            <Col lg={12}>
+              <div className="d-flex justify-content-between mt-2">
+                <span>
+                  <b>Previous Tip:</b>
+                </span>
+                <span>
+                  ${parseFloat(event?.paymentDetails?.tip || "0").toFixed(2)}
+                </span>
+              </div>
 
+              <div className="d-flex justify-content-between">
+                <span>
+                  <b>Preious Total:</b>
+                </span>
+                <span>
+                  $
+                  {parseFloat(
+                    event?.paymentDetails?.totalAmount || "0"
+                  ).toFixed(2)}
+                </span>
+              </div>
+
+              <hr />
+
+              <div className="d-flex justify-content-between">
+                <span>
+                  <b>New Tip:</b>
+                </span>
+                <span>${parseFloat(formData.tipAmount || "0").toFixed(2)}</span>
+              </div>
+
+              <div className="d-flex justify-content-between">
+                <span>
+                  <b>New Total:</b>
+                </span>
+                <span>
+                  $
+                  {(
+                    parseFloat(event?.paymentDetails?.totalAmount || "0") +
+                    parseFloat(formData.tipAmount || "0")
+                  ).toFixed(2)}
+                </span>
+              </div>
+            </Col>
+
+            <div className="text-end mt-3">
+              <Button
+                color="success"
+                onClick={() => handleTipSubmit(event?.id)}
+                disabled={tipSubmitting}
+              >
+                {tipSubmitting ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
+          </ModalBody>
+        </Modal>
         <Modal
           isOpen={modall}
           toggle={handleOpen}
@@ -1204,7 +1511,7 @@ const CalenderScheduleInfo: React.FC = () => {
                             value={haircutFormik.values?.haircut_style}
                             className={
                               haircutFormik.touched?.haircut_style &&
-                                haircutFormik.errors?.haircut_style
+                              haircutFormik.errors?.haircut_style
                                 ? "is-invalid"
                                 : ""
                             }
@@ -1232,7 +1539,7 @@ const CalenderScheduleInfo: React.FC = () => {
                             value={haircutFormik.values?.customer_notes || ""}
                           ></textarea>
                           {haircutFormik.touched?.customer_notes &&
-                            haircutFormik.errors?.customer_notes ? (
+                          haircutFormik.errors?.customer_notes ? (
                             <FormFeedback type="invalid" className="d-block">
                               {haircutFormik.errors?.customer_notes}
                             </FormFeedback>
@@ -1252,7 +1559,7 @@ const CalenderScheduleInfo: React.FC = () => {
                             value={haircutFormik.values?.barber_notes || ""}
                           ></textarea>
                           {haircutFormik.touched?.barber_notes &&
-                            haircutFormik.errors?.barber_notes ? (
+                          haircutFormik.errors?.barber_notes ? (
                             <FormFeedback type="invalid" className="d-block">
                               {haircutFormik.errors?.barber_notes}
                             </FormFeedback>
@@ -1276,7 +1583,7 @@ const CalenderScheduleInfo: React.FC = () => {
                             value={haircutFormik.values?.product_used}
                             className={
                               haircutFormik.touched?.product_used &&
-                                haircutFormik.errors?.product_used
+                              haircutFormik.errors?.product_used
                                 ? "is-invalid"
                                 : ""
                             }

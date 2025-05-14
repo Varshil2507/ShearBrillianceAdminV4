@@ -139,7 +139,7 @@ const RoleTable: React.FC = () => {
       // Capture the error message from the API response
       const errorMessage = error.response?.data?.message || "Error updating role, please try again later";
       showErrorToast(errorMessage);
-      console.error("Error updating role:", error);
+      // console.error("Error updating role:", error);
     }
   };
 

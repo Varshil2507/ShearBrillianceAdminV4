@@ -15,10 +15,29 @@ export const fetchBarberSession = async (salonId?: any): Promise<any> => {
     // Return the entire Axios response object
     return response;
   } catch (error) {
-    console.error("Error fetching barber sessions:", error);
+    // console.error("Error fetching barber sessions:", error);
     throw error;
   }
 };
+
+export const fetchBarbertodaysSession = async (
+  salonId: any,
+  category: number = 2
+): Promise<any> => {
+  try {
+    const date = new Date().toLocaleDateString("en-GB").split("/").join("-"); // DD-MM-YYYY
+
+    const response = await apiClient.get(BARBER_SESSIONS_ENDPOINT, {
+      params: { SalonId: salonId, category, date },
+    });
+
+    return response.data;
+  } catch (error) {
+    // console.error("Error fetching barber sessions:", error);
+    throw error;
+  }
+};
+
 export const getTodaysBarber = async (): Promise<any> => {
   try {
     
@@ -27,7 +46,7 @@ export const getTodaysBarber = async (): Promise<any> => {
     );
     return response; // Ensure this returns the expected data
   } catch (error) {
-    console.error("Error in getTodaysBarber:", error);
+    // console.error("Error in getTodaysBarber:", error);
     throw error;
   }
 };
@@ -42,7 +61,7 @@ export const addBarberSession = async (
     );
     return response;
   } catch (error) {
-    console.error("Error adding barber sessions:", error);
+    // console.error("Error adding barber sessions:", error);
     throw error;
   }
 };
@@ -58,7 +77,7 @@ export const getBarberSessionByBarber = async (
     );
     return response;
   } catch (error) {
-    console.error("Error adding barber sessions:", error);
+    // console.error("Error adding barber sessions:", error);
     throw error;
   }
 };
@@ -75,7 +94,7 @@ export const updateBarberSession = async (
     );
     return response;
   } catch (error) {
-    console.error("Error updating barber sessions:", error);
+    // console.error("Error updating barber sessions:", error);
     throw error;
   }
 };
@@ -85,7 +104,7 @@ export const deleteBarberSession = async (id: number): Promise<void> => {
   try {
     await axios.delete(`${BARBER_SESSIONS_ENDPOINT}/${id}`);
   } catch (error) {
-    console.error("Error deleting barber sessions:", error);
+    // console.error("Error deleting barber sessions:", error);
     throw error;
   }
 };

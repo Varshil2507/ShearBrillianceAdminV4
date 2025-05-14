@@ -13,101 +13,84 @@ import {
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import TableContainer from "Components/Common/TableContainer";
-import Blog1 from "../../../../assets/images/blog_default_img.jpg";
+import Blog1 from "../../../assets/images/blog_default_img.jpg";
 import * as Yup from "yup";
 import { Formik, Form as FormikForm } from "formik";
-import DeleteModal from "../../../../../src/Components/Common/DeleteModal";
-import {
-  fetchBlogs,
-  addBlog,
-  updateBlog,
-  deleteBlog,
-} from "../../../../Services/BlogService"; // Adjust the import based on your structure
+
 import Loader from "Components/Common/Loader";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { formatUTCDate } from "Components/Common/DateUtil";
+import {
+  addNotification,
+  fetchNotification,
+  updateNotification,
+} from "Services/Notification";
 
-// Define the Blog type based on your table structure
-interface Blog {
+interface Notification {
+  // createdAt: any;
   id: number;
   title: string;
-  description: string;
-  htmlContent: string;
-  image: string; // This could be a URL to the image
+  body: string;
+  image_url: string; // This could be a URL to the image
 }
-export const BLOG_ENDPOINT = "/blogs";
-const BlogTable: React.FC = () => {
-  const [blogData, setBlogData] = useState<Blog[]>([]);
+const Notification: React.FC = () => {
+  const [notificationData, setNotificationData] = useState<Notification[]>([]);
   const [modal, setModal] = useState(false);
-  const [newBlog, setNewBlog] = useState<Blog | null>(null);
+  const [newNotification, setNewNotification] = useState<Notification | null>(
+    null
+  );
   const [selectedImage, setSelectedImage] = useState<any | null>(null); // Allow selectedImage to be a File or null
   const [deleteModal, setDeleteModal] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
-  const [deletingBlogId, setDeletingBlogId] = useState<number | null>(null);
-  const [recordId, setRecordId] = useState<string | undefined>(undefined); // Change to undefined
-  const [loading, setLoading] = useState(true);
+
   const [selectedCurrentPage, setCurrentPage] = useState<number | null>(0);
   const [selectedTotalItems, setTotalItems] = useState<number | null>(0);
   const [selectedTotalPages, setTotalPages] = useState<number | null>(0);
-  const [filteredData, setFilteredData] = useState<Blog[]>([]); // Filtered data
+  const [filteredData, setFilteredData] = useState<Notification[]>([]); // Filtered data
   const [selectedSearchText, selectedSearch] = useState<null>(null);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
-  const [content, setContent] = useState("");
   const [error, setError] = useState("");
 
   const limit = 10; // Items per page
-  const modules = {
-    toolbar: [
-      [{ font: [] }, { size: [] }], // Font & Size
-      [{ header: [1, 2, 3, 4, 5, 6, false] }], // Headers
-      ["bold", "italic", "underline", "strike"], // Text styles
-      [{ color: [] }, { background: [] }], // Font color and background
-      [{ script: "sub" }, { script: "super" }], // Subscript/Superscript
-      [{ list: "ordered" }, { list: "bullet" }], // Lists
-      [{ indent: "-1" }, { indent: "+1" }], // Indentation
-      [{ align: [] }], // Text alignments
-      ["blockquote", "code-block"], // Blockquote & Code block
-      ["link", "image", "video"], // Media Embeds
-      ["clean"], // Remove formatting
-    ],
-  };
 
-  const formats = [
-    "font",
-    "size",
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-    "list",
-    "indent",
-    "align",
-    "blockquote",
-    "code-block",
-    "link",
-    "image",
-    "video",
-  ];
+  //   "font",
+  //   "size",
+  //   "header",
+  //   "bold",
+  //   "italic",
+  //   "underline",
+  //   "strike",
+  //   "color",
+  //   "background",
+  //   "script",
+  //   "list",
+  //   "indent",
+  //   "align",
+  //   "blockquote",
+  //   "code-block",
+  //   "link",
+  //   "image",
+  //   "video",
+  // ];
   useEffect(() => {
-    fetchBlogList(1, null);
-
+    fetchNotificationList(1, null);
   }, []);
 
-  const fetchBlogList = async (page: any, search: any) => {
-
+  const fetchNotificationList = async (page: any, search: any) => {
     try {
-      const response: any = await fetchBlogs(page === 0 ? 1 : page, limit, search ?? null);
+      const response: any = await fetchNotification(
+        page === 0 ? 1 : page,
+        limit,
+        search ?? null
+      );
       // setCurrentPage(response?.currentPage ? parseInt(response?.currentPage) : 1);
       setTotalItems(response?.totalItems);
       setTotalPages(response?.totalPages);
       // const totalLoadedAppointment = (totalLoadedAppointments ?? 0) + response.appointments?.length;
       // setTotalLoadedAppointments(totalLoadedAppointment);
-      setBlogData(response.blogs);
-      // setFilteredData(response.blogs); 
-      if (blogData?.length === 0) {
+      setNotificationData(response?.notifications);
+      // setFilteredData(response.blogs);
+      if (notificationData?.length === 0) {
         const timer = setTimeout(() => {
           setShowLoader(false);
         }, 500); // Hide loader after 5 seconds
@@ -127,18 +110,11 @@ const BlogTable: React.FC = () => {
     }
   };
 
-  const handleBlogChange = (value: any) => {
-    setContent(value);
-    if (value.replace(/<(.|\n)*?>/g, "").trim().length > 0) {
-      setError(""); // Remove error if text is entered
-    }
-  };
-
   const columns = useMemo(
     () => [
-      { 
+      {
         header: "Blogs",
-        accessorKey: "image",
+        accessorKey: "image_url",
         enableColumnFilter: false,
         cell: (cell: { getValue: () => string }) => (
           <img
@@ -148,6 +124,7 @@ const BlogTable: React.FC = () => {
             style={{ width: "50px", height: "50px" }}
           />
         ),
+
         // cell: (cell: { getValue: () => string }) => {
         //   const imageUrl = cell.getValue(); // Get the image URL from cell value
         //   // const defaultImage = Blog1; // Path to your default image
@@ -166,13 +143,16 @@ const BlogTable: React.FC = () => {
         //   // );
         // },
       },
+
       {
         header: "Title",
         accessorKey: "title",
         enableColumnFilter: false,
-        cell: (cell: { row: { original: Blog } }) => (
+        cell: (cell: { row: { original: Notification } }) => (
           <span title={cell.row.original.title}>
-            {cell.row.original.title?.length > 30 ? cell.row.original.title?.substring(0, 30) + "..." : cell.row.original.title}
+            {cell.row.original.title?.length > 30
+              ? cell.row.original.title?.substring(0, 30) + "..."
+              : cell.row.original.title}
           </span>
         ),
       },
@@ -180,33 +160,56 @@ const BlogTable: React.FC = () => {
         header: "Description",
         accessorKey: "description",
         enableColumnFilter: false,
-        cell: (cell: { row: { original: Blog } }) => (
-          <span title={cell.row.original.description}>
-            {cell.row.original.description?.split(" ")?.slice(0, 20).join(" ") + "..."}
+        cell: (cell: { row: { original: Notification } }) => (
+          <span
+            title={cell.row.original.body}
+            style={{
+              display: "inline-block",
+              maxWidth: "250px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              verticalAlign: "middle",
+            }}
+          >
+            {cell.row.original.body}
           </span>
         ),
+      },
+      {
+        header: "Date",
+        accessorKey: "createdAt",
+        enableColumnFilter: false,
+        cell: ({ row }: { row: { original: { createdAt: string } } }) => {
+          const { createdAt } = row.original;
+          // Return the formatted date to be displayed
+          return formatUTCDate(createdAt);
+        },
       },
       {
         header: "Actions",
         accessorKey: "actions",
         enableColumnFilter: false,
-        cell: (cell: { row: { original: Blog } }) => (
+        cell: (cell: { row: { original: Notification } }) => (
           <div>
             <i
-              className="ri-edit-2-fill"
+              className="ri-eye-line text-center"
               style={{
                 cursor: "pointer",
-                marginRight: "20px",
-                color: "grey",
+                // marginRight: "12px",
+                color: "grey", // Bootstrap primary blue
                 fontSize: "20px",
+                transition: "color 0.2s ease",
               }}
               onClick={() => handleEdit(cell.row.original)}
-            ></i>
-            <i
+              title="View Notification"
+            />
+
+            {/* <i
               className="ri-delete-bin-fill"
               style={{ cursor: "pointer", color: "grey", fontSize: "20px" }}
               onClick={() => handleDelete(cell.row.original.id)}
-            />
+            /> */}
           </div>
         ),
       },
@@ -229,55 +232,54 @@ const BlogTable: React.FC = () => {
     }
   };
 
-  const handleEdit = (blog: Blog) => {
-    setNewBlog(blog);
-    setContent(blog.htmlContent);
+  const handleEdit = async (notification: Notification) => {
+    setNewNotification(notification);
+    const file = await convertImageUrlToFile(notification.image_url, "custom_image");
     // if (blog.image instanceof File) {
-    setSelectedImage(blog.image); // If it's a file, just set it directly
+    setSelectedImage(file); // If it's a file, just set it directly
     // } else {
     // setSelectedImage(null); // If it's a string (URL or path), set it as null or handle differently
     // }
 
     setModal(true);
   };
-  const handleDelete = (id: number) => {
-    setDeletingBlogId(id);
-    setDeleteModal(true);
-  };
+  // const handleDelete = (id: number) => {
+  //   setDeletingBlogId(id);
+  //   setDeleteModal(true);
+  // };
 
-  const confirmDelete = async () => {
-    setShowSpinner(true);
-    if (deletingBlogId) {
-      try {
-        await deleteBlog(deletingBlogId); // Call delete API
+  // const confirmDelete = async () => {
+  //   setShowSpinner(true);
+  //   if (deletingBlogId) {
+  //     try {
+  //       await deleteBlog(deletingBlogId); // Call delete API
 
-        showSuccessToast("Blog deleted successfully");
+  //       showSuccessToast("Blog deleted successfully");
 
-        setShowSpinner(false);
-        fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-        // setBlogData((prevData) =>
-        //   prevData.filter((item) => item.id !== deletingBlogId)
-        // );
-        setDeletingBlogId(null);
-        setDeleteModal(false);
-      } catch (error) {
-        setShowSpinner(false);
-        // console.error("Error deleting blog:", error);
-      }
-    }
-  };
+  //       setShowSpinner(false);
+  //       fetchNotificationList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+  //       // setBlogData((prevData) =>
+  //       //   prevData.filter((item) => item.id !== deletingBlogId)
+  //       // );
+  //       setDeletingBlogId(null);
+  //       setDeleteModal(false);
+  //     } catch (error) {
+  //       setShowSpinner(false);
+  //       console.error("Error deleting blog:", error);
+  //     }
+  //   }
+  // };
 
   const toggleDeleteModal = () => {
     setDeleteModal(!deleteModal);
   };
 
   const handleAddButtonClick = () => {
-    setNewBlog({
+    setNewNotification({
       id: 0,
       title: "",
-      description: "",
-      htmlContent: "",
-      image: "",
+      body: "",
+      image_url: "",
     });
     setSelectedImage(null);
     setModal(true);
@@ -285,62 +287,68 @@ const BlogTable: React.FC = () => {
 
   const toggleModal = () => {
     setModal(!modal);
-    setContent(""); // Clear content on submit
     setError(""); // Remove error if text is entered
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-  
+
     if (file) {
-      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-  
+      const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
       if (fileExtension && allowedExtensions.includes(fileExtension)) {
         const maxSizeInMB = 5;
         const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 5 MB = 5 * 1024 * 1024 bytes
-  
+
         if (file.size > maxSizeInBytes) {
           showErrorToast(`File size should not exceed ${maxSizeInMB} MB.`);
-          event.target.value = ''; // Clear the file input
+          event.target.value = ""; // Clear the file input
           setSelectedImage(null); // Clear selected image
         } else {
           setSelectedImage(file); // Save the file object
+          showErrorToast("");
         }
       } else {
-        showErrorToast('Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.');
-        event.target.value = ''; // Clear the file input
+        showErrorToast(
+          "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed."
+        );
+        event.target.value = ""; // Clear the file input
         setSelectedImage(null); // Clear selected image
       }
     } else {
       setSelectedImage(null); // Clear if no file selected
     }
   };
-  
-  // Function to add a new blog post
-  const handleAddBlog = async (values: Omit<Blog, "id">) => {
 
+  const convertImageUrlToFile = async (imageUrl: string, fileName: string): Promise<File> => {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const fileType = blob.type || 'image/jpeg'; // fallback MIME type
+    return new File([blob], fileName, { type: fileType });
+  };
+
+  // Function to add a new blog post
+  const handleAddNotification = async (values: Omit<Notification, "id">) => {
     try {
       const formData = new FormData();
       formData.append("title", values.title);
-      formData.append("description", values.description);
-      formData.append("htmlContent", content);
+      formData.append("body", values.body);
       if (selectedImage instanceof File) {
         formData.append("image", selectedImage);
       }
 
-      const newBlogData = await addBlog(formData);
+      const newNotificationData = await addNotification(formData);
 
-      showSuccessToast("Blog added successfully");
-      // Update the state with the new blog
-      // setBlogData((prevData) => [...prevData, newBlogData]);
-      fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
+      showSuccessToast("Notification send successfully");
+
+      fetchNotificationList(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        null
+      );
       setShowSpinner(false);
-      setContent(""); // Clear content on submit
-      setError(""); // Remove error if text is entered
-      // Optionally, fetch the latest blogs
-      // const latestBlogs = await fetchBlogs();
-      // setBlogData(latestBlogs); // Re-fetch blogs to ensure you're getting the updated list
+
+      setError("");
 
       toggleModal();
     } catch (error: any) {
@@ -355,49 +363,38 @@ const BlogTable: React.FC = () => {
       }
     }
   };
-  const handleUpdateBlog = async (values: Omit<Blog, "id">) => {
-    if (newBlog) {
+  const handleResendNotification = async (values: Omit<Notification, "id">) => {
+    if (newNotification) {
       try {
+        setShowSpinner(true);
         const formData = new FormData();
         formData.append("title", values.title);
-        formData.append("description", values.description);
-        formData.append("htmlContent", content);
+        formData.append("body", values.body);
 
-        // Handle image upload logic
         if (selectedImage instanceof File) {
           formData.append("image", selectedImage);
-        } else if (typeof newBlog.image === "string") {
-          formData.append("image", newBlog.image);
+        } else if (typeof newNotification.image_url === "string") {
+          formData.append("image_url", newNotification.image_url); // ✅ include existing image URL
         }
 
-        // Update blog API call
-        const updatedBlogData = await updateBlog(newBlog.id, formData);
-        showSuccessToast("Blog updated successfully");
-        setShowSpinner(false);
-        // Fetch updated blogs filtered by title
-        fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, null);
-        // const updatedBlogs = await fetchBlogs(1, limit, selectedSearchText); // Pass search text
-
-        setContent(""); // Clear content on submit
-        setError(""); // Remove error if text is entered
-        // // Update state with filtered blog data
-        // setBlogData(updatedBlogs.blogs);
+        await addNotification(formData);
+        showSuccessToast("Notification resent successfully!");
+        fetchNotificationList(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null
+        );
         toggleModal();
-
+        setShowSpinner(false);
       } catch (error: any) {
         setShowSpinner(false);
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
-        }
+        const apiMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Something went wrong";
+        showErrorToast(apiMessage);
       }
     }
   };
-
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -407,16 +404,19 @@ const BlogTable: React.FC = () => {
     const total = pageIndex + 1;
     setCurrentPage(pageIndex);
     setShowLoader(true);
-    fetchBlogList(total, selectedSearchText);
+    fetchNotificationList(total, selectedSearchText);
     // Handle page change logic here
   };
 
   const handleSearchText = (search: any) => {
     selectedSearch(search);
     if (search) {
-      fetchBlogList(1, search);
+      fetchNotificationList(1, search);
     } else {
-      fetchBlogList(selectedCurrentPage ? selectedCurrentPage + 1 : 1, search);
+      fetchNotificationList(
+        selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+        search
+      );
     }
     // Handle page change logic here
   };
@@ -432,21 +432,18 @@ const BlogTable: React.FC = () => {
   //   setFilteredData(filtered);
   // };
 
-
   return (
     <React.Fragment>
       <Row className="g-2 mb-4">
-        {/* Blog Management Header */}
         <Col sm={6}>
           <div className="d-flex justify-content-between mb-4">
-            <h5>Blog Management</h5>
+            <h5>Notification Management</h5>
           </div>
         </Col>
 
-        {/* Add Blog Button */}
         <Col sm={6} className="d-flex justify-content-end align-items-center">
           <Button color="success" onClick={handleAddButtonClick}>
-            <i className="ri-add-fill me-1 align-bottom"></i> Add Blog
+            <i className="ri-add-fill me-1 align-bottom"></i> Add Notification
           </Button>
         </Col>
       </Row>
@@ -475,7 +472,7 @@ const BlogTable: React.FC = () => {
       ) : (
         <TableContainer
           columns={columns} // Columns definition
-          data={blogData} // Pass the filtered data here
+          data={notificationData} // Pass the filtered data here
           isGlobalFilter={true} // Disable global filter, since you're handling the filter manually
           customPageSize={limit} // Custom page size, adjust as needed
           totalPages={selectedTotalPages ?? 0} // Total number of pages
@@ -483,7 +480,7 @@ const BlogTable: React.FC = () => {
           currentPageIndex={selectedCurrentPage ?? 0} // Current page index
           searchText={handleSearchText}
           divClass="table-responsive table-card"
-          SearchPlaceholder="Search for Blogs..." // Adjusted search placeholder text
+          SearchPlaceholder="Search Notification..." // Adjusted search placeholder text
           onChangeIndex={handlePageChange} // Handle pagination page change
         />
       )}
@@ -493,7 +490,7 @@ const BlogTable: React.FC = () => {
         isOpen={modal}
         toggle={toggleModal}
         centered
-        size="xl"
+        size="l"
         backdrop="static" // Prevents closing on outside click
       >
         <ModalHeader
@@ -503,30 +500,33 @@ const BlogTable: React.FC = () => {
             toggleModal();
           }}
         >
-          {newBlog && newBlog.id ? "Update Blog" : "Add Blog"}
+          {newNotification && newNotification.id
+            ? "Resend Notification"
+            : "Send Notification"}
         </ModalHeader>
         <ModalBody>
           <Formik
             initialValues={{
-              title: newBlog?.title || "",
-              description: newBlog?.description || "",
-              htmlContent: content || "",
-              image: selectedImage || "",
+              title: newNotification?.title || "",
+              body: newNotification?.body || "",
+              image_url: selectedImage || "",
             }}
             validationSchema={validationSchema}
             onSubmit={(values) => {
-              // Check if content is empty after stripping HTML tags
-              if (content === null || content?.replace(/<(.|\n)*?>/g, "").trim().length === 0) {
-                setError("Content is required.");
+              values.title = values.title.trim();
+
+              // 🔔 Check if image is missing on send/resend
+              if (!selectedImage && !newNotification?.image_url) {
+                showErrorToast("Please upload an image before submitting.");
                 return;
               }
 
-              values.title.trim();
               setShowSpinner(true);
-              if (newBlog && newBlog.id) {
-                handleUpdateBlog(values);
+
+              if (newNotification && newNotification.id) {
+                handleResendNotification(values);
               } else {
-                handleAddBlog(values);
+                handleAddNotification(values);
               }
             }}
           >
@@ -571,10 +571,12 @@ const BlogTable: React.FC = () => {
                             <img
                               src={
                                 selectedImage instanceof File
-                                  ? URL.createObjectURL(selectedImage)  // If selectedImage is a File, create a URL
-                                  : (newBlog?.image ? newBlog.image : Blog1)  // If newBlog has an image, use it; else fallback to Blog1
+                                  ? URL.createObjectURL(selectedImage) // If selectedImage is a File, create a URL
+                                  : newNotification?.image_url
+                                    ? newNotification.image_url
+                                    : Blog1 // If newBlog has an image, use it; else fallback to Blog1
                               }
-                              alt="Blog"
+                              alt="Notificaton"
                               className="avatar-md rounded-circle"
                               style={{
                                 width: "100px",
@@ -582,6 +584,14 @@ const BlogTable: React.FC = () => {
                                 objectFit: "cover",
                               }}
                             />
+                            {error && (
+                              <div
+                                className="text-danger mt-2 text-center"
+                                style={{ fontSize: "0.9rem" }}
+                              >
+                                {error}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -613,27 +623,18 @@ const BlogTable: React.FC = () => {
                         Description
                       </Label>
                       <Input
-                        id="description"
-                        name="description"
+                        id="body"
+                        name="body"
                         type="textarea"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        value={values.description}
-                        invalid={touched.description && !!errors.description}
-                        style={{ height: '150px', width: '100%' }} // Adjust the height and width as needed
+                        value={values.body}
+                        invalid={touched.body && !!errors.body}
+                        style={{ height: "150px", width: "100%" }} // Adjust the height and width as needed
                       />
-                      {touched.description && errors.description ? (
-                        <div className="text-danger">{errors.description}</div>
+                      {touched.body && errors.body ? (
+                        <div className="text-danger">{errors.body}</div>
                       ) : null}
-                    </div>
-                  </Col>
-                  <Col lg={12}>
-                    <div className="mb-3">
-                      <Label htmlFor="content" className="form-label">
-                        Content
-                      </Label>
-                      <ReactQuill value={content} modules={modules} formats={formats} onChange={handleBlogChange} theme="snow" />
-                      {error && <p className="text-danger mt-2">{error}</p>}
                     </div>
                   </Col>
                 </Row>
@@ -645,19 +646,14 @@ const BlogTable: React.FC = () => {
                     color="primary"
                     type="submit"
                     className="btn btn-success"
-                    disabled={
-                      showSpinner
-                    } // Disable button when loader is active
+                    disabled={showSpinner} // Disable button when loader is active
                   >
                     {showSpinner && (
-                      <Spinner
-                        size="sm"
-                        className="me-2"
-                      >
+                      <Spinner size="sm" className="me-2">
                         Loading...
                       </Spinner>
                     )}
-                    Save
+                    Send
                   </Button>
                 </div>
               </FormikForm>
@@ -667,15 +663,15 @@ const BlogTable: React.FC = () => {
       </Modal>
 
       {/* Delete confirmation modal */}
-      <DeleteModal
+      {/* <DeleteModal
         show={deleteModal}
         showSpinner={showSpinner}
         onDeleteClick={confirmDelete}
         onCloseClick={toggleDeleteModal}
         title="Blog"
-      />
+      /> */}
     </React.Fragment>
   );
 };
 
-export default BlogTable;
+export default Notification;

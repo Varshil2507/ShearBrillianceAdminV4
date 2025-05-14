@@ -49,7 +49,7 @@ const SalonStatusDropdown = ({ userInfo, salonUserInfo, showLoader }: SalonStatu
   return (
     <div className="d-flex align-items-center justify-content-start mb-6">
       <label htmlFor="statusDropdown" className="mt-4 mb-4">
-        Status &nbsp; &nbsp;
+        Salon &nbsp; &nbsp;
       </label>
 
       <UncontrolledDropdown>

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 //import logo
 
-import smallest from "../assets/images/smallest.png"
-
+// import smallest from "../assets/images/smallest.png"
+import smallest from "../assets/images/small-logo.png"
 
 
 //Import Components

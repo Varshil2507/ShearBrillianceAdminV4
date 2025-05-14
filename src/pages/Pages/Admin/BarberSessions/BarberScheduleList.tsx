@@ -51,18 +51,19 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     salonNames?.barbers || []
   );
   const [openAccordion, setOpenAccordion] = useState<string | string[]>("");
-  const [newBarberSession, setNewBarberSession] = useState<BarberSessions | null>(null);
+  const [newBarberSession, setNewBarberSession] =
+    useState<BarberSessions | null>(null);
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [showTransferSpinner, setShowTransferSpinner] =
     useState<boolean>(false);
-    
+
   const [showCancelSpinner, setShowCancelSpinner] = useState<boolean>(false);
   const [modalTransfer, setModalTransfer] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [isAvailableSchedule, setIsAvailableSchedule] = useState(false);
-  
+
   const [dateRange, setDateRange] = useState<Date[] | null>(null); // State for date range
 
   const [selectedBarberAppointment, setSelectedBarberAppointment] =
@@ -166,7 +167,11 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
   };
 
   // Extract all unique weeks from all barbers
-  const allWeeks = (): { week: number; startDate: string; endDate: string }[] => {
+  const allWeeks = (): {
+    week: number;
+    startDate: string;
+    endDate: string;
+  }[] => {
     // const weeks: number[] = salonNames?.barbers?.flatMap((barbr: any) =>
     //   groupSchedulesByWeeks(barbr.barber.schedule).map((_: any, weekIdx: number) => weekIdx + 1)
     // ) || [];
@@ -174,15 +179,20 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     const weeksMap = new Map();
 
     salonNames?.barbers?.forEach((barber: any) => {
-      groupSchedulesByWeeks(barber.barber.schedule).forEach((weekData: any, weekIdx: number) => {
-        const weekNumber = weekIdx + 1;
-        const startDate = format(weekData[0].date, 'MMMM d, yyyy'); // First entry of the week
-        const endDate = format(weekData[weekData.length - 1]?.date, 'MMMM d, yyyy'); // Last entry of the week
+      groupSchedulesByWeeks(barber.barber.schedule).forEach(
+        (weekData: any, weekIdx: number) => {
+          const weekNumber = weekIdx + 1;
+          const startDate = format(weekData[0].date, "MMMM d, yyyy"); // First entry of the week
+          const endDate = format(
+            weekData[weekData.length - 1]?.date,
+            "MMMM d, yyyy"
+          ); // Last entry of the week
 
-        if (!weeksMap.has(weekNumber)) {
-          weeksMap.set(weekNumber, { week: weekNumber, startDate, endDate });
+          if (!weeksMap.has(weekNumber)) {
+            weeksMap.set(weekNumber, { week: weekNumber, startDate, endDate });
+          }
         }
-      });
+      );
     });
 
     return Array.from(weeksMap.values()).sort((a, b) => a.week - b.week);
@@ -225,7 +235,6 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     setFilteredData(filteredSchedules);
   }, [filteredSchedules]);
 
-
   // const formatDateShort = (date: string | Date): string => {
   //   const parsedDate = date instanceof Date ? date : new Date(date);
   //   return parsedDate.toISOString().split("T")[0];
@@ -251,7 +260,8 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       reason: data?.reason,
       barber: barberInfo?.barber,
       isGeneralSchedule: data?.id ? false : true,
-      lastBarberScheduleDate: barberInfo.barber.schedule[barberInfo.barber.schedule.length - 1]?.date
+      lastBarberScheduleDate:
+        barberInfo.barber.schedule[barberInfo.barber.schedule.length - 1]?.date,
     });
     toggle(); // Open the modal
   };
@@ -542,7 +552,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       }
     } catch (error) {
       setShowCancelSpinner(false);
-      console.error("Failed to update status:", error);
+      // console.error("Failed to update status:", error);
     }
   };
 
@@ -557,7 +567,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       return;
     }
     if (selectedDate > newBarberSession.lastBarberScheduleDate) {
-      showErrorToast("Selected date cannot be later than " + newBarberSession.lastBarberScheduleDate);
+      showErrorToast(
+        "Selected date cannot be later than " +
+          newBarberSession.lastBarberScheduleDate
+      );
       return;
     }
     // if(newBarberSession?.lastBarberScheduleDate )
@@ -573,7 +586,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
     // } else {
     //   formik.setFieldValue("session_date", event.target.value);
     // }
-  }
+  };
 
   const appointmentTransfer = async () => {
     try {
@@ -619,23 +632,22 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       }
     }
   };
-//   const lastSchedule = barbers?.barber?.schedule?.length
-//   ? barbers.barber.schedule[barbers.barber.schedule.length - 1]
-//   : null;
+  //   const lastSchedule = barbers?.barber?.schedule?.length
+  //   ? barbers.barber.schedule[barbers.barber.schedule.length - 1]
+  //   : null;
 
-// // Default start date = Next day after last scheduled date
-// const defaultStartDate = lastSchedule ? new Date(lastSchedule.date) : new Date();
-// defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to the next day
-useEffect(() => {
-  
-  if (BarberId?.schedule?.length) {
-    const lastSchedule = BarberId.schedule[BarberId.schedule.length - 1];
-    const defaultStartDate = new Date(lastSchedule.date);
-    defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to next day
+  // // Default start date = Next day after last scheduled date
+  // const defaultStartDate = lastSchedule ? new Date(lastSchedule.date) : new Date();
+  // defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to the next day
+  useEffect(() => {
+    if (BarberId?.schedule?.length) {
+      const lastSchedule = BarberId.schedule[BarberId.schedule.length - 1];
+      const defaultStartDate = new Date(lastSchedule.date);
+      defaultStartDate.setDate(defaultStartDate.getDate() + 1); // Move to next day
 
-    setDateRange([defaultStartDate]); // Set default start date
-  }
-}, [BarberId]);
+      setDateRange([defaultStartDate]); // Set default start date
+    }
+  }, [BarberId]);
   return (
     <React.Fragment>
       <Row className="g-3">
@@ -685,18 +697,22 @@ useEffect(() => {
                 <div className="d-flex align-items-center justify-content-between w-100 pe-5">
                   <h5 className="mb-0">{barbr.barber.name}</h5>
                   <div className="d-flex align-items-center">
-                    <span className="me-2">
-                      <b>Position:</b>{" "}
-                      <span className="text-info">{barbr.barber.position}</span>
-                    </span>
-                    <span className="me-2">
-                      <b>Category:</b>{" "}
-                      <span className="text-warning">
-                        {barbr.barber.category === 2
-                          ? "Walk In"
-                          : "Appointment"}
+                    <div className="d-flex flex-md-column flex-lg-row gap-2 text-end">
+                      <span className="me-2">
+                        <b>Position:</b>{" "}
+                        <span className="text-info">
+                          {barbr.barber.position}
+                        </span>
                       </span>
-                    </span>
+                      <span className="me-2">
+                        <b>Category:</b>{" "}
+                        <span className="text-warning">
+                          {barbr.barber.category === 2
+                            ? "Walk In"
+                            : "Appointment"}
+                        </span>
+                      </span>
+                    </div>
                     <span
                       className={`badge ${
                         barbr.barber.availability_status === "available"
@@ -870,7 +886,7 @@ useEffect(() => {
                 </Col>
               )}
               {/* Barber ID */}
-              {(storeRoleInfo.role_name ===ROLES.ADMIN ||
+              {(storeRoleInfo.role_name === ROLES.ADMIN ||
                 storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
                 <Col lg={4}>
                   <div>
@@ -902,7 +918,7 @@ useEffect(() => {
                       min={today} // Disable future dates
                       className={
                         formik.touched.session_date &&
-                          formik.errors.session_date
+                        formik.errors.session_date
                           ? "is-invalid"
                           : ""
                       }
@@ -917,13 +933,20 @@ useEffect(() => {
                       )}
                   </div>
                 ) : (
-                  <><div>
-                    <Label htmlFor="salon" className="form-label">
-                      Date
-                    </Label>
-                  </div><b className="text-muted"> {newBarberSession?.session_date ? format(newBarberSession?.session_date, 'MMMM d, yyyy') : format(new Date(), 'MMMM d, yyyy')} </b></>
+                  <>
+                    <div>
+                      <Label htmlFor="salon" className="form-label">
+                        Date
+                      </Label>
+                    </div>
+                    <b className="text-muted">
+                      {" "}
+                      {newBarberSession?.session_date
+                        ? format(newBarberSession?.session_date, "MMMM d, yyyy")
+                        : format(new Date(), "MMMM d, yyyy")}{" "}
+                    </b>
+                  </>
                 )}
-
               </Col>
             </Row>
             {newBarberSession?.id && (

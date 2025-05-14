@@ -53,8 +53,14 @@ import {
 import { fetchSalons } from "Services/SalonService";
 import { deleteBarber, fetchBarber } from "Services/barberService";
 import { formatDateHours, formatHours } from "Components/Common/DateUtil";
-import { showErrorToast, showSuccessToast, showWarningToast } from "slices/layouts/toastService";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "slices/layouts/toastService";
 import { ROLES } from "common/data/Constants";
+import { strictNameValidation } from "Components/Common/Namevalidation";
+import { updateTipAmount } from "Services/Tipservice";
 
 //Import Breadcrumb
 interface CardData {
@@ -113,6 +119,8 @@ const Board = () => {
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [isAppointmentAvailable, setIsAppointmentAvailable] =
     useState<boolean>(false);
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [tipSubmitting, setTipSubmitting] = useState(false);
 
   const [isBarberModalOpen, setIsBarberModalOpen] = useState(false);
 
@@ -146,12 +154,14 @@ const Board = () => {
   const [customTip, setCustomTip] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
   const navigate = useNavigate();
+  const [cardDetails, setCardDetails] = useState<any>(null); // Store card details fetched based on card.id
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
   const [tipAmount, setTipAmount] = useState(0);
   const [showAppointmentSpinner, setShowAppointmentSpinner] =
     useState<boolean>(false);
+  const [showTipInput, setShowTipInput] = useState(false);
 
   const [showBarberSpinner, setShowBarberSpinner] = useState<boolean>(false);
 
@@ -165,7 +175,9 @@ const Board = () => {
   );
 
   const { tasks, loading } = useSelector(TasksKanbanProperties);
-
+  const [formData, setFormData] = useState({
+    tipAmount: "", // Add this if not already present
+  });
   const { api } = config;
   const [isLoading, setLoading] = useState<boolean>(loading);
   const authTUser = localStorage.getItem("authUser");
@@ -174,6 +186,11 @@ const Board = () => {
   if (authTUser) {
     storeUserInfo = JSON.parse(authTUser);
     token = storeUserInfo.token;
+  }
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
   }
   const order = ["checked_in", "in_salon", "completed", "canceled"];
   const convertBase64ToBlobUrl = (base64: any) => {
@@ -207,17 +224,17 @@ const Board = () => {
               status === "checked_in"
                 ? "Check In"
                 : status === "in_salon"
-                  ? "In Salon"
-                  : status,
+                ? "In Salon"
+                : status,
             badge: 0,
             color:
               status === "checked_in"
                 ? "warning"
                 : status === "completed"
-                  ? "success"
-                  : status === "canceled"
-                    ? "danger"
-                    : "secondary",
+                ? "success"
+                : status === "canceled"
+                ? "danger"
+                : "secondary",
             index: index++,
             cards: [],
           };
@@ -249,10 +266,10 @@ const Board = () => {
             status === "checked_in"
               ? curr.check_in_time
               : status === "completed"
-                ? curr.complete_time
-                : status === "canceled"
-                  ? curr.cancel_time
-                  : curr.in_salon_time,
+              ? curr.complete_time
+              : status === "canceled"
+              ? curr.cancel_time
+              : curr.in_salon_time,
           paymentDetails: curr.paymentDetails,
           paymentStatus: curr.paymentStatus,
           paymentMode: curr.paymentMode,
@@ -305,17 +322,17 @@ const Board = () => {
                 status === "checked_in"
                   ? "Check In"
                   : status === "in_salon"
-                    ? "In Salon"
-                    : status,
+                  ? "In Salon"
+                  : status,
               badge: 0,
               color:
                 status === "checked_in"
                   ? "warning"
                   : status === "completed"
-                    ? "success"
-                    : status === "canceled"
-                      ? "danger"
-                      : "secondary",
+                  ? "success"
+                  : status === "canceled"
+                  ? "danger"
+                  : "secondary",
               index: index++,
               cards: [],
             };
@@ -334,17 +351,17 @@ const Board = () => {
               status === "checked_in"
                 ? "Check In"
                 : status === "in_salon"
-                  ? "In Salon"
-                  : status,
+                ? "In Salon"
+                : status,
             badge: 0,
             color:
               status === "checked_in"
                 ? "warning"
                 : status === "completed"
-                  ? "success"
-                  : status === "canceled"
-                    ? "danger"
-                    : "secondary",
+                ? "success"
+                : status === "canceled"
+                ? "danger"
+                : "secondary",
             index: index++,
             cards: [],
           };
@@ -386,14 +403,41 @@ const Board = () => {
       // return Object.values(grouped);
     }
   };
+
+  useEffect(() => {
+    if (!card?.paymentDetails || !card?.paymentDetails.amount) return;
+
+    const base = parseFloat(card.paymentDetails.amount || "0");
+
+    let calculatedTip = 0;
+
+    if (tipPercentage === "custom") {
+      calculatedTip = parseFloat(customTip || "0");
+    } else {
+      calculatedTip = (Number(tipPercentage) / 100) * base; // ✅ percentage of base
+    }
+
+    setTotalPrice(base);
+    setFinalAmount(base + calculatedTip);
+  }, [tipPercentage, customTip]);
+
   useEffect(() => {
     if (
       storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-      storeRoleInfo?.role_name === ROLES.SALON_OWNER
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      storesalonDetailInfo
     ) {
-      formik.setFieldValue("salon_id", salonUserInfo?.id);
-      appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
-      getBarberSessionsData(salonUserInfo?.id);
+      formik.setFieldValue(
+        "salon_id",
+        storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+      );
+      appointmentFormik.setFieldValue(
+        "salon_id",
+        storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+      );
+      getBarberSessionsData(
+        storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+      );
     }
     if (storeUserInfo?.berber) {
       appointmentFormik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
@@ -449,7 +493,10 @@ const Board = () => {
       );
 
       const barbers = response.barbers
-        .filter((brbr: any) => brbr.category === 2 && brbr.availability_status === "available")
+        .filter(
+          (brbr: any) =>
+            brbr.category === 2 && brbr.availability_status === "available"
+        )
         .map((barber: any) => {
           return {
             ...barber,
@@ -479,50 +526,98 @@ const Board = () => {
   };
   const getBarberSessionsData = async (salonId: any) => {
     try {
-      const response: any = await fetchBarberSession(salonId);
+      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+
+      const response = await fetchBarberSession(salonId);
+
       if (response?.length > 0) {
-        let barberArray: any = [];
-        response[0].barbers
-          .filter((brbr: any) => brbr.barber.category === 2)
-          .map((brbr: any) => {
-            const today = new Date().toISOString().split("T")[0];
-            const todayScheduleInfo = brbr.barber?.schedule.find(
-              (day: any) => day.date === today
+        const salon = response[0].salon;
+
+        const openTime = new Date(`${today}T${salon.open_time}`);
+        const closeTime = new Date(`${today}T${salon.close_time}`);
+
+        // Check if salon is open 
+        const isSalonOpen = now >= openTime && now < closeTime;
+
+        if (!isSalonOpen) {
+          setBarberSessionsData([]); // salon is closed
+          setIsAppointmentAvailable(false);
+          return;
+        }
+
+        const formattedBarbers = response[0].barbers
+          .filter((brbr: any) => {
+            return (
+              brbr.barber.category === 2 &&
+              brbr.barber.availability_status === "available" &&
+              brbr.barber.schedule?.some((session: any) => {
+                const sessionDate = session.date;
+                if (
+                  sessionDate !== today ||
+                  !session.startTime ||
+                  !session.endTime
+                )
+                  return false;
+
+                const start = new Date(`${sessionDate}T${session.startTime}`);
+                const end = new Date(`${sessionDate}T${session.endTime}`);
+
+                // ✅ Ensure session is live AND within salon time
+                return (
+                  now >= start &&
+                  now < end &&
+                  start >= openTime &&
+                  end <= closeTime
+                );
+              })
             );
-            const obj = {
-              id: brbr.barber?.id,
-              name: brbr.barber.name,
-              start_time: todayScheduleInfo
-                ? todayScheduleInfo.startTime
-                : null,
-              end_time: todayScheduleInfo ? todayScheduleInfo.endTime : null,
-              availability_status: brbr.barber.availability_status,
-              barberInfo: brbr.barber,
-            };
-            barberArray.push(obj);
-          });
-        setBarberSessionsData(barberArray);
-        setShowBarberSpinner(false);
-        const timer = setTimeout(() => {
-          setShowLoader(false);
-        }, 5000); // Hide loader after 5 seconds
-        return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
-        // const barberArray = response.barberSessions.map((item: any) => item.barber);
+          })
+          .flatMap((brbr: any) =>
+            brbr.barber.schedule
+              .filter((session: any) => {
+                const sessionDate = session.date;
+                if (
+                  sessionDate !== today ||
+                  !session.startTime ||
+                  !session.endTime
+                )
+                  return false;
+
+                const start = new Date(`${sessionDate}T${session.startTime}`);
+                const end = new Date(`${sessionDate}T${session.endTime}`);
+
+                // ✅ Ensure session is live AND within salon time
+                return (
+                  now >= start &&
+                  now < end &&
+                  start >= openTime &&
+                  end <= closeTime
+                );
+              })
+              .map((session: any) => ({
+                id: brbr.barber.id,
+                name: brbr.barber.name,
+                start_time: session.startTime,
+                end_time: session.endTime,
+                availability_status: brbr.barber.availability_status,
+                estimated_wait_time: brbr.barber.estimated_wait_time,
+                services: brbr.barber.servicesWithPrices || [],
+                barberInfo: brbr.barber,
+              }))
+          );
+
+        setBarberSessionsData(formattedBarbers);
       } else {
         setBarberSessionsData([]);
         setIsAppointmentAvailable(false);
-        setShowLoader(false); // Immediately hide loader if data is available
-        setShowBarberSpinner(false); // Immediately hide loader if data is available
       }
     } catch (error: any) {
-      // Check if the error has a response property (Axios errors usually have this)
-      if (error.response && error.response.data) {
-        const apiMessage = error.response.data.message; // Extract the message from the response
-        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-      } else {
-        // Fallback for other types of errors
-        showErrorToast(error.message || "Something went wrong");
-      }
+      const apiMessage = error?.response?.data?.message;
+      showErrorToast(apiMessage || error.message || "Something went wrong");
+    } finally {
+      setShowBarberSpinner(false);
+      setShowLoader(false);
     }
   };
 
@@ -532,8 +627,8 @@ const Board = () => {
       withCredentials: true,
       query: { token },
       reconnection: true,
-      reconnectionAttempts: 5,  // Number of attempts before giving up
-      reconnectionDelay: 3000,  // Time between reconnections
+      reconnectionAttempts: 5, // Number of attempts before giving up
+      reconnectionDelay: 3000, // Time between reconnections
     });
 
     socket.on("connect_error", (error) => {
@@ -799,8 +894,13 @@ const Board = () => {
   if (authSalonUser) {
     authSalonUser = JSON.parse(authSalonUser);
   }
+
   const handleDragEnd = async (result: any) => {
-    if (!result.destination || result.destination.droppableId === result.source.droppableId) return; // If dropped outside a valid drop area, do nothing
+    if (
+      !result.destination ||
+      result.destination.droppableId === result.source.droppableId
+    )
+      return; // If dropped outside a valid drop area, do nothing
     setSelectedCard(result);
     setSelectedCardOldStatus(null);
     setSelectedCardNewStatus(null);
@@ -815,72 +915,77 @@ const Board = () => {
   };
 
   const updateNewCardStatus = async () => {
-    if (selectedCardNewStatus === "canceled") {
-      setCancelLoader(true);
-    } else if (selectedCardNewStatus === "completed") {
-      setCompletedLoader(true);
-    } else if (selectedCardNewStatus === "in_salon") {
-      setInSalonLoader(true);
-    }
-    setLoading(true);
-    const statusData = { status: selectedCardNewStatus };
-    await updateAppointmentStatus(parseInt(selectedCard?.id), statusData);
+    try {
+      if (selectedCardNewStatus === "canceled") {
+        setCancelLoader(true);
+      } else if (selectedCardNewStatus === "completed") {
+        setCompletedLoader(true);
+      } else if (selectedCardNewStatus === "in_salon") {
+        setInSalonLoader(true);
+      }
 
-    showSuccessToast("Appointment updated successfully");
-    if (selectedCardNewStatus === "canceled") {
-      setCancelLoader(false);
-    } else if (selectedCardNewStatus === "completed") {
-      setCompletedLoader(false);
-    } else if (selectedCardNewStatus === "in_salon") {
-      setInSalonLoader(false);
-    }
-    const response: any = await fetchBoardAppointments(null, null);
-    if (activeFilterBarber) {
-      if (activeFilterBarber?.id === "all") {
-        // Show all appointments if "All" is selected
-        setTempAppointments(response);
+      setLoading(true);
+
+      const statusData = { status: selectedCardNewStatus };
+
+      // ✅ Update status + show toast immediately
+      await updateAppointmentStatus(parseInt(selectedCard?.id), statusData);
+      showSuccessToast("Appointment updated successfully");
+      // Fetch updated data
+      const response: any = await fetchBoardAppointments(null, null);
+
+      if (activeFilterBarber) {
+        const dataToUse =
+          activeFilterBarber?.id === "all"
+            ? response
+            : response.filter(
+                (appo: any) => appo.BarberId === activeFilterBarber.id
+              );
+        const groupedData = groupAndSortData(dataToUse, order);
+        setCards(groupedData);
+        if (groupedData?.length === 0) {
+          const timer = setTimeout(() => {
+            setShowLoader(false);
+          }, 5000);
+          return () => clearTimeout(timer);
+        } else {
+          setShowLoader(false);
+        }
+      } else {
         const groupedData = groupAndSortData(response, order);
         setCards(groupedData);
         if (groupedData?.length === 0) {
           const timer = setTimeout(() => {
             setShowLoader(false);
-          }, 5000); // Hide loader after 5 seconds
-          return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
+          }, 5000);
+          return () => clearTimeout(timer);
         } else {
-          setShowLoader(false); // Immediately hide loader if data is available
-        }
-      } else {
-        const filterbarberAppointments = response?.filter(
-          (appo: any) => appo.BarberId === activeFilterBarber?.id
-        );
-        const groupedData = groupAndSortData(filterbarberAppointments, order);
-        setCards(groupedData);
-
-        if (groupedData?.length === 0) {
-          const timer = setTimeout(() => {
-            setShowLoader(false);
-          }, 5000); // Hide loader after 5 seconds
-          return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
-        } else {
-          setShowLoader(false); // Immediately hide loader if data is available
+          setShowLoader(false);
         }
       }
-    } else {
-      const groupedData = groupAndSortData(response, order);
-      setCards(groupedData);
-      if (groupedData?.length === 0) {
-        const timer = setTimeout(() => {
-          setShowLoader(false);
-        }, 5000); // Hide loader after 5 seconds
-        return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
-      } else {
-        setShowLoader(false); // Immediately hide loader if data is available
+
+      // Clear state
+      setSelectedCard(null);
+      setSelectedCardNewStatus(null);
+      setSelectedCardOldStatus(null);
+      setLoading(false);
+    } catch (error: any) {
+      // Try to extract dynamic error message from API response
+      const messageFromAPI =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+      showErrorToast(messageFromAPI);
+    } finally {
+      // Always clear loaders
+      if (selectedCardNewStatus === "canceled") {
+        setCancelLoader(false);
+      } else if (selectedCardNewStatus === "completed") {
+        setCompletedLoader(false);
+      } else if (selectedCardNewStatus === "in_salon") {
+        setInSalonLoader(false);
       }
     }
-    setSelectedCard(null);
-    setSelectedCardNewStatus(null);
-    setSelectedCardOldStatus(null);
-    setLoading(false);
   };
 
   // create Modal
@@ -930,7 +1035,7 @@ const Board = () => {
   };
 
   const tags = [
-    { label:ROLES.ADMIN, value: ROLES.ADMIN },
+    { label: ROLES.ADMIN, value: ROLES.ADMIN },
     { label: "Layout", value: "Layout" },
     { label: "Dashboard", value: "Dashboard" },
     { label: "Design", value: "Design" },
@@ -973,16 +1078,23 @@ const Board = () => {
       setappointmentModal(false);
       setImages([]);
       setCard(null);
+      setSelectedBarberId(null);
       setSelectedOptions([]);
       setBarberSessionsData([]);
       setIsAppointmentAvailable(false);
       appointmentFormik.resetForm();
       if (
         storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-        storeRoleInfo?.role_name === ROLES.SALON_OWNER
+        storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+        storesalonDetailInfo
       ) {
-        appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
-        getBarberSessionsData(salonUserInfo?.id);
+        appointmentFormik.setFieldValue(
+          "salon_id",
+          storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+        );
+        getBarberSessionsData(
+          storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+        );
       }
       if (storeUserInfo?.berber) {
         appointmentFormik.setFieldValue(
@@ -1020,17 +1132,18 @@ const Board = () => {
     }
   };
 
-  const handleBarberChange = async (event: any) => {
-    if (event.target.value) {
-      const selectedBarbrId = Number(event.target.value);
-      setSelectedBarberId(selectedBarbrId);
-      const barberDetails = barberSessionsData.find(
-        (barber: any) => barber.id === selectedBarbrId
-      );
-      setSelectedBarber(barberDetails?.barberInfo);
-      toggleBarberModal();
-    }
-    // Perform any additional logic here based on the selected option
+  const handleBarberChange = (event: any) => {
+    const selectedBarbrId = Number(event.target.value);
+    if (!selectedBarbrId) return;
+
+    setSelectedBarberId(selectedBarbrId);
+
+    const barberDetails = barberSessionsData.find(
+      (barber: any) => barber.id === selectedBarbrId
+    );
+
+    setSelectedBarber(barberDetails?.barberInfo);
+    toggleBarberModal();
   };
 
   const getBarberScheduleData = async (
@@ -1057,8 +1170,8 @@ const Board = () => {
 
                 const price = barberService
                   ? parseFloat(barberService?.barber_price) ??
-                  parseFloat(barberService?.min_price) ??
-                  0
+                    parseFloat(barberService?.min_price) ??
+                    0
                   : parseFloat(service.min_price);
 
                 return acc + price;
@@ -1073,8 +1186,8 @@ const Board = () => {
 
                   const price = barberService
                     ? parseFloat(barberService?.barber_price) ??
-                    parseFloat(barberService?.min_price) ??
-                    0
+                      parseFloat(barberService?.min_price) ??
+                      0
                     : parseFloat(service.min_price);
 
                   return acc + price;
@@ -1257,7 +1370,7 @@ const Board = () => {
     }
   };
   const emailValidationRegex =
-    /^[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+    /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
 
   // validation
   const appointmentFormik = useFormik({
@@ -1277,8 +1390,8 @@ const Board = () => {
         userCategory === ROLES.WALKIN_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
-      firstname: Yup.string().required("First name is required"),
-      lastname: Yup.string().required("Last name is required"),
+      firstname: strictNameValidation.required("First name is required"),
+      lastname: strictNameValidation.required("Last name is required"),
       email: Yup.string()
         .matches(emailValidationRegex, "Enter valid email!!")
         .email("Invalid email")
@@ -1320,10 +1433,16 @@ const Board = () => {
           appointmentFormik.resetForm();
           if (
             storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-            storeRoleInfo?.role_name === ROLES.SALON_OWNER
+            storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+            storesalonDetailInfo
           ) {
-            appointmentFormik.setFieldValue("salon_id", salonUserInfo?.id);
-            getBarberSessionsData(salonUserInfo?.id);
+            appointmentFormik.setFieldValue(
+              "salon_id",
+              storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+            );
+            getBarberSessionsData(
+              storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
+            );
           }
           if (storeUserInfo?.berber) {
             appointmentFormik.setFieldValue(
@@ -1340,24 +1459,23 @@ const Board = () => {
         })
         .catch((error) => {
           setShowAppointmentSpinner(false);
-          console.error("Error creating appointment:", error);
+          // console.error("Error creating appointment:", error);
           // Check for the specific error code
-      if (error.response && error.response.status === 400) {
-        if (error.response.data.code === 400) {
-          showErrorToast(error.response.data.message, {
-            autoClose: 3000,
-          });
-        } else {
-          showErrorToast("Failed to create an appointment.", {
-            autoClose: 3000,
-          });
-        }
-      } else {
-        showErrorToast("Something went wrong. Please try again later.", {
-          autoClose: 3000,
-        });
-      }
-          
+          if (error.response && error.response.status === 400) {
+            if (error.response.data.code === 400) {
+              showErrorToast(error.response.data.message, {
+                autoClose: 3000,
+              });
+            } else {
+              showErrorToast("Failed to create an appointment.", {
+                autoClose: 3000,
+              });
+            }
+          } else {
+            showErrorToast("Something went wrong. Please try again later.", {
+              autoClose: 3000,
+            });
+          }
         });
     },
   });
@@ -1423,6 +1541,11 @@ const Board = () => {
       userImages: card.userImages,
       title: card.title,
       text: card.text,
+      paymentDetails: arg.paymentDetails || {
+        amount: "0",
+        tip: "0",
+        totalAmount: "0",
+      },
     });
     setKanbanTasksCards(line?.id);
     setIsEdit(true);
@@ -1526,17 +1649,61 @@ const Board = () => {
       calculateFinalAmount(totalPrice, value, "");
     } else {
       setCustomTip("");
-      calculateFinalAmount(totalPrice, "", "");
+      calculateFinalAmount(totalPrice, "custom", "");
+    }
+  };
+  const handleTipSubmit = async (appointmentId: any) => {
+    try {
+      setTipSubmitting(true); // Start spinner
+
+      const newTip = Number(formData.tipAmount);
+      const oldTip = parseFloat(cardDetails?.paymentDetails?.tip || "0");
+      const oldTotal = parseFloat(
+        cardDetails?.paymentDetails?.totalAmount || "0"
+      );       
+
+      if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+        showErrorToast("Please enter a valid tip amount");
+        return;
+      }
+
+      const updatedTip = oldTip + newTip;
+      const updatedTotal = oldTotal + newTip;
+
+      // ✅ Send final updated tip to backend
+      await updateTipAmount(appointmentId, updatedTip); // backend should expect total tip now
+
+      // ✅ Toast message
+      showSuccessToast("Tip submitted successfully!");
+
+      setTipModalOpen(false);
+      setFormData({ ...formData, tipAmount: "" }); // optional reset
+    } catch (error) {
+      showErrorToast("Failed to update tip.");
+    } finally {
+      setTipSubmitting(false); // Stop spinner
     }
   };
 
+  const handleAddTip = (card: any) => {
+    setSelectedCard(card); // Store selected card details
+    setTipModalOpen(true); // Open the tip modal
+  };
+
+  // Fetch the card details when the modal is opened
+  useEffect(() => {
+    if (selectedCard) {
+      // Extract data from selected card (if needed, fetch from backend)
+      setCardDetails(selectedCard); // Set card details to state
+      setFormData({
+        ...formData,
+        tipAmount: selectedCard?.paymentDetails?.tip || "0", // Initialize tipAmount with the existing tip if available
+      });
+    }
+  }, [selectedCard]);
+
   const handleCustomTipChange = (e: any) => {
-    // const value = e.target.value;
-    // setCustomTip(value);
-    // calculateFinalAmount(totalPrice, "custom", value);
-
     const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-
     if (value.length <= 4) {
       setCustomTip(value);
       setIsInvalid(false);
@@ -1545,19 +1712,19 @@ const Board = () => {
       setIsInvalid(true);
     }
   };
+  const calculateFinalAmount = (total: number, tip: any, custom: any) => {
+    // 'total' here is assumed to include tax.
+    let calculatedTip = 0;
 
-  const calculateFinalAmount = (total: any, tip: any, custom: any) => {
-    if (!tip || tip === null) {
-      setFinalAmount(total); // No tip, just use total
-      return;
+    if (tip === "custom") {
+      calculatedTip = parseFloat(custom || "0");
+    } else if (!isNaN(parseFloat(tip))) {
+      // Calculate tip percentage over the full current total (which includes tax)
+      calculatedTip = (total * parseFloat(tip)) / 100;
     }
 
-    let tipAmount =
-      tip === "custom"
-        ? parseFloat(custom || 0)
-        : (total * parseFloat(tip)) / 100;
-    setTipAmount(tipAmount);
-    setFinalAmount(total + tipAmount);
+    setTipAmount(calculatedTip);
+    setFinalAmount(total + calculatedTip);
   };
 
   const handleConfirmationCard = async () => {
@@ -1829,10 +1996,10 @@ const Board = () => {
           onClick={handlePrev}
           disabled={startIndex === 0}
           className="btn btn-link btn-sm mx-1 custom-btn"
-        // style={{
-        //   cursor: startIndex === 0 ? "not-allowed" : "pointer",
-        //   fontSize: "12px", // Inline for precise font control
-        // }}
+          // style={{
+          //   cursor: startIndex === 0 ? "not-allowed" : "pointer",
+          //   fontSize: "12px", // Inline for precise font control
+          // }}
         >
           {"<"}
         </button>
@@ -1844,10 +2011,11 @@ const Board = () => {
             .map((barber: any, index: any) => (
               <div
                 key={index}
-                className={`px-2 py-1 text-center rounded ${activeFilter === barber.name
+                className={`px-2 py-1 text-center rounded ${
+                  activeFilter === barber.name
                     ? "bg-primary text-white"
                     : "bg-light "
-                  }`}
+                }`}
                 style={{
                   cursor: "pointer",
                   border: "1px solid #ddd",
@@ -2015,21 +2183,21 @@ const Board = () => {
                                                   handleCardEdit(card, line)
                                                 }
                                               >
-                                                <i className="ri-file-info-line"></i>
+                                                <i className="ri-eye-line me-2"></i>
                                                 View
                                               </DropdownItem>
                                               {line.nameAlias ===
                                                 "In Salon" && (
-                                                  <DropdownItem
-                                                    className="deletetask"
-                                                    onClick={() =>
-                                                      handleWaitTime(card, line)
-                                                    }
-                                                  >
-                                                    <i className="ri-time-line"></i>{" "}
-                                                    Add Minutes
-                                                  </DropdownItem>
-                                                )}
+                                                <DropdownItem
+                                                  className="deletetask"
+                                                  onClick={() =>
+                                                    handleWaitTime(card, line)
+                                                  }
+                                                >
+                                                  <i className="ri-time-line"></i>{" "}
+                                                  Add Minutes
+                                                </DropdownItem>
+                                              )}
                                             </DropdownMenu>
                                           </UncontrolledDropdown>
                                           <div className="mb-3">
@@ -2108,13 +2276,14 @@ const Board = () => {
                                                   </b>{" "}
                                                   <span>
                                                     {card.estimated_wait_time >
-                                                      60
+                                                    60
                                                       ? `${Math.floor(
-                                                        card.estimated_wait_time /
-                                                        60
-                                                      )} hr ${card.estimated_wait_time %
-                                                      60
-                                                      } min`
+                                                          card.estimated_wait_time /
+                                                            60
+                                                        )} hr ${
+                                                          card.estimated_wait_time %
+                                                          60
+                                                        } min`
                                                       : `${card.estimated_wait_time} min`}
                                                   </span>
                                                 </div>
@@ -2122,109 +2291,124 @@ const Board = () => {
                                                 {(line.nameAlias ===
                                                   "Check In" ||
                                                   line.nameAlias ===
-                                                  "In Salon") && (
-                                                    <div className="flex-grow-1 mt-2">
-                                                      {/* Button for "In Salon" */}
-                                                      {line.nameAlias ===
-                                                        "Check In" && (
-                                                          <Button
-                                                            color="info"
-                                                            type="button"
-                                                            style={{
-                                                              padding: "0px 5px",
-                                                              margin: "0 5px 0 0",
-                                                            }}
-                                                            onClick={() =>
-                                                              updateStatus(
-                                                                card,
-                                                                "check_in",
-                                                                "in_salon"
-                                                              )
-                                                            }
-                                                            disabled={inSalonLoader} // Disable button when loader is active
-                                                          >
-                                                            {inSalonLoader &&
-                                                              selectedCard?.id ===
-                                                              card?.id && (
-                                                                <Spinner
-                                                                  size="sm"
-                                                                  className="me-2"
-                                                                >
-                                                                  Loading...
-                                                                </Spinner>
-                                                              )}
-                                                            In Salon
-                                                          </Button>
-                                                        )}
+                                                    "In Salon") && (
+                                                  <div className="flex-grow-1 mt-2">
+                                                    {/* Button for "In Salon" */}
+                                                    {line.nameAlias ===
+                                                      "Check In" && (
+                                                      <Button
+                                                        color="info"
+                                                        type="button"
+                                                        style={{
+                                                          padding: "0px 5px",
+                                                          margin: "0 5px 0 0",
+                                                        }}
+                                                        onClick={() =>
+                                                          updateStatus(
+                                                            card,
+                                                            "check_in",
+                                                            "in_salon"
+                                                          )
+                                                        }
+                                                        disabled={inSalonLoader} // Disable button when loader is active
+                                                      >
+                                                        {inSalonLoader &&
+                                                          selectedCard?.id ===
+                                                            card?.id && (
+                                                            <Spinner
+                                                              size="sm"
+                                                              className="me-2"
+                                                            >
+                                                              Loading...
+                                                            </Spinner>
+                                                          )}
+                                                        In Salon
+                                                      </Button>
+                                                    )}
 
-                                                      {/* Button for "Cancel" */}
-                                                      {line.nameAlias ===
-                                                        "Check In" && (
-                                                          <Button
-                                                            color="danger"
-                                                            type="button"
-                                                            disabled={cancelLoader} // Disable button when loader is active
-                                                            style={{
-                                                              padding: "0px 5px",
-                                                            }}
-                                                            onClick={() =>
-                                                              updateStatus(
-                                                                card,
-                                                                "check_in",
-                                                                "canceled"
-                                                              )
-                                                            }
-                                                          >
-                                                            {cancelLoader &&
-                                                              selectedCard?.id ===
-                                                              card?.id && (
-                                                                <Spinner
-                                                                  size="sm"
-                                                                  className="me-2"
-                                                                >
-                                                                  Loading...
-                                                                </Spinner>
-                                                              )}
-                                                            Cancel
-                                                          </Button>
-                                                        )}
+                                                    {/* Button for "Cancel" */}
+                                                    {line.nameAlias ===
+                                                      "Check In" && (
+                                                      <Button
+                                                        color="danger"
+                                                        type="button"
+                                                        disabled={cancelLoader} // Disable button when loader is active
+                                                        style={{
+                                                          padding: "0px 5px",
+                                                        }}
+                                                        onClick={() =>
+                                                          updateStatus(
+                                                            card,
+                                                            "check_in",
+                                                            "canceled"
+                                                          )
+                                                        }
+                                                      >
+                                                        {cancelLoader &&
+                                                          selectedCard?.id ===
+                                                            card?.id && (
+                                                            <Spinner
+                                                              size="sm"
+                                                              className="me-2"
+                                                            >
+                                                              Loading...
+                                                            </Spinner>
+                                                          )}
+                                                        Cancel
+                                                      </Button>
+                                                    )}
 
-                                                      {/* Button for "Complete" */}
-                                                      {line.nameAlias ===
-                                                        "In Salon" && (
-                                                          <Button
-                                                            color="success"
-                                                            type="button"
-                                                            style={{
-                                                              padding: "0px 5px",
-                                                              margin: "0 5px 0 0",
-                                                            }}
-                                                            onClick={() =>
-                                                              updateStatus(
-                                                                card,
-                                                                "in_salon",
-                                                                "completed"
-                                                              )
-                                                            }
-                                                            disabled={
-                                                              completedLoader
-                                                            } // Disable button when loader is active
-                                                          >
-                                                            {completedLoader &&
-                                                              selectedCard?.id ===
-                                                              card?.id && (
-                                                                <Spinner
-                                                                  size="sm"
-                                                                  className="me-2"
-                                                                >
-                                                                  Loading...
-                                                                </Spinner>
-                                                              )}
-                                                            Complete
-                                                          </Button>
-                                                        )}
-                                                    </div>
-                                                  )}
+                                                    {/* Button for "Complete" */}
+                                                    {line.nameAlias ===
+                                                      "In Salon" && (
+                                                      <Button
+                                                        color="success"
+                                                        type="button"
+                                                        style={{
+                                                          padding: "0px 5px",
+                                                          margin: "0 5px 0 0",
+                                                        }}
+                                                        onClick={() =>
+                                                          updateStatus(
+                                                            card,
+                                                            "in_salon",
+                                                            "completed"
+                                                          )
+                                                        }
+                                                        disabled={
+                                                          completedLoader
+                                                        } // Disable button when loader is active
+                                                      >
+                                                        {completedLoader &&
+                                                          selectedCard?.id ===
+                                                            card?.id && (
+                                                            <Spinner
+                                                              size="sm"
+                                                              className="me-2"
+                                                            >
+                                                              Loading...
+                                                            </Spinner>
+                                                          )}
+                                                        Complete
+                                                      </Button>
+                                                    )}
+                                                    {line.nameAlias ===
+                                                      "In Salon" && (
+                                                      <Button
+                                                        color="primary"
+                                                        type="button"
+                                                        style={{
+                                                          padding: "0px 5px",
+                                                        }}
+                                                        onClick={() =>
+                                                          handleAddTip(card)
+                                                        } // Open the modal with the card details
+                                                      >
+                                                        Add Tip
+                                                      </Button>
+                                                    )}
+                                                  </div>
+                                                )}
                                               </div>
                                               <div className="flex-shrink-0">
                                                 <div className="avatar-group">
@@ -2292,7 +2476,7 @@ const Board = () => {
                                                 style={{
                                                   color:
                                                     card?.paymentStatus?.toLowerCase() ===
-                                                      "success"
+                                                    "success"
                                                       ? "green"
                                                       : "red",
                                                 }}
@@ -2303,7 +2487,7 @@ const Board = () => {
                                               {card?.paymentStatus?.toLowerCase() ===
                                                 "success" &&
                                                 card?.paymentMode !==
-                                                "Pay_In_Person" && (
+                                                  "Pay_In_Person" && (
                                                   <Link
                                                     to={
                                                       card.paymentDetails
@@ -2325,14 +2509,14 @@ const Board = () => {
                                             <div className="flex-grow-1">
                                               <b>Tip: </b>
                                               <span>
-                                                ${card.paymentDetails
-                                                  ?.tip ?? 0}
+                                                ${card.paymentDetails?.tip ?? 0}
                                               </span>
                                             </div>
                                             <div className="flex-grow-1">
                                               <b>Total amount: </b>
                                               <span>
-                                                ${card.paymentDetails
+                                                $
+                                                {card.paymentDetails
                                                   ?.totalAmount ?? 0}
                                               </span>
                                             </div>
@@ -2445,7 +2629,7 @@ const Board = () => {
               {/* Right Section: Fields and Labels */}
               <div className="col-lg-8">
                 <div className="form-group py-2 border-bottom">
-                  <b>User Name: </b>
+                  <b>Customer Name: </b>
                   <span>{card?.title || "N/A"}</span>
                 </div>
                 <div className="form-group py-2 border-bottom">
@@ -2473,22 +2657,44 @@ const Board = () => {
                     )}
                   </span>
                 </div>
+                <div className="form-group py-2 border-bottom d-flex">
+                  <div style={{ width: "50%" }}>
+                    <b>Total Amount: </b>
+                    <span>{card?.paymentDetails?.totalAmount || "N/A"}</span>
+                  </div>
+                  <div style={{ width: "50%" }}>
+                    <b>Tip: </b>
+                    <span>{card?.paymentDetails?.tip || "N/A"}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Haircut Details Section */}
-            <div className="d-flex align-items-center justify-content-between mt-2">
-              <div></div>
-              <button
-                className="btn btn-primary mb-4"
-                data-bs-toggle="modal"
-                data-bs-target="#createboardModal"
-                onClick={handleOpen}
-              >
-                <i className="ri-add-line align-bottom me-1"></i> Add Haircut
-                Details
-              </button>
+            <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
+              {/* Left: Add Haircut Details */}
+              <div>
+                <button
+                  className="btn btn-primary mb-4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#createboardModal"
+                  onClick={handleOpen}
+                >
+                  <i className="ri-add-line align-bottom me-1"></i> Add Haircut
+                  Details
+                </button>
+              </div>
+              {/* 
+              <div>
+                <button
+                  className="btn btn-primary mb-4"
+                  onClick={() => setTipModalOpen(true)}
+                >
+                  <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+                </button>
+              </div> */}
             </div>
+
             {card?.haircutDetails?.length ? (
               <TableContainer
                 columns={columns}
@@ -2502,6 +2708,118 @@ const Board = () => {
               <div>No Haircut Data Available</div>
             )}
           </Form>
+        </ModalBody>
+      </Modal>
+      <Modal
+        id="tipModal"
+        isOpen={tipModalOpen}
+        toggle={() => setTipModalOpen(false)}
+        centered={true}
+        backdrop="static"
+      >
+        <ModalHeader toggle={() => setTipModalOpen(false)}>Add Tip</ModalHeader>
+        <ModalBody>
+          {cardDetails && (
+            <>
+              <Col lg={12}>
+                {/* Previous Tip */}
+                <div className="mb-3">
+                  <Label className="form-label" htmlFor="customTipInput">
+                    Enter Tip Amount
+                  </Label>
+                  <Input
+                    type="number"
+                    id="customTipInput"
+                    placeholder="Enter tip amount"
+                    value={formData.tipAmount}
+                    min="0"
+                    onChange={(e) =>
+                      setFormData({ ...formData, tipAmount: e.target.value })
+                    }
+                    className={`form-control ${
+                      formData.tipAmount === "" ||
+                      Number(formData.tipAmount) <= 0
+                        ? "is-invalid"
+                        : ""
+                    }`}
+                  />
+                </div>
+              </Col>
+
+              <Col lg={12}>
+                {/* Previous Tip and Total */}
+                <div className="d-flex justify-content-between mt-2">
+                  <span>
+                    <b>Previous Tip:</b>
+                  </span>
+                  <span>
+                    $
+                    {parseFloat(
+                      cardDetails?.paymentDetails?.tip || "0"
+                    ).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="d-flex justify-content-between">
+                  <span>
+                    <b>Previous Total:</b>
+                  </span>
+                  <span>
+                    $
+                    {parseFloat(
+                      cardDetails?.paymentDetails?.totalAmount || "0"
+                    ).toFixed(2)}
+                  </span>
+                </div>
+
+                <hr />
+
+                {/* New Tip and New Total */}
+                <div className="d-flex justify-content-between">
+                  <span>
+                    <b>New Tip:</b>
+                  </span>
+                  <span>
+                    ${parseFloat(formData.tipAmount || "0").toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="d-flex justify-content-between">
+                  <span>
+                    <b>New Total:</b>
+                  </span>
+                  <span>
+                    $
+                    {(
+                      parseFloat(
+                        cardDetails?.paymentDetails?.totalAmount || "0"
+                      ) + parseFloat(formData.tipAmount || "0")
+                    ).toFixed(2)}
+                  </span>
+                </div>
+              </Col>
+
+              <div className="text-end mt-3">
+                <Button
+                  color="success"
+                  onClick={() => handleTipSubmit(cardDetails?.id)} // Pass card ID to submit tip
+                  disabled={tipSubmitting}
+                >
+                  {tipSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
         </ModalBody>
       </Modal>
 
@@ -2537,13 +2855,13 @@ const Board = () => {
                   value={waitTimValidation.values.additionalTime}
                   invalid={
                     waitTimValidation.touched.additionalTime &&
-                      waitTimValidation.errors.additionalTime
+                    waitTimValidation.errors.additionalTime
                       ? true
                       : false
                   }
                 />
                 {waitTimValidation.touched.additionalTime &&
-                  waitTimValidation.errors.additionalTime ? (
+                waitTimValidation.errors.additionalTime ? (
                   <FormFeedback type="invalid">
                     {waitTimValidation.errors.additionalTime}
                   </FormFeedback>
@@ -2614,33 +2932,34 @@ const Board = () => {
                 /> */}
               </Col>
 
-              {storeRoleInfo.role_name === ROLES.ADMIN && (
-                <Col lg={12}>
-                  <div>
-                    <Label htmlFor="salon" className="form-label">
-                      Salon Name
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={appointmentFormik.values.salon_id}
-                      onChange={handleSalonChange}
-                    >
-                      <option value="">Select a salon</option>
-                      {salonData.map((salon) => (
-                        <option key={salon.salon_id} value={salon.salon_id}>
-                          {salon.salon_name}
-                        </option>
-                      ))}
-                    </select>
-                    {appointmentFormik.touched.salon_id &&
-                      appointmentFormik.errors.salon_id && (
-                        <div className="invalid-feedback">
-                          {appointmentFormik.errors.salon_id}
-                        </div>
-                      )}
-                  </div>
-                </Col>
-              )}
+              {storeRoleInfo.role_name === ROLES.ADMIN &&
+                !storesalonDetailInfo && (
+                  <Col lg={12}>
+                    <div>
+                      <Label htmlFor="salon" className="form-label">
+                        Salon Name
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={appointmentFormik.values.salon_id}
+                        onChange={handleSalonChange}
+                      >
+                        <option value="">Select a salon</option>
+                        {salonData.map((salon) => (
+                          <option key={salon.salon_id} value={salon.salon_id}>
+                            {salon.salon_name}
+                          </option>
+                        ))}
+                      </select>
+                      {appointmentFormik.touched.salon_id &&
+                        appointmentFormik.errors.salon_id && (
+                          <div className="invalid-feedback">
+                            {appointmentFormik.errors.salon_id}
+                          </div>
+                        )}
+                    </div>
+                  </Col>
+                )}
               {/* Barber ID */}
               {userCategory !== ROLES.WALKIN_BARBER && (
                 <Col lg={12}>
@@ -2655,28 +2974,48 @@ const Board = () => {
                     </Label>
                     <select
                       className="form-select"
+                      id="barber"
                       value={appointmentFormik.values.barber_id}
                       onChange={handleBarberChange}
+                      disabled={
+                        selectedOptions.length === 0 ||
+                        barberSessionsData?.length === 0
+                      }
                     >
-                      <option value="">Select a barber</option>
-                      {barberSessionsData?.map((barber: any) => (
-                        <option
-                          key={barber?.id}
-                          value={barber?.id}
-                          disabled={
-                            barber.availability_status !== "available" ||
-                            (!barber.start_time && !barber.end_time)
-                          }
-                        >
-                          {`${barber.name} - (${barber.start_time && barber.end_time
-                              ? `${formatHours(
-                                barber.start_time
-                              )} to ${formatHours(barber.end_time)}`
-                              : "Unavailable"
-                            })`}
+                      {barberSessionsData?.length === 0 ? (
+                        <option disabled selected>
+                          No barbers available
                         </option>
-                      ))}
+                      ) : (
+                        <>
+                          <option value="">Select a barber</option>
+                          {barberSessionsData?.map((barber: any) => (
+                            <option
+                              key={barber.id}
+                              value={barber.id}
+                              disabled={
+                                barber.availability_status !== "available" ||
+                                !barber.start_time ||
+                                !barber.end_time
+                              }
+                            >
+                              {`${barber.name} - ${
+                                barber.start_time && barber.end_time
+                                  ? `${formatHours(
+                                      barber.start_time
+                                    )} to ${formatHours(
+                                      barber.end_time
+                                    )} (Wait: ${
+                                      barber.estimated_wait_time
+                                    } min)`
+                                  : "Unavailable"
+                              }`}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </select>
+
                     {appointmentFormik.touched.barber_id &&
                       appointmentFormik.errors.barber_id && (
                         <div className="invalid-feedback">
@@ -2686,6 +3025,7 @@ const Board = () => {
                   </div>
                 </Col>
               )}
+
               {/* First Name */}
               <Col lg={12}>
                 <Label for="firstname-field" className="form-label">
@@ -2708,13 +3048,13 @@ const Board = () => {
                   value={appointmentFormik.values.firstname || ""}
                   invalid={
                     appointmentFormik.touched.firstname &&
-                      appointmentFormik.errors.firstname
+                    appointmentFormik.errors.firstname
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.firstname &&
-                  appointmentFormik.errors.firstname ? (
+                appointmentFormik.errors.firstname ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.firstname}
                   </FormFeedback>
@@ -2743,13 +3083,13 @@ const Board = () => {
                   value={appointmentFormik.values.lastname || ""}
                   invalid={
                     appointmentFormik.touched.lastname &&
-                      appointmentFormik.errors.lastname
+                    appointmentFormik.errors.lastname
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.lastname &&
-                  appointmentFormik.errors.lastname ? (
+                appointmentFormik.errors.lastname ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.lastname}
                   </FormFeedback>
@@ -2772,13 +3112,13 @@ const Board = () => {
                   value={appointmentFormik.values.email || ""}
                   invalid={
                     appointmentFormik.touched.email &&
-                      appointmentFormik.errors.email
+                    appointmentFormik.errors.email
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.email &&
-                  appointmentFormik.errors.email ? (
+                appointmentFormik.errors.email ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.email}
                   </FormFeedback>
@@ -2802,13 +3142,13 @@ const Board = () => {
                   value={appointmentFormik.values.mobile_number || ""}
                   invalid={
                     appointmentFormik.touched.mobile_number &&
-                      appointmentFormik.errors.mobile_number
+                    appointmentFormik.errors.mobile_number
                       ? true
                       : false
                   }
                 />
                 {appointmentFormik.touched.mobile_number &&
-                  appointmentFormik.errors.mobile_number ? (
+                appointmentFormik.errors.mobile_number ? (
                   <FormFeedback type="invalid">
                     {appointmentFormik.errors.mobile_number}
                   </FormFeedback>
@@ -2816,11 +3156,12 @@ const Board = () => {
               </Col>
               <Col lg={12}>
                 <Label className="form-label me-1">Tip</Label>
-                <div className="btn-group">
+                <div className="btn-group btn-group d-flex flex-wrap">
                   {/* None Option */}
                   <Label
-                    className={`btn btn-outline-primary ${tipPercentage === 0 ? "active" : ""
-                      }`}
+                    className={`btn btn-outline-primary ${
+                      tipPercentage === 0 ? "active" : ""
+                    }`}
                   >
                     <Input
                       type="radio"
@@ -2837,8 +3178,9 @@ const Board = () => {
                   {[20, 25, 30, 40].map((percentage) => (
                     <Label
                       key={percentage}
-                      className={`btn btn-outline-primary ${tipPercentage == percentage ? "active" : ""
-                        }`}
+                      className={`btn btn-outline-primary ${
+                        tipPercentage == percentage ? "active" : ""
+                      }`}
                     >
                       <Input
                         type="radio"
@@ -2854,8 +3196,9 @@ const Board = () => {
 
                   {/* Custom Tip Option */}
                   <Label
-                    className={`btn btn-outline-primary ${tipPercentage === "custom" ? "active" : ""
-                      }`}
+                    className={`btn btn-outline-primary ${
+                      tipPercentage === "custom" ? "active" : ""
+                    }`}
                   >
                     <Input
                       type="radio"
@@ -2893,7 +3236,6 @@ const Board = () => {
                     invalid={isInvalid}
                   />
                 )}
-
               </Col>
 
               <Col
@@ -2972,7 +3314,7 @@ const Board = () => {
                           value={haircutFormik.values?.haircut_style}
                           className={
                             haircutFormik.touched?.haircut_style &&
-                              haircutFormik.errors?.haircut_style
+                            haircutFormik.errors?.haircut_style
                               ? "is-invalid"
                               : ""
                           }
@@ -3000,7 +3342,7 @@ const Board = () => {
                           value={haircutFormik.values?.customer_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.customer_notes &&
-                          haircutFormik.errors?.customer_notes ? (
+                        haircutFormik.errors?.customer_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.customer_notes}
                           </FormFeedback>
@@ -3020,7 +3362,7 @@ const Board = () => {
                           value={haircutFormik.values?.barber_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.barber_notes &&
-                          haircutFormik.errors?.barber_notes ? (
+                        haircutFormik.errors?.barber_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.barber_notes}
                           </FormFeedback>
@@ -3042,7 +3384,7 @@ const Board = () => {
                           onKeyDown={preventSpaceKey}
                           className={
                             haircutFormik.touched?.product_used &&
-                              haircutFormik.errors?.product_used
+                            haircutFormik.errors?.product_used
                               ? "is-invalid"
                               : ""
                           }
@@ -3248,8 +3590,8 @@ const Board = () => {
                   price = barberService.barber_price
                     ? barberService.barber_price
                     : barberService.min_price
-                      ? barberService.min_price
-                      : 0;
+                    ? barberService.min_price
+                    : 0;
                 }
                 return (
                   <li key={index}>
