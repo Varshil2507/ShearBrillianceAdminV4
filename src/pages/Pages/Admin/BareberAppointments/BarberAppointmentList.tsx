@@ -92,8 +92,10 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   });
   const handleDetails = (appointmentData: any) => {
     setCard(appointmentData); // Set the selected row data
+    setSelectedStatus(appointmentData.status); // ✅ sync dropdown with latest status
     setModal(true); // Open the modal
   };
+
   //   const handleOpen = () => {
   //   setModall(!modall);
   //   setCardHead(null);
@@ -273,11 +275,16 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
   const confirmStatusChange = async () => {
     try {
+      debugger;
       if (appointmentId) {
         setShowSpinner(true);
         await updateAppointmentStatus(appointmentId, {
           status: selectedStatuss,
         });
+        setCard((prev: any) => ({
+          ...prev,
+          status: selectedStatuss,
+        }));
 
         setShowSpinner(false);
         toggle(); // Close appointment detail modal (optional)
@@ -858,17 +865,17 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     <select
                       id="walkinStatusSelect"
                       className="form-select ms-2"
-                      value={selectedStatus}
-                      onChange={(e) => handleStatusChange(e.target.value)} // 👈 Use this function
+                      value={selectedStatuss}
+                      onChange={(e) => handleStatusChange(e.target.value)}
                       style={{
                         color:
-                          selectedStatus === "check_in"
+                          selectedStatuss === "check_in"
                             ? "blue"
-                            : selectedStatus === "in_salon"
+                            : selectedStatuss === "in_salon"
                             ? "purple"
-                            : selectedStatus === "completed"
+                            : selectedStatuss === "completed"
                             ? "green"
-                            : selectedStatus === "canceled"
+                            : selectedStatuss === "canceled"
                             ? "red"
                             : "black",
                         fontWeight: "bold",
@@ -877,28 +884,37 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     >
                       <option
                         value="check_in"
-                        disabled={selectedStatus === "check_in"}
+                        disabled={
+                          selectedStatuss === "check_in" ||
+                          selectedStatuss === "in_salon" ||
+                          selectedStatuss === "completed" ||
+                          selectedStatuss === "canceled"
+                        }
                         style={{ color: "blue", fontWeight: "bold" }}
                       >
                         Check In
                       </option>
                       <option
                         value="in_salon"
-                        disabled={selectedStatus === "in_salon"}
+                        disabled={
+                          selectedStatuss === "in_salon" ||
+                          selectedStatuss === "completed" ||
+                          selectedStatuss === "canceled"
+                        }
                         style={{ color: "purple", fontWeight: "bold" }}
                       >
                         In Salon
                       </option>
                       <option
                         value="completed"
-                        disabled={selectedStatus === "completed"}
+                        disabled={selectedStatuss === "completed"}
                         style={{ color: "green", fontWeight: "bold" }}
                       >
                         Completed
                       </option>
                       <option
                         value="canceled"
-                        disabled={selectedStatus === "canceled"}
+                        disabled={selectedStatuss === "canceled"}
                         style={{ color: "red", fontWeight: "bold" }}
                       >
                         Canceled
