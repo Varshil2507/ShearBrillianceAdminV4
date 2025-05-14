@@ -418,40 +418,43 @@ const CalenderScheduleInfo: React.FC = () => {
   //     showErrorToast("Failed to update tip.");
   //   }
   // };
-  const [formData, setFormData] = useState({
-    tipAmount: "", // Add this if not already present
-  });
-  const handleTipSubmit = async (appointmentId: any) => {
-    try {
-      setTipSubmitting(true); // Start spinner
+const [formData, setFormData] = useState({
+  tipAmount: "",
+});
+const [tipSubmitted, setTipSubmitted] = useState(false);
 
-      const newTip = Number(formData.tipAmount);
-      const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
-      const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
+const handleTipSubmit = async (appointmentId: any) => {
+  setTipSubmitted(true); // Trigger validation on submit
 
-      // 💡 Updated Validation
-      if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
-        showErrorToast("Please enter a valid tip amount.");
-        return;
-      }
+  const newTip = Number(formData.tipAmount);
+  if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+    showErrorToast("Please enter a valid tip amount.");
+    return;
+  }
 
-      const updatedTip = oldTip + newTip;
-      const updatedTotal = oldTotal + newTip;
+  try {
+    setTipSubmitting(true);
 
-      // ✅ Send final updated tip to backend
-      await updateTipAmount(appointmentId, updatedTip);
+    const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
+    const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
 
-      // ✅ Toast message
-      showSuccessToast("Tip submitted successfully!");
+    const updatedTip = oldTip + newTip;
+    const updatedTotal = oldTotal + newTip;
 
-      setTipModalOpen(false);
-      setFormData({ ...formData, tipAmount: "" }); // Reset tip input
-    } catch (error) {
-      showErrorToast("Failed to update tip.");
-    } finally {
-      setTipSubmitting(false); // Stop spinner
-    }
-  };
+    await updateTipAmount(appointmentId, updatedTip);
+
+    showSuccessToast("Tip submitted successfully!");
+
+    setTipModalOpen(false);
+    setFormData({ ...formData, tipAmount: "" });
+    setTipSubmitted(false); // Reset validation
+  } catch (error) {
+    showErrorToast("Failed to update tip.");
+  } finally {
+    setTipSubmitting(false);
+  }
+};
+
 
   const handleCustomTipChange = (e: any) => {
     const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
@@ -1331,7 +1334,7 @@ const CalenderScheduleInfo: React.FC = () => {
                       onClick={handleOpen}
                       disabled={
                         !isAppointmentToday(event?.eventDate) ||
-                        event?.status === "completed" ||
+                        // event?.status === "completed" ||
                         event?.status === "canceled"
                       }
                     >
@@ -1347,7 +1350,7 @@ const CalenderScheduleInfo: React.FC = () => {
                       onClick={() => setTipModalOpen(true)}
                       disabled={
                         !isAppointmentToday(event?.eventDate) ||
-                        event?.status === "completed" ||
+                        // event?.status === "completed" ||
                         event?.status === "canceled"
                       }
                     >
@@ -1398,7 +1401,8 @@ const CalenderScheduleInfo: React.FC = () => {
                     setFormData({ ...formData, tipAmount: e.target.value })
                   }
                   className={`form-control ${
-                    formData.tipAmount === "" || Number(formData.tipAmount) <= 0
+                    tipSubmitted &&
+                    (!formData.tipAmount || Number(formData.tipAmount) <= 0)
                       ? "is-invalid"
                       : ""
                   }`}

@@ -241,18 +241,18 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     );
   };
 
-const handlePageChange = (pageIndex: number) => {
-  setCurrentPage(pageIndex); // ← 0-based index for UI
+  const handlePageChange = (pageIndex: number) => {
+    setCurrentPage(pageIndex); // ← 0-based index for UI
 
-  fetchAppointmentList(
-    pageIndex + 1, // ← 1-based page number for backend
-    selectedStartDate,
-    selectedEndDate,
-    selectedStatus,
-    selectedBarber ? parseInt(selectedBarber) : undefined,
-    selectedSearchText ?? ""
-  );
-};
+    fetchAppointmentList(
+      pageIndex + 1, // ← 1-based page number for backend
+      selectedStartDate,
+      selectedEndDate,
+      selectedStatus,
+      selectedBarber ? parseInt(selectedBarber) : undefined,
+      selectedSearchText ?? ""
+    );
+  };
 
   const handleSearchText = (search: string) => {
     const page = 1;
@@ -335,36 +335,40 @@ const handlePageChange = (pageIndex: number) => {
   //   }
   // };
 
+  const [tipSubmitted, setTipSubmitted] = useState(false);
+
   const handleTipSubmit = async (appointmentId: any) => {
+    setTipSubmitted(true); // Trigger validation on submit
+
+    const newTip = Number(formData.tipAmount);
+    if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+      showErrorToast("Please enter a valid tip amount.");
+      return;
+    }
+
     try {
-      setTipSubmitting(true); // Start spinner
+      setTipSubmitting(true);
 
-      const newTip = Number(formData.tipAmount);
-      const oldTip = parseFloat(card?.paymentDetails?.tip || "0");
-      const oldTotal = parseFloat(card?.paymentDetails?.totalAmount || "0");
-
-      if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
-        showErrorToast("Please enter a valid tip amount");
-        return;
-      }
+      const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
+      const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
 
       const updatedTip = oldTip + newTip;
       const updatedTotal = oldTotal + newTip;
 
-      // ✅ Send final updated tip to backend
-      await updateTipAmount(appointmentId, updatedTip); // backend should expect total tip now
+      await updateTipAmount(appointmentId, updatedTip);
 
-      // ✅ Toast message
       showSuccessToast("Tip submitted successfully!");
 
       setTipModalOpen(false);
-      setFormData({ ...formData, tipAmount: "" }); // optional reset
+      setFormData({ ...formData, tipAmount: "" });
+      setTipSubmitted(false); // Reset validation
     } catch (error) {
       showErrorToast("Failed to update tip.");
     } finally {
-      setTipSubmitting(false); // Stop spinner
+      setTipSubmitting(false);
     }
   };
+
   const haircutFormik: any = useFormik({
     enableReinitialize: true,
 
@@ -1006,7 +1010,7 @@ const handlePageChange = (pageIndex: number) => {
                       !isAppointmentToday(
                         card?.appointment_date || card?.check_in_time
                       ) ||
-                      card?.status === "completed" ||
+                      // card?.status === "completed" ||
                       card?.status === "canceled"
                     }
                   >
@@ -1023,7 +1027,7 @@ const handlePageChange = (pageIndex: number) => {
                       !isAppointmentToday(
                         card?.appointment_date || card?.check_in_time
                       ) ||
-                      card?.status === "completed" ||
+                      // card?.status === "completed" ||
                       card?.status === "canceled"
                     }
                   >
@@ -1073,7 +1077,8 @@ const handlePageChange = (pageIndex: number) => {
                   setFormData({ ...formData, tipAmount: e.target.value })
                 }
                 className={`form-control ${
-                  formData.tipAmount === "" || Number(formData.tipAmount) <= 0
+                  tipSubmitted &&
+                  (!formData.tipAmount || Number(formData.tipAmount) <= 0)
                     ? "is-invalid"
                     : ""
                 }`}
