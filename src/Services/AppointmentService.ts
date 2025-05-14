@@ -12,7 +12,12 @@ interface FetchAppointmentsParams {
   salonId?: number;
 }
 // Fetch the list of all appointments
-export const fetchAppointments = async (page: any, limit: any, startDate: any, endDate: any, status: any, category: any, search: any): Promise<any> => {
+export const fetchAppointments = async (
+    page: any, 
+    limit: any, 
+    startDate: any,
+     endDate: any, status: any, 
+     category: any, search: any): Promise<any> => {
     try {
         const statusInfo = status === 'All' ? '' : status;
         const response = await axios.get(`${APPOINTMENT_ENDPOINT}?page=` + page + `&limit=` + limit + `&startDate=` + startDate + `&endDate=` + endDate + `&status=` + statusInfo + `&category=` + category + `&search=` + search ?? '');
@@ -28,34 +33,45 @@ export const fetchBarbersAppointments = async ({
   search = "",
   barberId,
   salonId,
+  page,
+  limit,
+  status, // ✅ include it
 }: {
-
   startDate: string;
   endDate: string;
   search?: string;
   barberId?: number;
   salonId?: number;
+  page: any;
+  limit?: number;
+  status?: string;
 }): Promise<any> => {
   try {
     const params: any = {
       startDate,
       endDate,
+      page,
+      limit,
     };
 
     if (search) params.search = search;
     if (barberId) params.barberId = barberId;
     if (salonId) params.salonId = salonId;
+    if (status && status.toLowerCase() !== "all") params.status = status; // ✅ apply status filter only if it's not "all"
 
     const response = await axios.get(`${APPOINTMENT_ENDPOINT}/barber/category`, {
       params,
     });
-    return response; // Access .data directly
+
+    return response;
   } catch (error: any) {
     throw new Error(
-      error.response?.data?.message || error.message || "Failed to fetch appointments"
+      error.response?.data?.message || "Failed to fetch appointments"
     );
   }
 };
+
+
 
 
 

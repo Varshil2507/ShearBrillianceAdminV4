@@ -31,6 +31,7 @@ import { addHaircutDetail } from "Services/HaircutDetails";
 import * as Yup from "yup";
 import { updateTipAmount } from "Services/Tipservice";
 import printJS from "print-js";
+import { Status } from "../Appointments/AppointmentListCol";
 
 interface CardData {
   id?: string;
@@ -109,19 +110,17 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     // toggleModal(); // Open the modal for editing
   };
   useEffect(() => {
-    // Fetch all appointments on initial load (no barber filter)
-    fetchAppointmentList(
-      1,
-      selectedStartDate,
-      selectedEndDate,
-      "all",
-      undefined,
-      ""
-    );
+    const today = new Date();
+    setStartDate(today);
+    setEndDate(today);
+    setStatus("all");
+    setCurrentPage(1); // ✅ This is the missing piece
+
+    fetchAppointmentList(1, today, today, "all", undefined, "");
   }, []);
 
   const fetchAppointmentList = async (
-    page: 1,
+    page: any,
     startDate: Date,
     endDate: Date,
     status: string,
@@ -136,7 +135,10 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         endDate: otherFormatDate(endDate),
         search,
         barberId,
-        salonId: salonNames?.salon?.id, // keep this from prop
+        salonId: salonNames?.salon?.id,
+        page,
+        limit,
+        status, // ✅ Pass it here
       });
 
       let appointments = response.appointments.map((usr: any) => ({
@@ -144,18 +146,9 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         fullname: `${usr.User.firstname} ${usr.User.lastname}`,
       }));
 
-      if (status.toLowerCase() !== "all") {
-        appointments = appointments.filter(
-          (a: any) => a.status?.toLowerCase() === status.toLowerCase()
-        );
-      }
-
-      const startIndex = (page - 1) * limit;
-      const paginated = appointments.slice(startIndex, startIndex + limit);
-
-      setAppointmentData(paginated);
-      setTotalItems(appointments.length);
-      setTotalPages(Math.ceil(appointments.length / limit));
+      setAppointmentData(appointments);
+      setTotalItems(response.pagination.totalRecords); // backend should return this
+      setTotalPages(response.pagination.totalPages);
       setShowLoader(false);
     } catch (error: any) {
       setShowLoader(false);
@@ -174,18 +167,29 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     setOpenAccordion(newOpen);
 
     if (newOpen === id) {
+      const resetPage = 1;
+      const today = new Date();
+
       // ✅ Reset filters on barber switch
       setSelectedBarber(String(barberId));
-      setCurrentPage(1);
+      setCurrentPage(resetPage);
       setStatus("all");
       selectedSearch("");
-      setStartDate(new Date());
-      setEndDate(new Date());
+      setStartDate(today);
+      setEndDate(today);
 
-      // ✅ fetch fresh data for this barber
-      fetchAppointmentList(1, new Date(), new Date(), "all", barberId, "");
+      // ✅ fetch fresh data for this barber with correct page
+      fetchAppointmentList(
+        resetPage, // ✅ don't hardcode, match it
+        today,
+        today,
+        "all",
+        barberId,
+        ""
+      );
     }
   };
+
   const isAppointmentToday = (appointmentDateStr: string) => {
     if (!appointmentDateStr) return false;
 
@@ -207,7 +211,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
 
   const handleFilterData = (data: any) => {
-    const page = selectedCurrentPage === 0 ? 1 : selectedCurrentPage;
+    const page = 1; // ✅ Always reset to page 1 on filter
     const start = data?.dateRange?.[0] || selectedStartDate;
     const end = data?.dateRange?.[1] || selectedEndDate;
     const status = data?.status || "all";
@@ -215,9 +219,11 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     setStartDate(start);
     setEndDate(end);
     setStatus(status);
+    setCurrentPage(page); // ✅ sync current page
 
     fetchAppointmentList(
-      1,
+      selectedCurrentPage === 0 ? 1 : selectedCurrentPage,
+
       start,
       end,
       status,
@@ -227,12 +233,11 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
 
   const handlePageChange = (pageIndex: number) => {
-    const page = pageIndex + 1;
-    setCurrentPage(page);
-    setShowLoader(true);
+    const page = pageIndex + 1; // Convert back to 1-based for backend
+    setCurrentPage(page); // Store for UI control
 
     fetchAppointmentList(
-      1,
+      page,
       selectedStartDate,
       selectedEndDate,
       selectedStatus,
@@ -242,13 +247,12 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
 
   const handleSearchText = (search: string) => {
+    const page = 1;
     selectedSearch(search);
-
-    const page = 1; // reset to first page
     setCurrentPage(page);
 
     fetchAppointmentList(
-      1,
+      selectedCurrentPage ? selectedCurrentPage + 1 : 1,
       selectedStartDate,
       selectedEndDate,
       selectedStatus,
@@ -256,6 +260,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
       search
     );
   };
+
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
     setSelectedStatus(previousOption);
@@ -467,14 +472,20 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         enableColumnFilter: false,
         cell: ({ row }) => {
           const data = row.original;
-
           const isWalkIn = data.category === 2; // 2 means Walk In
           const rawDate = isWalkIn ? data.check_in_time : data.appointment_date;
-
           if (!rawDate) return "—";
-
           try {
-            return format(new Date(rawDate), "dd MMM yyyy");
+            let dateObj;
+            if (isWalkIn) {
+              // check_in_time is full ISO, parse directly
+              dateObj = new Date(rawDate);
+            } else {
+              // appointment_date is only YYYY-MM-DD, parse safely
+              const [year, month, day] = rawDate.split("-").map(Number);
+              dateObj = new Date(year, month - 1, day);
+            }
+            return format(dateObj, "dd MMM yyyy");
           } catch (err) {
             return "Invalid Date";
           }
@@ -485,30 +496,8 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         header: "Status",
         accessorKey: "status",
         enableColumnFilter: false,
-        cell: ({ row }: any) => {
-          const status = row.original.status?.toLowerCase();
-          let bgColor = "";
-
-          switch (status) {
-            case "pending":
-              bgColor = "bg-warning text-dark";
-              break;
-            case "completed":
-              bgColor = "bg-success text-white";
-              break;
-            case "cancelled":
-            case "canceled":
-              bgColor = "bg-danger text-white";
-              break;
-            default:
-              bgColor = "bg-secondary text-white";
-          }
-
-          return (
-            <span className={`badge ${bgColor} px-2 py-1 rounded w-auto`}>
-              {row.original.status}
-            </span>
-          );
+        cell: (cell: any) => {
+          return <Status {...cell} />;
         },
       },
       {
@@ -644,7 +633,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     customPageSize={limit}
                     totalPages={selectedTotalPages ?? 0}
                     totalItems={selectedTotalItems ?? 0}
-                    currentPageIndex={selectedCurrentPage ?? 0}
+                    currentPageIndex={selectedCurrentPage - 1} // ✅ Convert to 0-based index
                     selectedDateRange={[selectedStartDate, selectedEndDate]}
                     selectedStatus={selectedStatus}
                     divClass="table-responsive text-black table-card mb-3"
@@ -787,7 +776,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   className="px-2 py-1"
                   style={{
                     color:
-                      card?.paymentStatus?.toLowerCase() === "success"
+                      card?.paymentDetails?.paymentStatus?.toLowerCase() === "success"
                         ? "green"
                         : "red",
                   }}
@@ -810,107 +799,189 @@ const BarberAppointmentList = ({ salonNames }: any) => {
               </div>
             </div>
             {/* Status Dropdown */}
-            <div className="row my-4">
-              {/* Status Dropdown */}
-              <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
-                <label htmlFor="statusSelect" className="mb-2">
-                  Status
-                </label>
-                <select
-                  id="statusSelect"
-                  className="form-select ms-2"
-                  value={selectedStatus}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                  disabled={
-                    card?.status === "completed" || card?.status === "canceled"
-                  }
-                  style={{
-                    color:
-                      selectedStatus === "completed"
-                        ? "green"
-                        : selectedStatus === "canceled"
-                        ? "red"
-                        : "orange",
-                    fontWeight: "bold",
-                    width: "auto",
-                  }}
-                >
-                  <option
-                    value="appointment"
-                    disabled={selectedStatus === "appointment"}
-                    style={{ color: "orange", fontWeight: "bold" }}
-                  >
-                    Appointment
-                  </option>
-                  {!card?.isFeatureEvent && (
-                    <option
-                      value="completed"
-                      disabled={selectedStatus === "completed"}
-                      style={{ color: "green", fontWeight: "bold" }}
-                    >
-                      Completed
-                    </option>
-                  )}
-                  {!card?.isPreviousEvent && (
-                    <option
-                      value="canceled"
-                      disabled={selectedStatus === "canceled"}
-                      style={{ color: "red", fontWeight: "bold" }}
-                    >
-                      Canceled
-                    </option>
-                  )}
-                </select>
+        {/* Status Dropdown */}
+<div className="row my-4">
+  {card ? (
+    <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
+      <label htmlFor="statusSelect" className="mb-2 me-2">
+        Status
+      </label>
 
-                <AppointmentConfirmationModal
-                  isOpen={isModalOpen}
-                  toggle={toggleModal}
-                  onConfirm={confirmStatusChange}
-                  status={selectedStatus}
-                  isAppointment={false}
-                  isTransferBarber={false}
-                  isService={false}
-                  appointmentId={appointmentId}
-                  showSpinner={showSpinner}
-                />
-              </div>
+      {/* COMPLETED or CANCELED - Show read-only badge */}
+      {["completed", "canceled"].includes(card.status) ? (
+        <div
+          className="form-select ms-2"
+          style={{
+            color:
+              card.status === "completed"
+                ? "green"
+                : card.status === "canceled"
+                ? "red"
+                : "orange",
+            fontWeight: "bold",
+            width: "auto",
+            backgroundColor: "#F8F9FA",
+            border: "1px solid #CED4DA",
+            pointerEvents: "none",
+          }}
+        >
+          {card.status
+            .replace("_", " ")
+            .replace(/\b\w/g, (char: string) => char.toUpperCase())}
+        </div>
+      ) : card.category === 2 ? (
+        // ✅ WALK-IN CATEGORY DROPDOWN
+        <select
+          id="walkinStatusSelect"
+          className="form-select ms-2"
+          value={selectedStatus}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          style={{
+            color:
+              selectedStatus === "check_in"
+                ? "blue"
+                : selectedStatus === "in_salon"
+                ? "purple"
+                : selectedStatus === "completed"
+                ? "green"
+                : selectedStatus === "canceled"
+                ? "red"
+                : "black",
+            fontWeight: "bold",
+            width: "auto",
+          }}
+        >
+          <option
+            value="check_in"
+            disabled={selectedStatus === "check_in"}
+            style={{ color: "blue", fontWeight: "bold" }}
+          >
+            Check In
+          </option>
+          <option
+            value="in_salon"
+            disabled={selectedStatus === "in_salon"}
+            style={{ color: "purple", fontWeight: "bold" }}
+          >
+            In Salon
+          </option>
+          <option
+            value="completed"
+            disabled={selectedStatus === "completed"}
+            style={{ color: "green", fontWeight: "bold" }}
+          >
+            Completed
+          </option>
+          <option
+            value="canceled"
+            disabled={selectedStatus === "canceled"}
+            style={{ color: "red", fontWeight: "bold" }}
+          >
+            Canceled
+          </option>
+        </select>
+      ) : (
+        // ✅ APPOINTMENT CATEGORY DROPDOWN
+        <select
+          id="statusSelect"
+          className="form-select ms-2"
+          value={selectedStatus}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          style={{
+            color:
+              selectedStatus === "appointment"
+                ? "orange"
+                : selectedStatus === "completed"
+                ? "green"
+                : selectedStatus === "canceled"
+                ? "red"
+                : "black",
+            fontWeight: "bold",
+            width: "auto",
+          }}
+        >
+          <option
+            value="appointment"
+            disabled={selectedStatus === "appointment"}
+            style={{ color: "orange", fontWeight: "bold" }}
+          >
+            Appointment
+          </option>
+          {!card?.isFeatureEvent && (
+            <option
+              value="completed"
+              disabled={selectedStatus === "completed"}
+              style={{ color: "green", fontWeight: "bold" }}
+            >
+              Completed
+            </option>
+          )}
+          {!card?.isPreviousEvent && (
+            <option
+              value="canceled"
+              disabled={selectedStatus === "canceled"}
+              style={{ color: "red", fontWeight: "bold" }}
+            >
+              Canceled
+            </option>
+          )}
+        </select>
+      )}
 
-              {/* Haircut Details Button */}
-              <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
-                {/* Left: Add Haircut Details */}
-                <div>
-                  <button
-                    className="btn btn-primary mb-4"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createboardModal"
-                    onClick={handleOpen}
-                    disabled={
-                      !isAppointmentToday(event?.eventDate) ||
-                      event?.status === "completed" ||
-                      event?.status === "canceled"
-                    }
-                  >
-                    <i className="ri-add-line align-bottom me-1"></i> Add
-                    Haircut Details
-                  </button>
-                </div>
+      {/* Shared Confirmation Modal */}
+      <AppointmentConfirmationModal
+        isOpen={isModalOpen}
+        toggle={toggleModal}
+        onConfirm={confirmStatusChange}
+        status={selectedStatus}
+        isAppointment={false}
+        isTransferBarber={false}
+        isService={false}
+        appointmentId={appointmentId}
+        showSpinner={showSpinner}
+      />
+    </div>
+  ) : (
+    <div className="col-md-6 d-flex align-items-center justify-content-start mb-2">
+      <label className="mb-2">Status</label>
+      <div className="ms-2 text-muted">Loading...</div>
+    </div>
+  )}
 
-                {/* Right: Add Tip */}
-                <div>
-                  <Button
-                    className="btn btn-primary mb-4"
-                    onClick={() => setTipModalOpen(true)}
-                    disabled={
-                      !isAppointmentToday(event?.eventDate) ||
-                      event?.status === "completed" ||
-                      event?.status === "canceled"
-                    }
-                  >
-                    <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-                  </Button>
-                </div>
-              </div>
-            </div>
+  {/* Shared Haircut + Tip Buttons */}
+  <div className="d-flex align-items-center justify-content-end mt-2 gap-2">
+    <div>
+      <button
+        className="btn btn-primary mb-4"
+        data-bs-toggle="modal"
+        data-bs-target="#createboardModal"
+        onClick={handleOpen}
+        disabled={
+          !isAppointmentToday(event?.eventDate) ||
+          event?.status === "completed" ||
+          event?.status === "canceled"
+        }
+      >
+        <i className="ri-add-line align-bottom me-1"></i> Add Haircut Details
+      </button>
+    </div>
+
+    <div>
+      <Button
+        className="btn btn-primary mb-4"
+        onClick={() => setTipModalOpen(true)}
+        disabled={
+          !isAppointmentToday(event?.eventDate) ||
+          event?.status === "completed" ||
+          event?.status === "canceled"
+        }
+      >
+        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+      </Button>
+    </div>
+  </div>
+</div>
+
 
             {card?.haircutDetails?.length ? (
               <TableContainer
