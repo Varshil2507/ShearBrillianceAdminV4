@@ -19,7 +19,7 @@ import {
   Spinner,
 } from "reactstrap";
 //Import images
-import logoDark from "../../../../assets/images/small-logo.png";
+import logoDark from "../../../../assets/images/smallest.png"
 import classnames from "classnames";
 import Flatpickr from "react-flatpickr";
 import ca from "../../../../assets/images/flags/ca.svg";
