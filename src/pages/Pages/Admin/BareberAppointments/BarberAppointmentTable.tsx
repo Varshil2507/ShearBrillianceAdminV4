@@ -107,7 +107,6 @@ const BarberAppointmentTable: React.FC = () => {
     // salon: object | null; // Add this line
   }
 
-
   useEffect(() => {
     getBarberSessionsData();
     const fetchBarbersList = async () => {
@@ -158,7 +157,6 @@ const BarberAppointmentTable: React.FC = () => {
   const togglePlusIcon = (id: any) => {
     setOpenPlusIcon(openPlusIcon === id ? "" : id);
   };
-
 
   const parseTime = (time: any) => {
     if (!time) return null;
@@ -212,10 +210,6 @@ const BarberAppointmentTable: React.FC = () => {
   };
 
   // validation
- 
-
-
-
 
   return (
     <React.Fragment>
@@ -225,14 +219,10 @@ const BarberAppointmentTable: React.FC = () => {
             <div className="card-header border-0">
               <div className="d-flex align-items-center">
                 <h5 className="card-title mb-0 flex-grow-1">
-                  Barber Appointments
+                  Barbers Today's Appointments
                 </h5>
-                <b className="text-danger">
-                  Unavailable barber not shown in the schedule
-                </b>
-                <div className="flex-shrink-0">
-                
-                </div>
+
+                <div className="flex-shrink-0"></div>
               </div>
             </div>
 
@@ -275,13 +265,11 @@ const BarberAppointmentTable: React.FC = () => {
                     </div>
                   )}
                 </Accordion>
-               
               )}
             </div>
           </div>
         </Col>
       </div>
-
     </React.Fragment>
   );
 };

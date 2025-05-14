@@ -64,7 +64,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   const [appointmentData, setAppointmentData] = useState<any[]>([]);
   const [selectedStartDate, setStartDate] = useState<any>(new Date());
   const [selectedEndDate, setEndDate] = useState<any>(new Date());
-  const [selectedCurrentPage, setCurrentPage] = useState<number>(1);
+  const [selectedCurrentPage, setCurrentPage] = useState<number>(0);
   const [selectedStatus, setStatus] = useState<string>("all");
   const [selectedSearchText, selectedSearch] = useState<string>("");
   const [selectedTotalItems, setTotalItems] = useState<number>(0);
@@ -267,7 +267,6 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
 
   const handleStatusChange = (newStatus: string) => {
-    debugger;
     toggleModal(); // Open the confirmation modal
     setPreviousOption(selectedStatuss);
     setSelectedStatus(newStatus); // Set the new status
@@ -275,7 +274,6 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   };
   const confirmStatusChange = async () => {
     try {
-      debugger;
       if (appointmentId) {
         setShowSpinner(true);
         await updateAppointmentStatus(appointmentId, {
@@ -663,7 +661,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     customPageSize={limit}
                     totalPages={selectedTotalPages ?? 0}
                     totalItems={selectedTotalItems ?? 0}
-                    currentPageIndex={selectedCurrentPage - 1} // ✅ Convert to 0-based index
+                    currentPageIndex={selectedCurrentPage ?? 1} // ✅ Convert to 0-based index
                     selectedDateRange={[selectedStartDate, selectedEndDate]}
                     selectedStatus={selectedStatus}
                     divClass="table-responsive text-black table-card mb-3"

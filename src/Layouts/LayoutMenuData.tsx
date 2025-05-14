@@ -195,6 +195,17 @@ const Navdata = () => {
         ROLES.SALON_MANAGER,
       ], // All roles can see this
     },
+    {
+      id: "barberappointment",
+      label: "Daily Appointment List",
+      icon: " ri-calendar-todo-fill",
+      link: "/barber-appointments",
+      click: (e: any) => {
+        e?.preventDefault();
+        setIscurrentState("Barber Appointments");
+      },
+      allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER], // Only Admin can see
+    },
     // Removed the standalone Calender item since it's now a submenu item
     {
       id: "Insalonappointment",
@@ -270,17 +281,6 @@ const Navdata = () => {
       click: (e: any) => {
         e?.preventDefault();
         setIscurrentState("Customers");
-      },
-      allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER], // Only Admin can see
-    },
-    {
-      id: "barberappointment",
-      label: "Barber Appointments",
-      icon: " ri-calendar-todo-fill",
-      link: "/barber-appointments",
-      click: (e: any) => {
-        e?.preventDefault();
-        setIscurrentState("Barber Appointments");
       },
       allowedRoles: [ROLES.ADMIN, ROLES.SALON_OWNER, ROLES.SALON_MANAGER], // Only Admin can see
     },
