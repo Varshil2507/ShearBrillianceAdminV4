@@ -81,7 +81,7 @@ const AppointmentTable: React.FC = () => {
   const [selectedSearchText, selectedSearch] = useState<null>();
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
-  const [tipPercentage, setTipPercentage] = useState<any>(0);
+  const [tipPercentage, setTipPercentage] = useState<any>(null);
   const [customTip, setCustomTip] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
 
@@ -1384,7 +1384,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                   </FormFeedback>
                 ) : null}
               </Col>
-              <Col lg={12}>
+              {/* <Col lg={12}>
                 <Label className="form-label me-1">Tip</Label>
                 <div className="btn-group btn-group d-flex flex-wrap">
                   <Label
@@ -1437,15 +1437,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                   </Label>
                 </div>
 
-                {/* {tipPercentage === 'custom' && (
-                  <Input
-                    type="number"
-                    placeholder="Enter custom tip"
-                    value={customTip}
-                    onChange={handleCustomTipChange}
-                    className="mt-2"
-                  />
-                )} */}
+          
 
                 {tipPercentage === "custom" && (
                   <Input
@@ -1460,13 +1452,13 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     invalid={isInvalid}
                   />
                 )}
-              </Col>
+              </Col> */}
 
               <Col
                 lg={12}
-                className="d-flex justify-content-between align-item-center"
+                className="d-flex justify-content-end align-item-center"
               >
-                <h5>Total: ${totalPrice.toFixed(2)}</h5>
+                {/* <h5>Total: ${totalPrice.toFixed(2)}</h5> */}
                 <h5>Final Amount: ${finalAmount.toFixed(2)}</h5>
               </Col>
             </Row>
