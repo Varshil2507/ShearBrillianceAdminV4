@@ -418,43 +418,42 @@ const CalenderScheduleInfo: React.FC = () => {
   //     showErrorToast("Failed to update tip.");
   //   }
   // };
-const [formData, setFormData] = useState({
-  tipAmount: "",
-});
-const [tipSubmitted, setTipSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    tipAmount: "",
+  });
+  const [tipSubmitted, setTipSubmitted] = useState(false);
 
-const handleTipSubmit = async (appointmentId: any) => {
-  setTipSubmitted(true); // Trigger validation on submit
+  const handleTipSubmit = async (appointmentId: any) => {
+    setTipSubmitted(true); // Trigger validation on submit
 
-  const newTip = Number(formData.tipAmount);
-  if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
-    showErrorToast("Please enter a valid tip amount.");
-    return;
-  }
+    const newTip = Number(formData.tipAmount);
+    if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+      showErrorToast("Please enter a valid tip amount.");
+      return;
+    }
 
-  try {
-    setTipSubmitting(true);
+    try {
+      setTipSubmitting(true);
 
-    const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
-    const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
+      const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
+      const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
 
-    const updatedTip = oldTip + newTip;
-    const updatedTotal = oldTotal + newTip;
+      const updatedTip = oldTip + newTip;
+      const updatedTotal = oldTotal + newTip;
 
-    await updateTipAmount(appointmentId, updatedTip);
+      await updateTipAmount(appointmentId, updatedTip);
 
-    showSuccessToast("Tip submitted successfully!");
+      showSuccessToast("Tip submitted successfully!");
 
-    setTipModalOpen(false);
-    setFormData({ ...formData, tipAmount: "" });
-    setTipSubmitted(false); // Reset validation
-  } catch (error) {
-    showErrorToast("Failed to update tip.");
-  } finally {
-    setTipSubmitting(false);
-  }
-};
-
+      setTipModalOpen(false);
+      setFormData({ ...formData, tipAmount: "" });
+      setTipSubmitted(false); // Reset validation
+    } catch (error) {
+      showErrorToast("Failed to update tip.");
+    } finally {
+      setTipSubmitting(false);
+    }
+  };
 
   const handleCustomTipChange = (e: any) => {
     const value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
@@ -1334,7 +1333,7 @@ const handleTipSubmit = async (appointmentId: any) => {
                       onClick={handleOpen}
                       disabled={
                         !isAppointmentToday(event?.eventDate) ||
-                        // event?.status === "completed" ||
+                        event?.status === "appointment" ||
                         event?.status === "canceled"
                       }
                     >
@@ -1344,19 +1343,23 @@ const handleTipSubmit = async (appointmentId: any) => {
                   </div>
 
                   {/* Right: Add Tip */}
-                  <div>
-                    <Button
-                      className="btn btn-primary mb-4"
-                      onClick={() => setTipModalOpen(true)}
-                      disabled={
-                        !isAppointmentToday(event?.eventDate) ||
-                        // event?.status === "completed" ||
-                        event?.status === "canceled"
-                      }
-                    >
-                      <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-                    </Button>
-                  </div>
+                  {(!event?.paymentDetails?.tip ||
+                    Number(event.paymentDetails.tip) === 0) && (
+                    <div>
+                      <Button
+                        className="btn btn-primary mb-4"
+                        onClick={() => setTipModalOpen(true)}
+                        disabled={
+                          !isAppointmentToday(event?.eventDate) ||
+                          event?.status === "appointment" ||
+                          event?.status === "canceled"
+                        }
+                      >
+                        <i className="ri-cash-line align-bottom me-1"></i> Add
+                        Tip
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1411,7 +1414,7 @@ const handleTipSubmit = async (appointmentId: any) => {
             </Col>
 
             <Col lg={12}>
-              <div className="d-flex justify-content-between mt-2">
+              {/* <div className="d-flex justify-content-between mt-2">
                 <span>
                   <b>Previous Tip:</b>
                 </span>
@@ -1432,11 +1435,11 @@ const handleTipSubmit = async (appointmentId: any) => {
                 </span>
               </div>
 
-              <hr />
+              <hr /> */}
 
               <div className="d-flex justify-content-between">
                 <span>
-                  <b>New Tip:</b>
+                  <b>Tip:</b>
                 </span>
                 <span>${parseFloat(formData.tipAmount || "0").toFixed(2)}</span>
               </div>

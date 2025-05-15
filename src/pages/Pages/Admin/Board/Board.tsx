@@ -150,7 +150,7 @@ const Board = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeFilterBarber, setActiveFilterBarber] = useState<any>();
-  const [tipPercentage, setTipPercentage] = useState<any>(0);
+  const [tipPercentage, setTipPercentage] = useState<any>(null);
   const [customTip, setCustomTip] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
   const navigate = useNavigate();
@@ -2385,21 +2385,17 @@ const handleTipSubmit = async (appointmentId: any) => {
                                                         Complete
                                                       </Button>
                                                     )}
-                                                    {(line.nameAlias ===
-                                                      "In Salon" || line.name === "completed") && (
-                                                      <Button
-                                                        color="primary"
-                                                        type="button"
-                                                        style={{
-                                                          padding: "0px 5px",
-                                                        }}
-                                                        onClick={() =>
-                                                          handleAddTip(card)
-                                                        } // Open the modal with the card details
-                                                      >
-                                                        Add Tip
-                                                      </Button>
-                                                    )}
+                                                 {line.name === "completed" && (!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) && (
+  <Button
+    color="primary"
+    type="button"
+    style={{ padding: "0px 5px" }}
+    onClick={() => handleAddTip(card)}
+  >
+    Add Tip
+  </Button>
+)}
+
                                                   </div>
                                                 )}
                                               </div>
@@ -2741,7 +2737,7 @@ const handleTipSubmit = async (appointmentId: any) => {
 
               <Col lg={12}>
                 {/* Previous Tip and Total */}
-                <div className="d-flex justify-content-between mt-2">
+                {/* <div className="d-flex justify-content-between mt-2">
                   <span>
                     <b>Previous Tip:</b>
                   </span>
@@ -2751,9 +2747,9 @@ const handleTipSubmit = async (appointmentId: any) => {
                       cardDetails?.paymentDetails?.tip || "0"
                     ).toFixed(2)}
                   </span>
-                </div>
+                </div> */}
 
-                <div className="d-flex justify-content-between">
+                {/* <div className="d-flex justify-content-between">
                   <span>
                     <b>Previous Total:</b>
                   </span>
@@ -2763,14 +2759,14 @@ const handleTipSubmit = async (appointmentId: any) => {
                       cardDetails?.paymentDetails?.totalAmount || "0"
                     ).toFixed(2)}
                   </span>
-                </div>
+                </div> */}
 
                 <hr />
 
                 {/* New Tip and New Total */}
                 <div className="d-flex justify-content-between">
                   <span>
-                    <b>New Tip:</b>
+                    <b>Tip:</b>
                   </span>
                   <span>
                     ${parseFloat(formData.tipAmount || "0").toFixed(2)}
@@ -3147,10 +3143,10 @@ const handleTipSubmit = async (appointmentId: any) => {
                   </FormFeedback>
                 ) : null}
               </Col>
-              <Col lg={12}>
+              {/* <Col lg={12}>
                 <Label className="form-label me-1">Tip</Label>
                 <div className="btn-group btn-group d-flex flex-wrap">
-                  {/* None Option */}
+             
                   <Label
                     className={`btn btn-outline-primary ${
                       tipPercentage === 0 ? "active" : ""
@@ -3167,7 +3163,7 @@ const handleTipSubmit = async (appointmentId: any) => {
                     None
                   </Label>
 
-                  {/* Preset Tip Options */}
+          
                   {[20, 25, 30, 40].map((percentage) => (
                     <Label
                       key={percentage}
@@ -3187,7 +3183,7 @@ const handleTipSubmit = async (appointmentId: any) => {
                     </Label>
                   ))}
 
-                  {/* Custom Tip Option */}
+           
                   <Label
                     className={`btn btn-outline-primary ${
                       tipPercentage === "custom" ? "active" : ""
@@ -3205,16 +3201,7 @@ const handleTipSubmit = async (appointmentId: any) => {
                   </Label>
                 </div>
 
-                {/* Custom Tip Input Field */}
-                {/* {tipPercentage === "custom" && (
-                  <Input
-                    type="number"
-                    placeholder="Enter custom tip"
-                    value={customTip}
-                    onChange={handleCustomTipChange}
-                    className="mt-2"
-                  />
-                )} */}
+             
 
                 {tipPercentage === "custom" && (
                   <Input
@@ -3229,13 +3216,13 @@ const handleTipSubmit = async (appointmentId: any) => {
                     invalid={isInvalid}
                   />
                 )}
-              </Col>
+              </Col> */}
 
               <Col
                 lg={12}
-                className="d-flex justify-content-between align-item-center"
+                className="d-flex justify-content-end align-item-center"
               >
-                <h5>Total: ${totalPrice.toFixed(2)}</h5>
+                {/* <h5>Total: ${totalPrice.toFixed(2)}</h5> */}
                 <h5>Final Amount: ${finalAmount.toFixed(2)}</h5>
               </Col>
             </Row>

@@ -1002,34 +1002,35 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     data-bs-toggle="modal"
                     data-bs-target="#createboardModal"
                     onClick={handleOpen}
-                    disabled={
-                      !isAppointmentToday(
-                        card?.appointment_date || card?.check_in_time
-                      ) ||
-                      // card?.status === "completed" ||
-                      card?.status === "canceled"
-                    }
+                   disabled={
+      !card ||
+      card.status !== "completed" || // ✅ Only enable if status is "completed"
+      !isAppointmentToday(card.appointment_date || card.check_in_time)
+    }
                   >
                     <i className="ri-add-line align-bottom me-1"></i> Add
                     Haircut Details
                   </button>
                 </div>
 
-                <div>
-                  <Button
-                    className="btn btn-primary mb-4"
-                    onClick={() => setTipModalOpen(true)}
-                    disabled={
-                      !isAppointmentToday(
-                        card?.appointment_date || card?.check_in_time
-                      ) ||
-                      // card?.status === "completed" ||
-                      card?.status === "canceled"
-                    }
-                  >
-                    <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-                  </Button>
-                </div>
+  {(!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) && (
+  <div>
+    <Button
+      className="btn btn-primary mb-4"
+      onClick={() => setTipModalOpen(true)}
+      disabled={
+        !card ||
+        card.status !== "completed" || // ✅ Only allow if completed
+        !isAppointmentToday(card.appointment_date || card.check_in_time) // ✅ Only if it's today's appointment
+      }
+    >
+      <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+    </Button>
+  </div>
+)}
+
+
+
               </div>
             </div>
 
@@ -1082,7 +1083,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
           </Col>
 
           <Col lg={12}>
-            <div className="d-flex justify-content-between mt-2">
+            {/* <div className="d-flex justify-content-between mt-2">
               <span>
                 <b>Previous Tip:</b>
               </span>
@@ -1101,13 +1102,13 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   2
                 )}
               </span>
-            </div>
+            </div> */}
 
-            <hr />
+
 
             <div className="d-flex justify-content-between">
               <span>
-                <b>New Tip:</b>
+                <b> Tip:</b>
               </span>
               <span>${parseFloat(formData.tipAmount || "0").toFixed(2)}</span>
             </div>
