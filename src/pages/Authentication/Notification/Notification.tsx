@@ -307,7 +307,7 @@ const Notification: React.FC = () => {
           setSelectedImage(null); // Clear selected image
         } else {
           setSelectedImage(file); // Save the file object
-          showErrorToast("");
+          // showErrorToast("");
         }
       } else {
         showErrorToast(
