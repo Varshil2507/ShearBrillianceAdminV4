@@ -140,7 +140,6 @@ const BarberAppointmentList = ({ salonNames }: any) => {
   ) => {
     try {
       setShowLoader(true);
-
       const response: any = await fetchBarbersAppointments({
         startDate: otherFormatDate(startDate),
         endDate: otherFormatDate(endDate),
@@ -180,10 +179,9 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     if (newOpen === id) {
       const resetPage = 1;
       const today = new Date();
-
       // ✅ Reset filters on barber switch
       setSelectedBarber(String(barberId));
-      setCurrentPage(resetPage);
+      setCurrentPage(0);
       setStatus("all");
       selectedSearch("");
       setStartDate(today);
@@ -624,7 +622,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         </Col> */}
       </Row>
 
-      <Accordion open={openAccordion} toggle={() => {}}>
+      <Accordion open={openAccordion} toggle={() => { }}>
         {filteredData.map((barbr: any, idx: number) => (
           <AccordionItem key={`barber-${idx}`} id={`${idx}`}>
             <AccordionHeader
@@ -649,11 +647,10 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     </span>
                   </div>
                   <span
-                    className={`badge ${
-                      barbr.barber.availability_status === "available"
+                    className={`badge ${barbr.barber.availability_status === "available"
                         ? "bg-success"
                         : "bg-danger"
-                    }`}
+                      }`}
                   >
                     {barbr.barber.availability_status}
                   </span>
@@ -762,8 +759,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 <div className="form-group py-2 border-bottom">
                   <b>Customer Name: </b>
                   {card?.User
-                    ? `${card.User.firstname || ""} ${
-                        card.User.lastname || ""
+                    ? `${card.User.firstname || ""} ${card.User.lastname || ""
                       }`.trim() || "N/A"
                     : "N/A"}
                 </div>
@@ -817,7 +813,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   style={{
                     color:
                       card?.paymentDetails?.paymentStatus?.toLowerCase() ===
-                      "success"
+                        "success"
                         ? "green"
                         : "red",
                   }}
@@ -832,7 +828,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                       className="btn btn-warning p-0 px-2"
                       data-tooltip-id="download-tooltip"
                       data-tooltip-content="Download Receipt"
-                      // onClick={() => handlePrint()}
+                    // onClick={() => handlePrint()}
                     >
                       <i className="ri-download-line"></i> Receipt
                     </Link>
@@ -857,8 +853,8 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           card.status === "completed"
                             ? "green"
                             : card.status === "canceled"
-                            ? "red"
-                            : "orange",
+                              ? "red"
+                              : "orange",
                         fontWeight: "bold",
                         width: "auto",
                         backgroundColor: "#F8F9FA",
@@ -882,12 +878,12 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           selectedStatuss === "check_in"
                             ? "blue"
                             : selectedStatuss === "in_salon"
-                            ? "purple"
-                            : selectedStatuss === "completed"
-                            ? "green"
-                            : selectedStatuss === "canceled"
-                            ? "red"
-                            : "black",
+                              ? "purple"
+                              : selectedStatuss === "completed"
+                                ? "green"
+                                : selectedStatuss === "canceled"
+                                  ? "red"
+                                  : "black",
                         fontWeight: "bold",
                         width: "auto",
                       }}
@@ -942,10 +938,10 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           selectedStatus === "appointment"
                             ? "orange"
                             : selectedStatus === "completed"
-                            ? "green"
-                            : selectedStatus === "canceled"
-                            ? "red"
-                            : "black",
+                              ? "green"
+                              : selectedStatus === "canceled"
+                                ? "red"
+                                : "black",
                         fontWeight: "bold",
                         width: "auto",
                       }}
@@ -1076,12 +1072,11 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 onChange={(e) =>
                   setFormData({ ...formData, tipAmount: e.target.value })
                 }
-                className={`form-control ${
-                  tipSubmitted &&
-                  (!formData.tipAmount || Number(formData.tipAmount) <= 0)
+                className={`form-control ${tipSubmitted &&
+                    (!formData.tipAmount || Number(formData.tipAmount) <= 0)
                     ? "is-invalid"
                     : ""
-                }`}
+                  }`}
               />
             </div>
           </Col>
@@ -1187,7 +1182,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.haircut_style}
                           className={
                             haircutFormik.touched?.haircut_style &&
-                            haircutFormik.errors?.haircut_style
+                              haircutFormik.errors?.haircut_style
                               ? "is-invalid"
                               : ""
                           }
@@ -1215,7 +1210,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.customer_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.customer_notes &&
-                        haircutFormik.errors?.customer_notes ? (
+                          haircutFormik.errors?.customer_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.customer_notes}
                           </FormFeedback>
@@ -1235,7 +1230,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.barber_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.barber_notes &&
-                        haircutFormik.errors?.barber_notes ? (
+                          haircutFormik.errors?.barber_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.barber_notes}
                           </FormFeedback>
@@ -1256,7 +1251,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.product_used}
                           className={
                             haircutFormik.touched?.product_used &&
-                            haircutFormik.errors?.product_used
+                              haircutFormik.errors?.product_used
                               ? "is-invalid"
                               : ""
                           }
