@@ -2387,20 +2387,30 @@ const Board = () => {
                                                         Complete
                                                       </Button>
                                                     )}
-                                                  {line.name === "completed" &&
-  (!card?.paymentDetails?.tip ||
-    Number(card.paymentDetails.tip) === 0) &&
-  card?.paymentDetails?.paymentMode !== "Pay_Online" && (
-    <Button
-      color="primary"
-      type="button"
-      style={{ padding: "0px 5px" }}
-      onClick={() => handleAddTip(card)}
-    >
-      Add Tip
-    </Button>
-)}
-
+                                                    {line.name ===
+                                                      "completed" &&
+                                                      (!card?.paymentDetails
+                                                        ?.tip ||
+                                                        Number(
+                                                          card.paymentDetails
+                                                            .tip
+                                                        ) === 0) &&
+                                                      card?.paymentDetails
+                                                        ?.paymentMode !==
+                                                        "Pay_Online" && (
+                                                        <Button
+                                                          color="primary"
+                                                          type="button"
+                                                          style={{
+                                                            padding: "0px 5px",
+                                                          }}
+                                                          onClick={() =>
+                                                            handleAddTip(card)
+                                                          }
+                                                        >
+                                                          Add Tip
+                                                        </Button>
+                                                      )}
                                                   </div>
                                                 )}
                                               </div>
