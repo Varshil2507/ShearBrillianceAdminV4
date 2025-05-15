@@ -423,9 +423,7 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
         values.end_time = "";
       }
       if (newBarberSession?.isGeneralSchedule) {
-        values.session_date = newBarberSession?.session_date
-          ? format(new Date(newBarberSession?.session_date), "yyyy-MM-dd")
-          : today;
+        values.session_date = newBarberSession?.session_date || today;
       }
       if (newBarberSession?.id) {
         updateBarberSession(values.id, values)
@@ -574,10 +572,10 @@ const BarberScheduleList = ({ salonNames, onReload, BarberId }: any) => {
       return;
     }
     // if(newBarberSession?.lastBarberScheduleDate )
-    formik.setFieldValue("session_date", event.target.value);
+    formik.setFieldValue("session_date", selectedDate);
     setNewBarberSession((prev: any) => ({
       ...prev,
-      session_date: event.target.value,
+      session_date: selectedDate,
     }));
     // const isAvailableSchedule = barberInfo.schedule?.find((info: any) => formatDate(info.date).toString() === formatDate(event.target.value).toString() && info.is_non_working_day == false && info.is_leave_day === false);
     // setIsAvailableSchedule(isAvailableSchedule ? true : false);

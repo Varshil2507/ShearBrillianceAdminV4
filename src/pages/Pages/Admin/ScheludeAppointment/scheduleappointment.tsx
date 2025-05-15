@@ -19,7 +19,7 @@ import {
   Spinner,
 } from "reactstrap";
 //Import images
-import logoDark from "../../../../assets/images/smallest.png"
+import logoDark from "../../../../assets/images/smallest.png";
 import classnames from "classnames";
 import Flatpickr from "react-flatpickr";
 import ca from "../../../../assets/images/flags/ca.svg";
@@ -406,32 +406,30 @@ const Scheduleappointment = () => {
   };
   // -------------------------------
 
-  const getDisabledLeaveDates = (leaves: any[], nonWorkingDays: number[]) => {
+  const getDisabledLeaveDates = async (
+    leaves: any[],
+    nonWorkingDays: number[],
+    barberId: number
+  ) => {
     const disabledDates: string[] = [];
 
-    // Loop through barber's leave days
+    // ✅ 1. Handle approved leaves (as-is)
     leaves.forEach((leave) => {
       const { start_date, end_date, status, availability_status } = leave;
-
       if (status === "approved" && availability_status === "unavailable") {
         const start = new Date(start_date);
         const end = new Date(end_date);
         let current = new Date(start);
-
         while (current <= end) {
-          disabledDates.push(current.toISOString().split("T")[0]); // 'YYYY-MM-DD'
+          disabledDates.push(current.toISOString().split("T")[0]);
           current.setDate(current.getDate() + 1);
         }
       }
     });
 
-    // Convert non-working days like 7 (Sunday) to 0
-    const convertedNonWorkingDays = nonWorkingDays.map((day) => {
-      if (day === 7) return 0; // Convert Sunday (7) to 0
-      return day;
-    });
+    // ✅ 2. Override non-working days IF no available slots
+    const convertedDays = nonWorkingDays.map((day) => (day === 7 ? 0 : day));
 
-    // Loop through today to 30 days later for non-working weekdays
     const today = new Date();
     const maxDate = new Date();
     maxDate.setDate(today.getDate() + 30);
@@ -439,13 +437,25 @@ const Scheduleappointment = () => {
     let current = new Date(today);
     while (current <= maxDate) {
       const dayOfWeek = current.getDay(); // 0 = Sunday, ..., 6 = Saturday
+      if (convertedDays.includes(dayOfWeek)) {
+        const formattedDate = current.toISOString().split("T")[0];
 
-      if (convertedNonWorkingDays.includes(dayOfWeek)) {
-        const formatted = current.toISOString().split("T")[0];
-        if (!disabledDates.includes(formatted)) {
-          disabledDates.push(formatted);
+        try {
+          const res = await fetchTimeSlots(String(barberId), formattedDate);
+
+          const slots = res?.[0]?.slots ?? [];
+
+          const hasAvailable = slots.some((s: any) => !s.is_booked);
+
+          if (!hasAvailable) {
+            disabledDates.push(formattedDate);
+          }
+        } catch (error) {
+          console.warn("Error fetching slots for", formattedDate, error);
+          disabledDates.push(formattedDate); // fallback: disable
         }
       }
+
       current.setDate(current.getDate() + 1);
     }
 
@@ -475,9 +485,10 @@ const Scheduleappointment = () => {
             if (availableBarbers.length === 1) {
               const leaveDates = getDisabledLeaveDates(
                 availableBarbers[0].leaves || [],
-                availableBarbers[0].non_working_days || [] // Include non-working days in the disabled dates logic
+                availableBarbers[0].non_working_days || [],
+                availableBarbers[0].id // ✅ Pass barber ID for slot check
               );
-              setDisabledLeaveDates(leaveDates);
+              setDisabledLeaveDates(await leaveDates); // ❗️ await the async call
             }
 
             // 👉 Optional: If multiple barbers are shown in the dropdown,
@@ -497,7 +508,7 @@ const Scheduleappointment = () => {
     loadBarbers();
   }, [formData.selectedSalon]);
 
-  const handleBarberSelect = (barber: {
+  const handleBarberSelect = async (barber: {
     id: any;
     name: any;
     services: [];
@@ -520,9 +531,10 @@ const Scheduleappointment = () => {
     appointmentData.selectBarbername = barber.name;
 
     // ✅ SET DISABLED LEAVE DATES
-    const leaveDates = getDisabledLeaveDates(
+    const leaveDates = await getDisabledLeaveDates(
       barber.leaves || [],
-      barber.non_working_days || []
+      barber.non_working_days || [],
+      barber.id
     );
     setDisabledLeaveDates(leaveDates);
 
