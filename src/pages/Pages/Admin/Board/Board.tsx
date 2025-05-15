@@ -537,7 +537,7 @@ const Board = () => {
         const openTime = new Date(`${today}T${salon.open_time}`);
         const closeTime = new Date(`${today}T${salon.close_time}`);
 
-        // Check if salon is open 
+        // Check if salon is open
         const isSalonOpen = now >= openTime && now < closeTime;
 
         if (!isSalonOpen) {
@@ -1653,31 +1653,31 @@ const Board = () => {
     }
   };
 
-const [tipSubmitted, setTipSubmitted] = useState(false);
-const handleTipSubmit = async (appointmentId: any) => {
-  setTipSubmitted(true); // Trigger validation on submit
-  const newTip = Number(formData.tipAmount);
-  if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
-    showErrorToast("Please enter a valid tip amount.");
-    return;
-  }
-  try {
-    setTipSubmitting(true);
-    const oldTip = parseFloat(card?.paymentDetails?.tip || "0");
-    const oldTotal = parseFloat(card?.paymentDetails?.totalAmount || "0");
-    const updatedTip = oldTip + newTip;
-    const updatedTotal = oldTotal + newTip;
-    await updateTipAmount(appointmentId, updatedTip);
-    showSuccessToast("Tip submitted successfully!");
-    setTipModalOpen(false);
-    setFormData({ ...formData, tipAmount: "" });
-    setTipSubmitted(false); // Reset validation
-  } catch (error) {
-    showErrorToast("Failed to update tip.");
-  } finally {
-    setTipSubmitting(false);
-  }
-};
+  const [tipSubmitted, setTipSubmitted] = useState(false);
+  const handleTipSubmit = async (appointmentId: any) => {
+    setTipSubmitted(true); // Trigger validation on submit
+    const newTip = Number(formData.tipAmount);
+    if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+      showErrorToast("Please enter a valid tip amount.");
+      return;
+    }
+    try {
+      setTipSubmitting(true);
+      const oldTip = parseFloat(card?.paymentDetails?.tip || "0");
+      const oldTotal = parseFloat(card?.paymentDetails?.totalAmount || "0");
+      const updatedTip = oldTip + newTip;
+      const updatedTotal = oldTotal + newTip;
+      await updateTipAmount(appointmentId, updatedTip);
+      showSuccessToast("Tip submitted successfully!");
+      setTipModalOpen(false);
+      setFormData({ ...formData, tipAmount: "" });
+      setTipSubmitted(false); // Reset validation
+    } catch (error) {
+      showErrorToast("Failed to update tip.");
+    } finally {
+      setTipSubmitting(false);
+    }
+  };
   const handleAddTip = (card: any) => {
     setSelectedCard(card); // Store selected card details
     setTipModalOpen(true); // Open the tip modal
@@ -2284,7 +2284,9 @@ const handleTipSubmit = async (appointmentId: any) => {
                                                 {(line.nameAlias ===
                                                   "Check In" ||
                                                   line.nameAlias ===
-                                                    "In Salon" || line.name ==="completed") && (
+                                                    "In Salon" ||
+                                                  line.name ===
+                                                    "completed") && (
                                                   <div className="flex-grow-1 mt-2">
                                                     {/* Button for "In Salon" */}
                                                     {line.nameAlias ===
@@ -2385,15 +2387,18 @@ const handleTipSubmit = async (appointmentId: any) => {
                                                         Complete
                                                       </Button>
                                                     )}
-                                                 {line.name === "completed" && (!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) && (
-  <Button
-    color="primary"
-    type="button"
-    style={{ padding: "0px 5px" }}
-    onClick={() => handleAddTip(card)}
-  >
-    Add Tip
-  </Button>
+                                                  {line.name === "completed" &&
+  (!card?.paymentDetails?.tip ||
+    Number(card.paymentDetails.tip) === 0) &&
+  card?.paymentDetails?.paymentMode !== "Pay_Online" && (
+    <Button
+      color="primary"
+      type="button"
+      style={{ padding: "0px 5px" }}
+      onClick={() => handleAddTip(card)}
+    >
+      Add Tip
+    </Button>
 )}
 
                                                   </div>
@@ -2725,12 +2730,12 @@ const handleTipSubmit = async (appointmentId: any) => {
                     onChange={(e) =>
                       setFormData({ ...formData, tipAmount: e.target.value })
                     }
-                  className={`form-control ${
-    tipSubmitted &&
-    (!formData.tipAmount || Number(formData.tipAmount) <= 0)
-      ? "is-invalid"
-      : ""
-  }`}
+                    className={`form-control ${
+                      tipSubmitted &&
+                      (!formData.tipAmount || Number(formData.tipAmount) <= 0)
+                        ? "is-invalid"
+                        : ""
+                    }`}
                   />
                 </div>
               </Col>

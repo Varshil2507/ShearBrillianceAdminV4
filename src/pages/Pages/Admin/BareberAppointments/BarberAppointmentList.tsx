@@ -1013,21 +1013,20 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   </button>
                 </div>
 
-  {(!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) && (
-  <div>
-    <Button
-      className="btn btn-primary mb-4"
-      onClick={() => setTipModalOpen(true)}
-      disabled={
-        !card ||
-        card.status !== "completed" || // ✅ Only allow if completed
-        !isAppointmentToday(card.appointment_date || card.check_in_time) // ✅ Only if it's today's appointment
-      }
-    >
-      <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-    </Button>
-  </div>
+ {card?.status === "completed" &&
+  (!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) &&
+  card?.paymentDetails?.paymentMode !== "Pay_Online" &&
+  isAppointmentToday(card.appointment_date || card.check_in_time) && (
+    <div>
+      <Button
+        className="btn btn-primary mb-4"
+        onClick={() => setTipModalOpen(true)}
+      >
+        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
+      </Button>
+    </div>
 )}
+
 
 
 
