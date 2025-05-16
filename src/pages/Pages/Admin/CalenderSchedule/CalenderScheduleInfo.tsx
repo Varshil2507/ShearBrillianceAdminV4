@@ -1343,21 +1343,21 @@ const CalenderScheduleInfo: React.FC = () => {
                   </div>
 
                   {/* Right: Add Tip */}
-           {event?.status === "completed" &&
-  (!event?.paymentDetails?.tip || Number(event.paymentDetails.tip) === 0) &&
-  event?.paymentDetails?.paymentMode !== "Pay_Online" &&
-  isAppointmentToday(event?.eventDate) && (
-    <div>
-      <Button
-        className="btn btn-primary mb-4"
-        onClick={() => setTipModalOpen(true)}
-      >
-        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-      </Button>
-    </div>
-)}
-
-
+                  {event?.status === "completed" &&
+                    (!event?.paymentDetails?.tip ||
+                      Number(event.paymentDetails.tip) === 0) &&
+                    event?.paymentDetails?.paymentMode !== "Pay_Online" &&
+                    isAppointmentToday(event?.eventDate) && (
+                      <div>
+                        <Button
+                          className="btn btn-primary mb-4"
+                          onClick={() => setTipModalOpen(true)}
+                        >
+                          <i className="ri-cash-line align-bottom me-1"></i> Add
+                          Tip
+                        </Button>
+                      </div>
+                    )}
                 </div>
               </div>
 

@@ -68,7 +68,7 @@ const AppointmentConfirmationModal = ({
           <>
             <p className="confirmation-text">
               Are you sure you want to update the status?
-              <strong className="status">{status}</strong>?
+              <strong className="status">{status?.replace(/_/g, " ").toUpperCase()}</strong>?
             </p>
             {/* Note Section */}
             <p className="note">
@@ -87,7 +87,7 @@ const AppointmentConfirmationModal = ({
         ) : (
           <p className="confirmation-text">
             Are you sure you want to update the status to{" "}
-            <strong className="status">{status}</strong>?
+            <strong className="status">{status?.replace(/_/g, " ").toUpperCase()}</strong>?
           </p>
         )}
       </ModalBody>
