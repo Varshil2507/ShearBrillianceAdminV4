@@ -2776,7 +2776,7 @@ const Board = () => {
                   </span>
                 </div> */}
 
-                <hr />
+                {/* <hr /> */}
 
                 {/* New Tip and New Total */}
                 <div className="d-flex justify-content-between">
