@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardBody,
@@ -75,6 +75,7 @@ interface Barber {
 }
 
 const Scheduleappointment = () => {
+  const lastClickedBarberIdRef = useRef<number | null>(null);
   // Stepper
   const [activeArrowTab, setactiveArrowTab] = useState(1);
   const [passedarrowSteps, setPassedarrowSteps] = useState([1]);
@@ -528,6 +529,8 @@ const Scheduleappointment = () => {
     leaves?: any[];
     non_working_days?: number[];
   }) => {
+    lastClickedBarberIdRef.current = barber.id;
+
     setSelectedBarberId(barber.id);
     formData.selectedBarber = barber.id;
     setSelectedService(selectedService);
@@ -543,17 +546,27 @@ const Scheduleappointment = () => {
 
     appointmentData.selectBarbername = barber.name;
 
-    // ✅ SET DISABLED LEAVE DATES
-    const leaveDates = await getDisabledLeaveDates(
-      barber.leaves || [],
-      barber.non_working_days || [],
-      barber.id
-    );
-    setDisabledLeaveDates(leaveDates);
-
-    // ✅ Open modal
+    // ✅ Open modal immediately
     setIsModalOpen(true);
-    setBarberConfirmed(false); // ❌ Not confirmed until modal confirm
+    setBarberConfirmed(false);
+
+    try {
+      const leaveDates = await getDisabledLeaveDates(
+        barber.leaves || [],
+        barber.non_working_days || [],
+        barber.id
+      );
+
+      setDisabledLeaveDates(leaveDates);
+
+      // ✅ Only show modal if this is still the last clicked barber
+      if (lastClickedBarberIdRef.current === barber.id) {
+        setIsModalOpen(true);
+        setBarberConfirmed(false);
+      }
+    } catch (err) {
+      showErrorToast("Failed to load leave dates");
+    }
   };
 
   const toggleModal = () => {
