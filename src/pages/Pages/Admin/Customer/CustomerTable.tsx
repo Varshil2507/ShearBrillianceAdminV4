@@ -106,7 +106,7 @@ const CustomerTable: React.FC = () => {
         if (customerData?.length === 0) {
           const timer = setTimeout(() => {
             setShowLoader(false);
-          }, 5000); // Hide loader after 5 seconds
+          }, 500); // Hide loader after 5 seconds
           return () => clearTimeout(timer); // Clear timer if component unmounts or salonData changes
         } else {
           setShowLoader(false); // Immediately hide loader if data is available

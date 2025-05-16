@@ -346,6 +346,7 @@ const CalenderScheduleInfo: React.FC = () => {
 
   // Re-run when these values change
   useEffect(() => {
+    
     const fetchAllData = async () => {
       try {
         // Fetch both salons and barbers data in parallel
