@@ -101,6 +101,7 @@ const Scheduleappointment = () => {
   const [selectBarber, setSelectedBarber] = useState<Barber[]>([]);
   const [selectedBarberId, setSelectedBarberId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [barberConfirmed, setBarberConfirmed] = useState(false);
 
   const [selectedBarber, setSelectBarber] = useState<any | null>(null);
 
@@ -130,6 +131,18 @@ const Scheduleappointment = () => {
 
   function toggleArrowTab(tab: any) {
     if (activeArrowTab !== tab) {
+      if (tab === 3) {
+        setBarberConfirmed(false);
+        setSelectedBarberId(null);
+        setSelectBarber(null);
+        setIsNextButtonActive(false);
+        setFormData((prev) => ({
+          ...prev,
+          selectedBarber: null,
+          selectBarbername: null,
+        }));
+      }
+
       var modifiedSteps = [...passedarrowSteps, tab];
       if (tab === 6) {
         let total;
@@ -540,6 +553,7 @@ const Scheduleappointment = () => {
 
     // ✅ Open modal
     setIsModalOpen(true);
+    setBarberConfirmed(false); // ❌ Not confirmed until modal confirm
   };
 
   const toggleModal = () => {
@@ -555,8 +569,9 @@ const Scheduleappointment = () => {
     toggleModal();
   };
   const handleConfirm = () => {
-    // Do something when user confirms (e.g., proceed with booking)
-    toggleModal(); // Close modal after confirmation
+    setBarberConfirmed(true); // ✅ Confirm barber selection
+    setIsNextButtonActive(true); // ✅ Activate "Next" button
+    toggleModal(); // Close modal
   };
 
   // const handleClose = () => {
@@ -566,15 +581,16 @@ const Scheduleappointment = () => {
   // };
 
   useEffect(() => {
-    if (activeArrowTab === 3) {
-      // Assuming step 3 is the barber selection page
-      setSelectedBarberId(null); // Clear selected barber
-      setFormData((prevData: any) => ({
-        ...prevData,
+    if (activeArrowTab === 3 && !barberConfirmed) {
+      setBarberConfirmed(false);
+      setIsNextButtonActive(false);
+      setSelectedBarberId(null);
+      setSelectBarber(null);
+      setFormData((prev) => ({
+        ...prev,
         selectedBarber: null,
         selectBarbername: null,
       }));
-      setIsNextButtonActive(false); // Deactivate the Next button
     }
   }, [activeArrowTab]);
 
@@ -1575,16 +1591,18 @@ const Scheduleappointment = () => {
                         {/* Select Services 2 */}
                         <TabPane id="steparrow-description-info" tabId={2}>
                           <div className="d-flex align-items-start gap-3 mt-4">
-                            <button
-                              type="button"
-                              className="btn btn-light btn-label previestab"
-                              onClick={() => {
-                                toggleArrowTab(activeArrowTab - 1);
-                              }}
-                            >
-                              <i className="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
-                              Back
-                            </button>
+                            {!(salons.length === 1) && (
+                              <button
+                                type="button"
+                                className="btn btn-light btn-label previestab"
+                                onClick={() => {
+                                  toggleArrowTab(activeArrowTab - 1);
+                                }}
+                              >
+                                <i className="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                                Back
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="btn btn-success btn-label right ms-auto nexttab"
@@ -1743,24 +1761,43 @@ const Scheduleappointment = () => {
                               type="button"
                               className="btn btn-light btn-label previestab"
                               onClick={() => {
+                                if (selectedBarberId && !barberConfirmed) {
+                                  setSelectedBarberId(null);
+                                  setSelectBarber(null);
+                                  setIsNextButtonActive(false);
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    selectedBarber: null,
+                                    selectBarbername: null,
+                                  }));
+                                }
                                 toggleArrowTab(activeArrowTab - 1);
                               }}
                             >
                               <i className="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>{" "}
                               Back
                             </button>
+
                             <button
                               type="button"
                               className="btn btn-success btn-label right ms-auto nexttab nexttab"
-                              disabled={!isNextButtonActive}
+                              disabled={!barberConfirmed}
                               onClick={() => {
-                                if (selectedBarberId) {
-                                  toggleArrowTab(activeArrowTab + 1);
-                                  // if (selectedDate) {
-                                  //   setTimeSlotVisible(true);
-                                  // }
-                                  // setIsNextButtonActive(true);
+                                if (selectedBarberId && !barberConfirmed) {
+                                  showWarningToast(
+                                    "Please confirm your selected barber before proceeding."
+                                  );
+                                  setSelectedBarberId(null);
+                                  setSelectBarber(null);
+                                  setIsNextButtonActive(false);
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    selectedBarber: null,
+                                    selectBarbername: null,
+                                  }));
+                                  return;
                                 }
+                                toggleArrowTab(activeArrowTab + 1);
                               }}
                             >
                               <i className="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>

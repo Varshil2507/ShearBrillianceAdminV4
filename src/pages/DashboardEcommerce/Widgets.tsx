@@ -620,7 +620,8 @@ const Widgets = (props: any) => {
         )}
       {storeRoleInfo.role_name !== ROLES.SALON_BARBER &&
         storeRoleInfo.role_name !== ROLES.SALON_OWNER &&
-        storeRoleInfo.role_name !== ROLES.SALON_MANAGER && (
+        storeRoleInfo.role_name !== ROLES.SALON_MANAGER &&
+        props?.dashboard?.topSalonsWithDetails?.length > 1 && (
           <Col xl={3} md={6}>
             <Card className="card-animate">
               <CardBody>
