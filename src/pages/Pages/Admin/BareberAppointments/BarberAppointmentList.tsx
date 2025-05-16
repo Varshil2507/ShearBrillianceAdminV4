@@ -278,94 +278,105 @@ const BarberAppointmentList = ({ salonNames }: any) => {
     setSelectedStatus(newStatus); // Set the new status
     setAppointmentId(card.id); // Store the appointment ID for modal
   };
-  const confirmStatusChange = async () => {
-    try {
-      if (appointmentId) {
-        setShowSpinner(true);
-        await updateAppointmentStatus(appointmentId, {
-          status: selectedStatuss,
-        });
-        setCard((prev: any) => ({
-          ...prev,
-          status: selectedStatuss,
-        }));
+const confirmStatusChange = async () => {
+  try {
+    
+    if (appointmentId) {
+      setShowSpinner(true);
 
-        setShowSpinner(false);
-        toggle(); // Close appointment detail modal (optional)
-        toggleModal(); // Close confirmation modal
+      // 1. Update on server
+      await updateAppointmentStatus(appointmentId, {
+        status: selectedStatuss,
+      });
 
-        showSuccessToast("Status updated successfully");
-      }
-    } catch (error: any) {
-      setShowSpinner(false); // Always hide spinner
+      // 2. Update local modal card object
+      setCard((prev: any) => ({
+        ...prev,
+        status: selectedStatuss,
+      }));
 
-      // ✅ Extract error message safely
-      const message =
-        error?.response?.data?.message || "Failed to update appointment status";
+      // 3. Update main appointment list (table)
+      setAppointmentData((prevData) =>
+        prevData.map((appt) =>
+          appt.id === appointmentId
+            ? { ...appt, status: selectedStatuss }
+            : appt
+        )
+      );
 
-      showErrorToast(message); // ✅ Display backend error
+      setShowSpinner(false);
+      toggleModal(); // Close confirmation modal
+
+      showSuccessToast("Status updated successfully");
     }
-  };
+  } catch (error: any) {
+    setShowSpinner(false);
+    const message =
+      error?.response?.data?.message || "Failed to update appointment status";
+    showErrorToast(message);
+  }
+};
 
-  // const handleWalkinStatusChange = async (newStatus: string) => {
-  //   try {
-  //     if (!card?.id) return;
-
-  //     setShowSpinner(true);
-
-  //     await updateAppointmentStatus(card.id, { status: newStatus });
-  //    setShowSpinner(false);
-  //         toggle();
-  //         toggleModal(); // Close the modal
-  //     // ✅ Update the selectedStatus state so dropdown reflects the new value
-  //     setSelectedStatus(newStatus);
-
-  //     showSuccessToast("Status updated successfully");
-
-  //     // Optional: Close modal if needed
-  //     // toggleModal();
-  //   } catch (error: any) {
-  //     showErrorToast(
-  //       error?.response?.data?.message || "Failed to update status"
-  //     );
-  //   } finally {
-  //     setShowSpinner(false);
-  //   }
-  // };
 
   const [tipSubmitted, setTipSubmitted] = useState(false);
 
-  const handleTipSubmit = async (appointmentId: any) => {
-    setTipSubmitted(true); // Trigger validation on submit
+const handleTipSubmit = async (appointmentId: any) => {
+  setTipSubmitted(true);
 
-    const newTip = Number(formData.tipAmount);
-    if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
-      showErrorToast("Please enter a valid tip amount.");
-      return;
-    }
+  const newTip = Number(formData.tipAmount);
+  if (!formData.tipAmount || isNaN(newTip) || newTip <= 0) {
+    showErrorToast("Please enter a valid tip amount.");
+    return;
+  }
 
-    try {
-      setTipSubmitting(true);
+  try {
+    setTipSubmitting(true);
 
-      const oldTip = parseFloat(event?.paymentDetails?.tip || "0");
-      const oldTotal = parseFloat(event?.paymentDetails?.totalAmount || "0");
+    const oldTip = parseFloat(card?.paymentDetails?.tip || "0");
+    const oldTotal = parseFloat(card?.paymentDetails?.totalAmount || "0");
 
-      const updatedTip = oldTip + newTip;
-      const updatedTotal = oldTotal + newTip;
+    const updatedTip = oldTip + newTip;
+    const updatedTotal = oldTotal + newTip;
 
-      await updateTipAmount(appointmentId, updatedTip);
+    await updateTipAmount(appointmentId, updatedTip);
 
-      showSuccessToast("Tip submitted successfully!");
+    // ✅ Update modal card immediately
+    setCard((prev: any) => ({
+      ...prev,
+      paymentDetails: {
+        ...prev.paymentDetails,
+        tip: updatedTip,
+        totalAmount: updatedTotal,
+      },
+    }));
 
-      setTipModalOpen(false);
-      setFormData({ ...formData, tipAmount: "" });
-      setTipSubmitted(false); // Reset validation
-    } catch (error) {
-      showErrorToast("Failed to update tip.");
-    } finally {
-      setTipSubmitting(false);
-    }
-  };
+    // ✅ Optional: Also update appointment list row if needed
+    setAppointmentData((prev) =>
+      prev.map((appt) =>
+        appt.id === appointmentId
+          ? {
+              ...appt,
+              paymentDetails: {
+                ...appt.paymentDetails,
+                tip: updatedTip,
+                totalAmount: updatedTotal,
+              },
+            }
+          : appt
+      )
+    );
+
+    showSuccessToast("Tip submitted successfully!");
+
+    setTipModalOpen(false);
+    setFormData({ ...formData, tipAmount: "" });
+    setTipSubmitted(false);
+  } catch (error) {
+    showErrorToast("Failed to update tip.");
+  } finally {
+    setTipSubmitting(false);
+  }
+};
 
   const haircutFormik: any = useFormik({
     enableReinitialize: true,
@@ -622,7 +633,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
         </Col> */}
       </Row>
 
-      <Accordion open={openAccordion} toggle={() => { }}>
+      <Accordion open={openAccordion} toggle={() => {}}>
         {filteredData.map((barbr: any, idx: number) => (
           <AccordionItem key={`barber-${idx}`} id={`${idx}`}>
             <AccordionHeader
@@ -647,10 +658,11 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     </span>
                   </div>
                   <span
-                    className={`badge ${barbr.barber.availability_status === "available"
+                    className={`badge ${
+                      barbr.barber.availability_status === "available"
                         ? "bg-success"
                         : "bg-danger"
-                      }`}
+                    }`}
                   >
                     {barbr.barber.availability_status}
                   </span>
@@ -759,7 +771,8 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 <div className="form-group py-2 border-bottom">
                   <b>Customer Name: </b>
                   {card?.User
-                    ? `${card.User.firstname || ""} ${card.User.lastname || ""
+                    ? `${card.User.firstname || ""} ${
+                        card.User.lastname || ""
                       }`.trim() || "N/A"
                     : "N/A"}
                 </div>
@@ -813,7 +826,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                   style={{
                     color:
                       card?.paymentDetails?.paymentStatus?.toLowerCase() ===
-                        "success"
+                      "success"
                         ? "green"
                         : "red",
                   }}
@@ -828,7 +841,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                       className="btn btn-warning p-0 px-2"
                       data-tooltip-id="download-tooltip"
                       data-tooltip-content="Download Receipt"
-                    // onClick={() => handlePrint()}
+                      // onClick={() => handlePrint()}
                     >
                       <i className="ri-download-line"></i> Receipt
                     </Link>
@@ -853,8 +866,8 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           card.status === "completed"
                             ? "green"
                             : card.status === "canceled"
-                              ? "red"
-                              : "orange",
+                            ? "red"
+                            : "orange",
                         fontWeight: "bold",
                         width: "auto",
                         backgroundColor: "#F8F9FA",
@@ -876,14 +889,14 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                       style={{
                         color:
                           selectedStatuss === "check_in"
-                            ? "blue"
+                            ? "orange"
                             : selectedStatuss === "in_salon"
-                              ? "purple"
-                              : selectedStatuss === "completed"
-                                ? "green"
-                                : selectedStatuss === "canceled"
-                                  ? "red"
-                                  : "black",
+                            ? "blue"
+                            : selectedStatuss === "completed"
+                            ? "green"
+                            : selectedStatuss === "canceled"
+                            ? "red"
+                            : "orange",
                         fontWeight: "bold",
                         width: "auto",
                       }}
@@ -896,7 +909,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           selectedStatuss === "completed" ||
                           selectedStatuss === "canceled"
                         }
-                        style={{ color: "blue", fontWeight: "bold" }}
+                        style={{ color: "orange", fontWeight: "bold" }}
                       >
                         Check In
                       </option>
@@ -907,7 +920,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           selectedStatuss === "completed" ||
                           selectedStatuss === "canceled"
                         }
-                        style={{ color: "purple", fontWeight: "bold" }}
+                        style={{ color: "blue", fontWeight: "bold" }}
                       >
                         In Salon
                       </option>
@@ -938,10 +951,10 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           selectedStatus === "appointment"
                             ? "orange"
                             : selectedStatus === "completed"
-                              ? "green"
-                              : selectedStatus === "canceled"
-                                ? "red"
-                                : "black",
+                            ? "green"
+                            : selectedStatus === "canceled"
+                            ? "red"
+                            : "orange",
                         fontWeight: "bold",
                         width: "auto",
                       }}
@@ -979,7 +992,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     isOpen={isModalOpen}
                     toggle={toggleModal}
                     onConfirm={confirmStatusChange}
-                    status={selectedStatus}
+                    status={selectedStatuss}
                     isAppointment={false}
                     isTransferBarber={false}
                     isService={false}
@@ -1002,34 +1015,36 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                     data-bs-toggle="modal"
                     data-bs-target="#createboardModal"
                     onClick={handleOpen}
-                   disabled={
-      !card ||
-      card.status !== "completed" || // ✅ Only enable if status is "completed"
-      !isAppointmentToday(card.appointment_date || card.check_in_time)
-    }
+                    disabled={
+                      !card ||
+                      card.status !== "completed" || // ✅ Only enable if status is "completed"
+                      !isAppointmentToday(
+                        card.appointment_date || card.check_in_time
+                      )
+                    }
                   >
                     <i className="ri-add-line align-bottom me-1"></i> Add
                     Haircut Details
                   </button>
                 </div>
 
- {card?.status === "completed" &&
-  (!card?.paymentDetails?.tip || Number(card.paymentDetails.tip) === 0) &&
-  card?.paymentDetails?.paymentMode !== "Pay_Online" &&
-  isAppointmentToday(card.appointment_date || card.check_in_time) && (
-    <div>
-      <Button
-        className="btn btn-primary mb-4"
-        onClick={() => setTipModalOpen(true)}
-      >
-        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-      </Button>
-    </div>
-)}
-
-
-
-
+                {card?.status === "completed" &&
+                  (!card?.paymentDetails?.tip ||
+                    Number(card.paymentDetails.tip) === 0) &&
+                  card?.paymentDetails?.paymentMode !== "Pay_Online" &&
+                  isAppointmentToday(
+                    card.appointment_date || card.check_in_time
+                  ) && (
+                    <div>
+                      <Button
+                        className="btn btn-primary mb-4"
+                        onClick={() => setTipModalOpen(true)}
+                      >
+                        <i className="ri-cash-line align-bottom me-1"></i> Add
+                        Tip
+                      </Button>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -1072,11 +1087,12 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 onChange={(e) =>
                   setFormData({ ...formData, tipAmount: e.target.value })
                 }
-                className={`form-control ${tipSubmitted &&
-                    (!formData.tipAmount || Number(formData.tipAmount) <= 0)
+                className={`form-control ${
+                  tipSubmitted &&
+                  (!formData.tipAmount || Number(formData.tipAmount) <= 0)
                     ? "is-invalid"
                     : ""
-                  }`}
+                }`}
               />
             </div>
           </Col>
@@ -1102,8 +1118,6 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                 )}
               </span>
             </div> */}
-
-
 
             <div className="d-flex justify-content-between">
               <span>
@@ -1182,7 +1196,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.haircut_style}
                           className={
                             haircutFormik.touched?.haircut_style &&
-                              haircutFormik.errors?.haircut_style
+                            haircutFormik.errors?.haircut_style
                               ? "is-invalid"
                               : ""
                           }
@@ -1210,7 +1224,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.customer_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.customer_notes &&
-                          haircutFormik.errors?.customer_notes ? (
+                        haircutFormik.errors?.customer_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.customer_notes}
                           </FormFeedback>
@@ -1230,7 +1244,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.barber_notes || ""}
                         ></textarea>
                         {haircutFormik.touched?.barber_notes &&
-                          haircutFormik.errors?.barber_notes ? (
+                        haircutFormik.errors?.barber_notes ? (
                           <FormFeedback type="invalid" className="d-block">
                             {haircutFormik.errors?.barber_notes}
                           </FormFeedback>
@@ -1251,7 +1265,7 @@ const BarberAppointmentList = ({ salonNames }: any) => {
                           value={haircutFormik.values?.product_used}
                           className={
                             haircutFormik.touched?.product_used &&
-                              haircutFormik.errors?.product_used
+                            haircutFormik.errors?.product_used
                               ? "is-invalid"
                               : ""
                           }

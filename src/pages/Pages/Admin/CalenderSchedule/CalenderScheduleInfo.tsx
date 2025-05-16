@@ -40,6 +40,7 @@ import { format, isAfter, isBefore, isToday } from "date-fns";
 import { formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 import { updateTipAmount } from "Services/Tipservice";
+import "./Calender.css";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -98,7 +99,7 @@ const CalenderScheduleInfo: React.FC = () => {
   const [currentView, setCurrentView] = useState("dayGridMonth"); // Track current date
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [previousOption, setPreviousOption] = useState("");
   const [appointmentId, setAppointmentId] = useState<any>();
   const today = format(new Date(), "yyyy-MM-dd");
@@ -442,6 +443,14 @@ const CalenderScheduleInfo: React.FC = () => {
       const updatedTotal = oldTotal + newTip;
 
       await updateTipAmount(appointmentId, updatedTip);
+      setEvent((prev: any) => ({
+        ...prev,
+        paymentDetails: {
+          ...prev.paymentDetails,
+          tip: updatedTip,
+          totalAmount: updatedTotal,
+        },
+      }));
 
       showSuccessToast("Tip submitted successfully!");
 
@@ -858,8 +867,20 @@ const CalenderScheduleInfo: React.FC = () => {
           status: selectedStatus,
         }); // API call to update status
         setShowSpinner(false);
-        toggle();
+        // toggle();
         toggleModal(); // Close the modal
+        setEvent((prev: any) => ({
+          ...prev,
+          status: selectedStatus,
+        }));
+
+        setAppointments((prevData: any) =>
+          prevData.map((appt: any) =>
+            appt.id === appointmentId
+              ? { ...appt, status: selectedStatus }
+              : appt
+          )
+        ); // clear manual override
         filterAppointment(null, null, appointmentId, selectedStatus);
         showSuccessToast("Status updated successfully");
         // Update the specific appointment in local state after a successful API call
@@ -1066,7 +1087,7 @@ const CalenderScheduleInfo: React.FC = () => {
             </div>
 
             <CardBody>
-              <div className="demo-app-main">
+              <div className="calendar-wrapper">
                 {/* {showLoader && <Loader />} */}
                 <FullCalendar
                   ref={calendarRef}
@@ -1343,21 +1364,20 @@ const CalenderScheduleInfo: React.FC = () => {
                   </div>
 
                   {/* Right: Add Tip */}
-           {event?.status === "completed" &&
-  (!event?.paymentDetails?.tip || Number(event.paymentDetails.tip) === 0) &&
-  event?.paymentDetails?.paymentMode !== "Pay_Online" &&
-  isAppointmentToday(event?.eventDate) && (
-    <div>
-      <Button
-        className="btn btn-primary mb-4"
-        onClick={() => setTipModalOpen(true)}
-      >
-        <i className="ri-cash-line align-bottom me-1"></i> Add Tip
-      </Button>
-    </div>
-)}
-
-
+                  {event?.status?.toLowerCase() === "completed" &&
+                    Number(event?.paymentDetails?.tip || 0) === 0 &&
+                    event?.paymentDetails?.paymentMode !== "Pay_Online" &&
+                    isAppointmentToday(event?.eventDate) && (
+                      <div>
+                        <Button
+                          className="btn btn-primary mb-4"
+                          onClick={() => setTipModalOpen(true)}
+                        >
+                          <i className="ri-cash-line align-bottom me-1"></i> Add
+                          Tip
+                        </Button>
+                      </div>
+                    )}
                 </div>
               </div>
 

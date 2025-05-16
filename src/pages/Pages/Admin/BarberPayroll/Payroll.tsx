@@ -265,7 +265,7 @@ const Payroll = () => {
     useEffect(() => {
         if ((storeUserInfo.salon && userRole?.role_name === ROLES.SALON_MANAGER) || storesalonDetailInfo) {
             setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
-            setSelectedSalonInfo(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon);
+            setSelectedSalonInfo(storesalonDetailInfo ? storesalonDetailInfo : storeUserInfo.salon);
             getSalonBabrer(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
         }
     }, []);
