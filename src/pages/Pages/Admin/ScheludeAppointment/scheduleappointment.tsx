@@ -400,6 +400,20 @@ const Scheduleappointment = () => {
       };
 
       loadSalons();
+    } else {
+         const selected = storesalonDetailInfo;
+            setSelectedSalon(selected.id);
+            handleSalonSelect({
+              salonId: selected.id,
+              salonName: selected.name,
+            });
+            setIsNextButtonActive(true);
+            setPassedarrowSteps((prev) => [...prev, 2]);
+            setactiveArrowTab(2); // skip to "Select Services"
+          // }
+
+          setShowLoader(false);
+          setInitialLoading(false); // 👈 Hide full-loader and show the stepper
     }
   }, []);
 
@@ -1349,7 +1363,7 @@ const Scheduleappointment = () => {
                           {!(
                             storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
                             storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
-                            salons.length === 1
+                            storesalonDetailInfo
                           ) && (
                             <NavItem>
                               <NavLink
@@ -1511,7 +1525,7 @@ const Scheduleappointment = () => {
                         {!(
                           storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
                           storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
-                          salons.length === 1
+                          storesalonDetailInfo
                         ) && (
                           <TabPane id="steparrow-description-info" tabId={1}>
                             <div className="d-flex align-items-start gap-3 mt-4 my-2">
