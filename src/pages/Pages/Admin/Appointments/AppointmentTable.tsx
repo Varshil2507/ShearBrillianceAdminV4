@@ -344,23 +344,26 @@ const AppointmentTable: React.FC = () => {
       ""
     );
 
-    const fetchSalonsList = async () => {
-      try {
-        const response: any = await fetchSalons(1, null, null);
-        setSalonData(response?.salons);
-      } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+    if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
+      storeRoleInfo?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo) {
+      const fetchSalonsList = async () => {
+        try {
+          const response: any = await fetchSalons(1, null, null);
+          setSalonData(response?.salons);
+        } catch (error: any) {
+          // Check if the error has a response property (Axios errors usually have this)
+          if (error.response && error.response.data) {
+            const apiMessage = error.response.data.message; // Extract the message from the response
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          } else {
+            // Fallback for other types of errors
+            showErrorToast(error.message || "Something went wrong");
+          }
         }
-      }
-    };
+      };
 
-    fetchSalonsList();
+      fetchSalonsList();
+    }
     fetchServiceList();
   }, []);
 
@@ -636,7 +639,7 @@ const AppointmentTable: React.FC = () => {
       event.preventDefault();
     }
   };
-const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+  const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   // validation
   const formik = useFormik({
     initialValues: {
@@ -824,15 +827,14 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
           const todayScheduleInfo = scheduleArray.find(
             (info: any) => info.day === dayName.toLowerCase()
           );
-          return `${
-            todayScheduleInfo &&
-            todayScheduleInfo.startTime &&
-            todayScheduleInfo.endTime
+          return `${todayScheduleInfo &&
+              todayScheduleInfo.startTime &&
+              todayScheduleInfo.endTime
               ? `${formatHours(todayScheduleInfo.startTime)} to ${formatHours(
-                  todayScheduleInfo.endTime
-                )}`
+                todayScheduleInfo.endTime
+              )}`
               : "Unavailable"
-          }`; // Combine and display
+            }`; // Combine and display
         },
       },
       {
@@ -916,8 +918,8 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
 
                 const price = barberService
                   ? parseFloat(barberService?.barber_price) ??
-                    parseFloat(barberService?.min_price) ??
-                    0
+                  parseFloat(barberService?.min_price) ??
+                  0
                   : parseFloat(service.min_price);
 
                 return acc + price;
@@ -932,8 +934,8 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
 
                   const price = barberService
                     ? parseFloat(barberService?.barber_price) ??
-                      parseFloat(barberService?.min_price) ??
-                      0
+                    parseFloat(barberService?.min_price) ??
+                    0
                     : parseFloat(service.min_price);
 
                   return acc + price;
@@ -1215,17 +1217,15 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                                 !barber.end_time
                               }
                             >
-                              {`${barber.name} - ${
-                                barber.start_time && barber.end_time
+                              {`${barber.name} - ${barber.start_time && barber.end_time
                                   ? `${formatHours(
-                                      barber.start_time
-                                    )} to ${formatHours(
-                                      barber.end_time
-                                    )} (Wait: ${
-                                      barber.estimated_wait_time
-                                    } min)`
+                                    barber.start_time
+                                  )} to ${formatHours(
+                                    barber.end_time
+                                  )} (Wait: ${barber.estimated_wait_time
+                                  } min)`
                                   : "Unavailable"
-                              }`}
+                                }`}
                             </option>
                           ))}
                         </>
@@ -1539,8 +1539,8 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                   price = barberService.barber_price
                     ? barberService.barber_price
                     : barberService.min_price
-                    ? barberService.min_price
-                    : 0;
+                      ? barberService.min_price
+                      : 0;
                 }
                 return (
                   <li key={index}>

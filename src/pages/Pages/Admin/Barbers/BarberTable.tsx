@@ -194,30 +194,32 @@ const BarberTable: React.FC = () => {
     ) {
       setSelectedSalonId(storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id);
       formik.setFieldValue("SalonId", storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo?.salon.id);
-    }
-    const fetchSalonsList = async () => {
-      try {
-        const response: any = await fetchSalons(1, null, null);
-        setSalonData(response?.salons);
+    } else {
+      const fetchSalonsList = async () => {
+        try {
+          const response: any = await fetchSalons(1, null, null);
+          setSalonData(response?.salons);
 
-        fetchBarbersList(
-          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
-          null
-        );
-      } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+          fetchBarbersList(
+            selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+            null
+          );
+        } catch (error: any) {
+          // Check if the error has a response property (Axios errors usually have this)
+          if (error.response && error.response.data) {
+            const apiMessage = error.response.data.message; // Extract the message from the response
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          } else {
+            // Fallback for other types of errors
+            showErrorToast(error.message || "Something went wrong");
+          }
         }
-      }
-    };
+      };
+      fetchSalonsList();
+    }
 
     fetchServiceList();
-    fetchSalonsList();
+
   }, []);
 
   const fetchBarbersList = async (page: any, search: any) => {
@@ -328,7 +330,7 @@ const BarberTable: React.FC = () => {
     updatedSchedule[index][type] = value?.slice(0, 5);
     setSchedule(updatedSchedule);
   };
-  
+
   const validateStartTime = (startTime: any, endTime: any, index: any) => {
     if (
       startTime &&
@@ -512,7 +514,7 @@ const BarberTable: React.FC = () => {
       event.preventDefault();
     }
   };
-const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+  const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   const barberSchema = (isEdit = false) =>
@@ -528,17 +530,17 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
       email: isEdit
         ? Yup.string()
         : Yup.string()
-            .matches(emailValidationRegex, "Enter valid email!!")
-            .email("Invalid email format")
-            .required("Email is required"),
+          .matches(emailValidationRegex, "Enter valid email!!")
+          .email("Invalid email format")
+          .required("Email is required"),
       password: isEdit
         ? Yup.string()
         : Yup.string()
-            .matches(
-              passwordRegex,
-              "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
-            )
-            .required("Password is required"), // Add this line // Add this line
+          .matches(
+            passwordRegex,
+            "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.!!"
+          )
+          .required("Password is required"), // Add this line // Add this line
       // address: Yup.string().required("Address is required"), // Add this line
       availability_status: Yup.string().required("Status is required"),
       // created_at: Yup.date().required("Creation date is required"),
@@ -1209,7 +1211,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
       const salonId = storesalonDetailInfo ? storesalonDetailInfo.id : storeUserInfo.salon.id;
       setSelectedSalonId(salonId);
       formik.setFieldValue("SalonId", salonId);
-     const salonInfo = salonData.find((salonInfo: any) => salonInfo.salon_id === salonId);
+      const salonInfo = salonData.find((salonInfo: any) => salonInfo.salon_id === salonId);
 
       const openTime: any = salonInfo
         ? parseTime(salonInfo.salon.open_time)
@@ -1397,8 +1399,8 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                             selectedImage instanceof File
                               ? URL.createObjectURL(selectedImage)
                               : newBarber?.photo
-                              ? newBarber?.photo
-                              : Profile
+                                ? newBarber?.photo
+                                : Profile
                           }
                           alt="Profile"
                           className="img-fluid"
@@ -1552,11 +1554,10 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     <div className="position-relative auth-pass-inputgroup mb-3">
                       <Input
                         type={passwordShow ? "text" : "password"}
-                        className={`form-control pe-5${
-                          formik.touched.password && formik.errors.password
+                        className={`form-control pe-5${formik.touched.password && formik.errors.password
                             ? "is-invalid"
                             : ""
-                        }`}
+                          }`}
                         id="password"
                         placeholder="Enter your password"
                         value={formik.values.password}
@@ -1600,7 +1601,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.mobile_number &&
-                      formik.errors.mobile_number
+                        formik.errors.mobile_number
                         ? "is-invalid"
                         : ""
                     }
@@ -1628,7 +1629,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.availability_status &&
-                      formik.errors.availability_status
+                        formik.errors.availability_status
                         ? "is-invalid"
                         : ""
                     }
@@ -1727,7 +1728,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     onBlur={formik.handleBlur}
                     className={
                       formik.touched.background_color &&
-                      formik.errors.background_color
+                        formik.errors.background_color
                         ? "is-invalid"
                         : ""
                     }
@@ -1758,7 +1759,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     max={today} // Disable future dates
                     className={
                       formik.touched.cutting_since &&
-                      formik.errors.cutting_since
+                        formik.errors.cutting_since
                         ? "is-invalid"
                         : ""
                     }
@@ -1792,7 +1793,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     max={today} // Disable future dates
                     className={
                       formik.touched.organization_join_date &&
-                      formik.errors.organization_join_date
+                        formik.errors.organization_join_date
                         ? "is-invalid"
                         : ""
                     }
@@ -1801,7 +1802,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                     formik.errors.organization_join_date && (
                       <div className="invalid-feedback">
                         {typeof formik.errors.organization_join_date ===
-                        "string"
+                          "string"
                           ? formik.errors.organization_join_date
                           : ""}
                       </div>
@@ -2027,11 +2028,11 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
                                       prev.map((barberService) =>
                                         barberService.ServiceId === service.id // Use serviceId instead of id
                                           ? {
-                                              ...barberService,
-                                              price: value
-                                                ? parseFloat(value)
-                                                : null,
-                                            }
+                                            ...barberService,
+                                            price: value
+                                              ? parseFloat(value)
+                                              : null,
+                                          }
                                           : barberService
                                       )
                                     );
@@ -2101,7 +2102,7 @@ const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-
           selectedBarber !== null ? selectedBarber.name.toString() : undefined
         }
         subTitle="the barber"
-        // Convert to string or undefined
+      // Convert to string or undefined
       />
     </React.Fragment>
   );

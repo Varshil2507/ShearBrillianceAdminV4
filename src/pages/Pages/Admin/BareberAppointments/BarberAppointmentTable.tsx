@@ -51,6 +51,11 @@ const BarberAppointmentTable: React.FC = () => {
   if (userRole) {
     storeRoleInfo = JSON.parse(userRole);
   }
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
   const toggle = useCallback(() => {
     if (modal) {
       setModal(false);
@@ -125,24 +130,27 @@ const BarberAppointmentTable: React.FC = () => {
     };
 
     fetchBarbersList();
+    if (!storesalonDetailInfo) {
+      if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER && storeRoleInfo?.role_name !== ROLES.SALON_OWNER) {
+        const fetchSalonsList = async () => {
+          try {
+            const response: any = await fetchSalons(1, null, null);
+            setSalonData(response?.salons);
+          } catch (error: any) {
+            // Check if the error has a response property (Axios errors usually have this)
+            if (error.response && error.response.data) {
+              const apiMessage = error.response.data.message; // Extract the message from the response
+              showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+            } else {
+              // Fallback for other types of errors
+              showErrorToast(error.message || "Something went wrong");
+            }
+          }
+        };
 
-    const fetchSalonsList = async () => {
-      try {
-        const response: any = await fetchSalons(1, null, null);
-        setSalonData(response?.salons);
-      } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
-        }
+        fetchSalonsList();
       }
-    };
-
-    fetchSalonsList();
+    }
   }, []);
 
   // Accordions with Plus Icon

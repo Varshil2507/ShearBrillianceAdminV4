@@ -41,6 +41,7 @@ import { formatTime } from "Components/Common/DateUtil";
 import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
 import { updateTipAmount } from "Services/Tipservice";
 import "./Calender.css";
+import { ROLES } from "common/data/Constants";
 
 let eventGuid = 0;
 // let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
@@ -346,28 +347,30 @@ const CalenderScheduleInfo: React.FC = () => {
 
   // Re-run when these values change
   useEffect(() => {
-    
-    const fetchAllData = async () => {
-      try {
-        // Fetch both salons and barbers data in parallel
-        const [salonsResponse] = await Promise.all([
-          fetchSalons(1, null, null),
-        ]);
-        // Set the fetched data to the respective states
-        setSalonData(salonsResponse?.salons || []);
-      } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
+    if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
+          storeRoleInfo?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo) {
+      const fetchAllData = async () => {
+        try {
+          // Fetch both salons and barbers data in parallel
+          const [salonsResponse] = await Promise.all([
+            fetchSalons(1, null, null),
+          ]);
+          // Set the fetched data to the respective states
+          setSalonData(salonsResponse?.salons || []);
+        } catch (error: any) {
+          // Check if the error has a response property (Axios errors usually have this)
+          if (error.response && error.response.data) {
+            const apiMessage = error.response.data.message; // Extract the message from the response
+            showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+          } else {
+            // Fallback for other types of errors
+            showErrorToast(error.message || "Something went wrong");
+          }
         }
-      }
-    };
-
-    fetchAllData();
+      };
+  
+      fetchAllData();
+    }
   }, []);
 
   const handleSalonChange = async (

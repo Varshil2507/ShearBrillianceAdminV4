@@ -58,6 +58,11 @@ const BarberSessionsTable: React.FC = () => {
   if (userRole) {
     storeRoleInfo = JSON.parse(userRole);
   }
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
   const toggle = useCallback(() => {
     if (modal) {
       setModal(false);
@@ -149,24 +154,27 @@ const BarberSessionsTable: React.FC = () => {
     };
 
     fetchBarbersList();
+    if (!storesalonDetailInfo) {
+      if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER && storeRoleInfo?.role_name !== ROLES.SALON_OWNER) {
+        const fetchSalonsList = async () => {
+          try {
+            const response: any = await fetchSalons(1, null, null);
+            setSalonData(response?.salons);
+          } catch (error: any) {
+            // Check if the error has a response property (Axios errors usually have this)
+            if (error.response && error.response.data) {
+              const apiMessage = error.response.data.message; // Extract the message from the response
+              showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+            } else {
+              // Fallback for other types of errors
+              showErrorToast(error.message || "Something went wrong");
+            }
+          }
+        };
 
-    const fetchSalonsList = async () => {
-      try {
-        const response: any = await fetchSalons(1, null, null);
-        setSalonData(response?.salons);
-      } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
-        }
+        fetchSalonsList();
       }
-    };
-
-    fetchSalonsList();
+    }
   }, []);
 
   // Accordions with Plus Icon
@@ -261,7 +269,7 @@ const BarberSessionsTable: React.FC = () => {
           : Yup.number().required("Salon is required"), // Add this line
       BarberId:
         userCategory === ROLES.WALKIN_BARBER ||
-        userCategory === ROLES.APPOINTMENT_BARBER
+          userCategory === ROLES.APPOINTMENT_BARBER
           ? Yup.number()
           : Yup.number().required("Barber is required"), // Add this line
     }),
@@ -339,9 +347,8 @@ const BarberSessionsTable: React.FC = () => {
           row: { original: { start_time: string; end_time: string } };
         }) => {
           const { start_time, end_time } = row.original; // Access start_time and end_time
-          return `${start_time ? formatHours(start_time) : "null"} - ${
-            end_time ? formatHours(end_time) : "null"
-          }`; // Combine and display
+          return `${start_time ? formatHours(start_time) : "null"} - ${end_time ? formatHours(end_time) : "null"
+            }`; // Combine and display
         },
       },
       {
@@ -550,59 +557,59 @@ const BarberSessionsTable: React.FC = () => {
             <Row className="g-3">
               {(storeRoleInfo.role_name === ROLES.ADMIN ||
                 storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
-                <Col lg={6}>
-                  <div>
-                    <Label htmlFor="salon" className="form-label">
-                      Salon Name
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={formik.values.SalonId}
-                      onChange={handleSalonChange}
-                    >
-                      <option value="">Select a salon</option>
-                      {salonData?.map((salon) => (
-                        <option key={salon.salon_id} value={salon.salon_id}>
-                          {salon.salon_name}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.SalonId && formik.errors.SalonId && (
-                      <div className="invalid-feedback">
-                        {formik.errors.SalonId}
-                      </div>
-                    )}
-                  </div>
-                </Col>
-              )}
+                  <Col lg={6}>
+                    <div>
+                      <Label htmlFor="salon" className="form-label">
+                        Salon Name
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={formik.values.SalonId}
+                        onChange={handleSalonChange}
+                      >
+                        <option value="">Select a salon</option>
+                        {salonData?.map((salon) => (
+                          <option key={salon.salon_id} value={salon.salon_id}>
+                            {salon.salon_name}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.SalonId && formik.errors.SalonId && (
+                        <div className="invalid-feedback">
+                          {formik.errors.SalonId}
+                        </div>
+                      )}
+                    </div>
+                  </Col>
+                )}
               {/* Barber ID */}
               {(storeRoleInfo.role_name === ROLES.ADMIN ||
                 storeRoleInfo.role_name === ROLES.SALON_MANAGER) && (
-                <Col lg={6}>
-                  <div>
-                    <Label htmlFor="salon" className="form-label">
-                      Barber Name
-                    </Label>
-                    <select
-                      className="form-select"
-                      value={formik.values.BarberId}
-                      onChange={handleBarberChange}
-                    >
-                      <option value="">Select a barber</option>
-                      {salonBarberData.map((barber: any) => (
-                        <option key={barber.id} value={barber.id}>
-                          {barber.name}
-                        </option>
-                      ))}
-                    </select>
-                    {formik.touched.BarberId && formik.errors.BarberId && (
-                      <div className="invalid-feedback">
-                        {formik.errors.BarberId}
-                      </div>
-                    )}
-                  </div>
-                </Col>
-              )}
+                  <Col lg={6}>
+                    <div>
+                      <Label htmlFor="salon" className="form-label">
+                        Barber Name
+                      </Label>
+                      <select
+                        className="form-select"
+                        value={formik.values.BarberId}
+                        onChange={handleBarberChange}
+                      >
+                        <option value="">Select a barber</option>
+                        {salonBarberData.map((barber: any) => (
+                          <option key={barber.id} value={barber.id}>
+                            {barber.name}
+                          </option>
+                        ))}
+                      </select>
+                      {formik.touched.BarberId && formik.errors.BarberId && (
+                        <div className="invalid-feedback">
+                          {formik.errors.BarberId}
+                        </div>
+                      )}
+                    </div>
+                  </Col>
+                )}
             </Row>
             <Row className="mt-3 g-3"></Row>
           </ModalBody>

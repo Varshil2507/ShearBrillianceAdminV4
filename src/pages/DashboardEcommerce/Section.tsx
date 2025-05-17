@@ -117,7 +117,7 @@ const Section = (props: any) => {
     if (!storesalonDetailInfo) {
     if (
       userRole?.role_name !== ROLES.SALON_MANAGER &&
-      userRole?.role_name !== ROLES.SALON_OWNER
+      userRole?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo
     ) {
       const fetchAllData = async () => {
         try {
