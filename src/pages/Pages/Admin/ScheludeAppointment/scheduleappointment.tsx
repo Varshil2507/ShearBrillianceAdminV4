@@ -1374,7 +1374,7 @@ const Scheduleappointment = () => {
                           {!(
                             storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
                             storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
-                            salons.length === 1
+                            storesalonDetailInfo
                           ) && (
                               <NavItem>
                                 <NavLink
@@ -1662,7 +1662,7 @@ const Scheduleappointment = () => {
                         {/* Select Services 2 */}
                         <TabPane id="steparrow-description-info" tabId={2}>
                           <div className="d-flex align-items-start gap-3 mt-4">
-                            {!(salons.length === 1) && (
+                            {!(storesalonDetailInfo) && (
                               <button
                                 type="button"
                                 className="btn btn-light btn-label previestab"
