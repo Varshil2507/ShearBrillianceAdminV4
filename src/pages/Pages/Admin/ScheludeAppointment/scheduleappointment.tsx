@@ -386,12 +386,12 @@ const Scheduleappointment = () => {
           const response = await fetchSalons(1, 10, "");
           setSalons(response.salons);
 
-          const isManagerOrOwner =
-            storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-            storeRoleInfo?.role_name === ROLES.SALON_OWNER;
-          const isSingleSalon = response.salons?.length === 1;
+          // const isManagerOrOwner =
+          //   storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+          //   storeRoleInfo?.role_name === ROLES.SALON_OWNER;
+          // const isSingleSalon = response.salons?.length === 1;
 
-          if (isManagerOrOwner || isSingleSalon) {
+          // if (isManagerOrOwner || isSingleSalon) {
             const selected = response.salons[0]?.salon;
             setSelectedSalon(selected.id);
             handleSalonSelect({
@@ -401,7 +401,7 @@ const Scheduleappointment = () => {
             setIsNextButtonActive(true);
             setPassedarrowSteps((prev) => [...prev, 2]);
             setactiveArrowTab(2); // skip to "Select Services"
-          }
+          // }
 
           setShowLoader(false);
           setInitialLoading(false); // 👈 Hide full-loader and show the stepper
@@ -415,6 +415,20 @@ const Scheduleappointment = () => {
       };
 
       loadSalons();
+    } else {
+         const selected = storesalonDetailInfo;
+            setSelectedSalon(selected.id);
+            handleSalonSelect({
+              salonId: selected.id,
+              salonName: selected.name,
+            });
+            setIsNextButtonActive(true);
+            setPassedarrowSteps((prev) => [...prev, 2]);
+            setactiveArrowTab(2); // skip to "Select Services"
+          // }
+
+          setShowLoader(false);
+          setInitialLoading(false); // 👈 Hide full-loader and show the stepper
     }
   }, []);
 
@@ -1522,7 +1536,7 @@ const Scheduleappointment = () => {
                         {!(
                           storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
                           storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
-                          salons.length === 1
+                          storesalonDetailInfo
                         ) && (
                             <TabPane id="steparrow-description-info" tabId={1}>
                               <div className="d-flex align-items-start gap-3 mt-4">
