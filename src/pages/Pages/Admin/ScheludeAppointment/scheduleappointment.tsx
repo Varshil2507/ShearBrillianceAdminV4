@@ -135,7 +135,6 @@ const Scheduleappointment = () => {
     storesalonDetailInfo = JSON.parse(salonDetails);
   }
 
-
   function toggleArrowTab(tab: any) {
     if (activeArrowTab !== tab) {
       if (tab === 3) {
@@ -162,8 +161,8 @@ const Scheduleappointment = () => {
 
               const price = barberService
                 ? parseFloat(barberService?.barber_price) ??
-                parseFloat(barberService?.min_price) ??
-                0
+                  parseFloat(barberService?.min_price) ??
+                  0
                 : parseFloat(service.servicePrice);
 
               return acc + price;
@@ -379,8 +378,11 @@ const Scheduleappointment = () => {
 
   // Select Salon
   useEffect(() => {
-    if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
-      storeRoleInfo?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo) {
+    if (
+      storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
+      storeRoleInfo?.role_name !== ROLES.SALON_OWNER &&
+      !storesalonDetailInfo
+    ) {
       const loadSalons = async () => {
         try {
           const response = await fetchSalons(1, 10, "");
@@ -408,8 +410,8 @@ const Scheduleappointment = () => {
         } catch (error: any) {
           showErrorToast(
             error.response?.data?.message ||
-            error.message ||
-            "Something went wrong"
+              error.message ||
+              "Something went wrong"
           );
         }
       };
@@ -454,14 +456,20 @@ const Scheduleappointment = () => {
         if (info.leaves?.length > 0) {
           info.leaves.forEach((leave: any) => {
             const { start_date, end_date, status, availability_status } = leave;
-            if (status === "approved" && availability_status === "unavailable") {
+            if (
+              status === "approved" &&
+              availability_status === "unavailable"
+            ) {
               const start = new Date(start_date);
               const end = new Date(end_date);
               let current = new Date(start);
               while (current <= end) {
                 // Use UTC methods to extract the date parts and format manually
                 const year = current.getUTCFullYear();
-                const month = String(current.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
+                const month = String(current.getUTCMonth() + 1).padStart(
+                  2,
+                  "0"
+                ); // Months are 0-based
                 const day = String(current.getUTCDate()).padStart(2, "0");
                 disabledDates.push(`${year}-${month}-${day}`);
 
@@ -482,7 +490,7 @@ const Scheduleappointment = () => {
           // current.setUTCDate(current.getUTCDate() + 1);
         }
       }
-    })
+    });
     // ✅ 1. Handle approved leaves (as-is)
     // nonWorkingDays.leaves.forEach(({ start_date, end_date, status, availability_status }) => {
     //   if (status === "approved" && availability_status === "unavailable") {
@@ -548,7 +556,9 @@ const Scheduleappointment = () => {
     if (formData.selectedSalon) {
       const getBarberSessionsData = async () => {
         try {
-          const response: any = await fetchBarberSession(formData.selectedSalon);
+          const response: any = await fetchBarberSession(
+            formData.selectedSalon
+          );
           if (response?.length > 0) {
             // Step 1: Filter only available barbers
             const availableBarbers = response[0].barbers.filter(
@@ -566,15 +576,11 @@ const Scheduleappointment = () => {
               );
               setDisabledLeaveDates(await leaveDates); // ❗️ await the async call
             }
-
           }
-        }
-        catch (exe: any) {
-        }
+        } catch (exe: any) {}
       };
       getBarberSessionsData();
     }
-
   }, [formData.selectedSalon]);
 
   const handleBarberSelect = async (barber: {
@@ -1026,7 +1032,7 @@ const Scheduleappointment = () => {
         if (
           lastBookedIndex !== null &&
           slot.start_time_seconds - slots[lastBookedIndex].end_time_seconds <
-          serviceTimeInSeconds
+            serviceTimeInSeconds
         ) {
           slots
             .slice(lastBookedIndex + 1, i)
@@ -1376,26 +1382,26 @@ const Scheduleappointment = () => {
                             storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
                             storesalonDetailInfo
                           ) && (
-                              <NavItem>
-                                <NavLink
-                                  href="#"
-                                  className={classnames({
-                                    active: activeArrowTab === 1,
-                                    done:
-                                      activeArrowTab <= 7 && activeArrowTab > 0,
-                                  })}
-                                  onClick={() => toggleArrowTab(1)}
-                                  style={{
-                                    pointerEvents: "none",
-                                    height: "100%",
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  Select Salon
-                                </NavLink>
-                              </NavItem>
-                            )}
+                            <NavItem>
+                              <NavLink
+                                href="#"
+                                className={classnames({
+                                  active: activeArrowTab === 1,
+                                  done:
+                                    activeArrowTab <= 7 && activeArrowTab > 0,
+                                })}
+                                onClick={() => toggleArrowTab(1)}
+                                style={{
+                                  pointerEvents: "none",
+                                  height: "100%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Select Salon
+                              </NavLink>
+                            </NavItem>
+                          )}
 
                           {/* Select Services 2*/}
                           <NavItem>
@@ -1538,131 +1544,134 @@ const Scheduleappointment = () => {
                           storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
                           storesalonDetailInfo
                         ) && (
-                            <TabPane id="steparrow-description-info" tabId={1}>
-                              <div className="d-flex align-items-start gap-3 mt-4">
-                                <button
-                                  type="button"
-                                  className="btn btn-success btn-label right ms-auto nexttab nexttab"
-                                  disabled={!selectedSalon}
-                                  onClick={() => {
-                                    if (selectedSalon) {
-                                      toggleArrowTab(activeArrowTab + 1);
-                                      setIsNextButtonActive(false);
-                                    } else {
-                                      showWarningToast(
-                                        "Please select a salon before proceeding!"
-                                      );
-                                    }
-                                  }}
-                                >
-                                  <i className="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
-                                  Next
-                                </button>
-                              </div>
-                              <Card>
-                                <CardHeader>
-                                  <h5 className="card-title mb-0">
-                                    Select Salon
-                                  </h5>
-                                </CardHeader>
-                                <div className="card-body">
-                                  {showLoader ? (
-                                    <Loader />
-                                  ) : (
-                                    <div className="row">
-                                      {salons?.length ? (
-                                        salons?.map((salon) => (
+                          <TabPane id="steparrow-description-info" tabId={1}>
+                            <div className="d-flex align-items-start gap-3 mt-4 my-2">
+                              <button
+                                type="button"
+                                className="btn btn-success btn-label right ms-auto nexttab nexttab"
+                                disabled={!selectedSalon}
+                                onClick={() => {
+                                  if (selectedSalon) {
+                                    toggleArrowTab(activeArrowTab + 1);
+                                    setIsNextButtonActive(false);
+                                  } else {
+                                    showWarningToast(
+                                      "Please select a salon before proceeding!"
+                                    );
+                                  }
+                                }}
+                              >
+                                <i className="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
+                                Next
+                              </button>
+                            </div>
+                            <Card>
+                              <CardHeader>
+                                <h5 className="card-title mb-0">
+                                  Select Salon
+                                </h5>
+                              </CardHeader>
+                              <div className="card-body">
+                                {showLoader ? (
+                                  <Loader />
+                                ) : (
+                                  <div className="row">
+                                    {salons?.length ? (
+                                      salons?.map((salon) => (
+                                        <div
+                                          key={salon.salon.id}
+                                          className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3 "
+                                          style={{
+                                            cursor: "pointer",
+                                            borderRadius: "8px",
+                                          }}
+                                          onClick={() => {
+                                            setSelectedSalon(salon.salon.id);
+                                            handleSalonSelect({
+                                              salonId: salon.salon.id,
+                                              salonName: salon.salon.name,
+                                            });
+                                            setIsNextButtonActive(true);
+                                          }}
+                                        >
                                           <div
-                                            key={salon.salon.id}
-                                            className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3 "
-                                            style={{
-                                              cursor: "pointer",
-                                              borderRadius: "8px",
-                                            }}
-                                            onClick={() => {
-                                              setSelectedSalon(salon.salon.id);
-                                              handleSalonSelect({
-                                                salonId: salon.salon.id,
-                                                salonName: salon.salon.name,
-                                              });
-                                              setIsNextButtonActive(true);
-                                            }}
-                                          >
-                                            <div className="d-flex align-items-center gap-3 p-3 rounded min-h-md-180"
+                                            className="d-flex align-items-center gap-3 p-3 rounded min-h-md-180"
                                             style={{
                                               border:
                                                 salon.salon.id === selectedSalon
                                                   ? "2px solid rgb(106, 114, 137)"
-                                                  : "1px solid #e9ebec",
-                                            }}>
-                                              {/* Image Section */}
-                                              <img
-                                                src={
-                                                  salon.salon.photos &&
-                                                    salon.salon.photos.length > 2
-                                                    ? JSON.parse(
+                                                  : "1px solid #cbcccd82",
+                                            }}
+                                          >
+                                            {/* Image Section */}
+                                            <img
+                                              src={
+                                                salon.salon.photos &&
+                                                salon.salon.photos.length > 2
+                                                  ? JSON.parse(
                                                       salon.salon.photos
                                                     )[0]
-                                                    : default_image
-                                                }
-                                                alt={salon.salon.salon_name}
-                                                className="rounded"
-                                                style={{
-                                                  width: "100px",
-                                                  height: "100px",
-                                                  objectFit: "cover",
-                                                }}
-                                              />
-                                              <div>
-                                                <h5 className="mb-1">
-                                                  {salon.salon.name}
-                                                </h5>
-                                                <p className="mb-1 text-muted">
-                                                  Address: {salon.address}
-                                                </p>
-                                                <p className="card-text text-muted mb-1">
-                                                  Open:{" "}
-                                                  {formatTime(
-                                                    salon.salon.open_time
-                                                  )}{" "}
-                                                  • Close:{" "}
-                                                  {formatTime(
-                                                    salon.salon.close_time
-                                                  )}
-                                                </p>
-                                                <span
-                                                  className={`badge ${salon.salon.status === "open"
+                                                  : default_image
+                                              }
+                                              alt={salon.salon.salon_name}
+                                              className="rounded"
+                                              style={{
+                                                width: "100px",
+                                                height: "100px",
+                                                objectFit: "cover",
+                                              }}
+                                            />
+                                            <div>
+                                              <h5 className="mb-1">
+                                                {salon.salon.name}
+                                              </h5>
+                                              <p className="mb-1 text-muted">
+                                                Address: {salon.address}
+                                              </p>
+                                              <p className="card-text text-muted mb-1">
+                                                Open:{" "}
+                                                {formatTime(
+                                                  salon.salon.open_time
+                                                )}{" "}
+                                                • Close:{" "}
+                                                {formatTime(
+                                                  salon.salon.close_time
+                                                )}
+                                              </p>
+                                              <span
+                                                className={`badge ${
+                                                  salon.salon.status === "open"
                                                     ? "bg-success"
                                                     : "bg-danger"
-                                                    }`}
-                                                >
-                                                  {salon.salon.status
-                                                    ? salon.salon.status ===
-                                                      "close"
-                                                      ? "Closed for Today"
-                                                      : "Open"
-                                                    : "Open"}
-                                                </span>
-                                              </div>
+                                                }`}
+                                              >
+                                                {salon.salon.status
+                                                  ? salon.salon.status ===
+                                                    "close"
+                                                    ? "Closed for Today"
+                                                    : "Open"
+                                                  : "Open"}
+                                              </span>
                                             </div>
                                           </div>
-                                        ))
-                                      ) : (
-                                        <div className="text-center my-3">
-                                          No Salon available
-                                        </div> // Optional: Show alternative content if no data
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </Card>
-                            </TabPane>
-                          )}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-center my-3">
+                                        No Salon available
+                                      </div> // Optional: Show alternative content if no data
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </Card>
+                          </TabPane>
+                        )}
 
                         {/* Select Services 2 */}
                         <TabPane id="steparrow-description-info" tabId={2}>
-                          <div className="d-flex align-items-start gap-3 mt-4">
-                            {!(storesalonDetailInfo) && (
+                          <div className="d-flex align-items-start gap-3 mt-4 my-2">
+                            {!(salons.length === 1) && (
                               <button
                                 type="button"
                                 className="btn btn-light btn-label previestab"
@@ -1732,7 +1741,7 @@ const Scheduleappointment = () => {
                                             style={{
                                               minHeight:
                                                 window.innerWidth >= 768 &&
-                                                  window.innerWidth <= 772
+                                                window.innerWidth <= 772
                                                   ? "170px"
                                                   : "auto",
                                             }}
@@ -1827,7 +1836,7 @@ const Scheduleappointment = () => {
 
                         {/* Select Barber */}
                         <TabPane id="steparrow-description-info" tabId={3}>
-                          <div className="d-flex align-items-start gap-3 mt-4">
+                          <div className="d-flex align-items-start gap-3 mt-4 my-2">
                             <button
                               type="button"
                               className="btn btn-light btn-label previestab"
@@ -1892,7 +1901,8 @@ const Scheduleappointment = () => {
                                             selectBarber.map(
                                               (barberData: any) => {
                                                 const isAvailable =
-                                                  barberData.barber.availability_status ===
+                                                  barberData.barber
+                                                    .availability_status ===
                                                   "available";
                                                 return (
                                                   <Col
@@ -1915,8 +1925,9 @@ const Scheduleappointment = () => {
                                                           ? "pointer"
                                                           : "not-allowed",
                                                         border:
-                                                          barberData.barber.id ===
-                                                            selectedBarberId
+                                                          barberData.barber
+                                                            .id ===
+                                                          selectedBarberId
                                                             ? "2px solid rgb(106, 114, 137)"
                                                             : "2px solid transparent",
                                                       }}
@@ -1928,13 +1939,17 @@ const Scheduleappointment = () => {
                                                       >
                                                         <div className="team-profile-img mb-1">
                                                           <div className="avatar-lg img-thumbnail rounded-circle mx-auto">
-                                                            {barberData.barber.photo ? (
+                                                            {barberData.barber
+                                                              .photo ? (
                                                               <img
                                                                 src={
-                                                                  barberData.barber.photo
+                                                                  barberData
+                                                                    .barber
+                                                                    .photo
                                                                 }
                                                                 alt={
-                                                                  barberData.barber.name
+                                                                  barberData
+                                                                    .barber.name
                                                                 }
                                                                 className="img-fluid d-block rounded-circle"
                                                                 style={{
@@ -1958,10 +1973,16 @@ const Scheduleappointment = () => {
                                                           </div>
                                                         </div>
                                                         <h5 className="mt-2">
-                                                          {barberData.barber.name}
+                                                          {
+                                                            barberData.barber
+                                                              .name
+                                                          }
                                                         </h5>
                                                         <p className="text-muted mb-0">
-                                                          {barberData.barber.position}
+                                                          {
+                                                            barberData.barber
+                                                              .position
+                                                          }
                                                         </p>
                                                         <p className="text-muted mb-0">
                                                           {isAvailable
@@ -2006,7 +2027,7 @@ const Scheduleappointment = () => {
 
                         {/* Date & Time */}
                         <TabPane id="steparrow-description-info" tabId={4}>
-                          <div className="d-flex align-items-start gap-3 mt-4">
+                          <div className="d-flex align-items-start gap-3 mt-4 my-2">
                             <button
                               type="button"
                               className="btn btn-light btn-label previestab"
@@ -2046,10 +2067,11 @@ const Scheduleappointment = () => {
                                           <Flatpickr
                                             key={disabledLeaveDates.join(",")} // 💡 Key forces Flatpickr to remount
                                             placeholder="Click Here to Select Date & Time slot"
-                                            className={`form-control bg-light border-light  ${selectedDate
-                                              ? "selected-date-highlight"
-                                              : ""
-                                              }`}
+                                            className={`form-control bg-light border-light  ${
+                                              selectedDate
+                                                ? "selected-date-highlight"
+                                                : ""
+                                            }`}
                                             options={{
                                               dateFormat: "Y-m-d",
                                               minDate: new Date(),
@@ -2135,7 +2157,7 @@ const Scheduleappointment = () => {
                                                     const isPastTime =
                                                       isToday &&
                                                       slot.startTimeSeconds <
-                                                      currentTimeInSeconds; // Disable only past times for today
+                                                        currentTimeInSeconds; // Disable only past times for today
                                                     const isDisabled =
                                                       slot.isBooked ||
                                                       isPastTime;
@@ -2144,10 +2166,11 @@ const Scheduleappointment = () => {
                                                       <button
                                                         key={index}
                                                         type="button"
-                                                        className={`btn ${isSelected
-                                                          ? "btn-primary"
-                                                          : "btn-outline-primary"
-                                                          }`}
+                                                        className={`btn ${
+                                                          isSelected
+                                                            ? "btn-primary"
+                                                            : "btn-outline-primary"
+                                                        }`}
                                                         onClick={() =>
                                                           !slot.isBooked &&
                                                           handleSlotSelection(
@@ -2183,7 +2206,7 @@ const Scheduleappointment = () => {
 
                         {/* Confirmation Page */}
                         <TabPane id="steparrow-gen-info" tabId={5}>
-                          <div className="d-flex align-items-start gap-3 mt-4">
+                          <div className="d-flex align-items-start gap-3 mt-4 my-2">
                             <button
                               type="button"
                               className="btn btn-light btn-label previestab"
@@ -2350,7 +2373,7 @@ const Scheduleappointment = () => {
 
                         {/* Appointment Details */}
                         <TabPane id="steparrow-description-info" tabId={6}>
-                          <div className="d-flex align-items-start gap-3 mt-4">
+                          <div className="d-flex align-items-start gap-3 mt-4 my-2">
                             <button
                               type="button"
                               className="btn btn-light btn-label previestab"
@@ -2498,8 +2521,9 @@ const Scheduleappointment = () => {
                                       <div className="btn-group d-flex flex-wrap">
                                         {/* None Option */}
                                         <Label
-                                          className={`btn btn-outline-primary ${tipPercentage === 0 ? "active" : ""
-                                            } flex-fill text-center`}
+                                          className={`btn btn-outline-primary ${
+                                            tipPercentage === 0 ? "active" : ""
+                                          } flex-fill text-center`}
                                         >
                                           <Input
                                             type="radio"
@@ -2516,10 +2540,11 @@ const Scheduleappointment = () => {
                                         {[20, 25, 30, 40].map((percentage) => (
                                           <Label
                                             key={percentage}
-                                            className={`btn btn-outline-primary ${tipPercentage == percentage
-                                              ? "active"
-                                              : ""
-                                              } flex-fill text-center`}
+                                            className={`btn btn-outline-primary ${
+                                              tipPercentage == percentage
+                                                ? "active"
+                                                : ""
+                                            } flex-fill text-center`}
                                           >
                                             <Input
                                               type="radio"
@@ -2537,10 +2562,11 @@ const Scheduleappointment = () => {
 
                                         {/* Custom Tip Option */}
                                         <Label
-                                          className={`btn btn-outline-primary ${tipPercentage === "custom"
-                                            ? "active"
-                                            : ""
-                                            } flex-fill text-center`}
+                                          className={`btn btn-outline-primary ${
+                                            tipPercentage === "custom"
+                                              ? "active"
+                                              : ""
+                                          } flex-fill text-center`}
                                         >
                                           <Input
                                             type="radio"
