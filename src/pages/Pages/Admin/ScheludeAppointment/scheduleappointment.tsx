@@ -26,7 +26,6 @@ import ca from "../../../../assets/images/flags/ca.svg";
 import { fetchSalons } from "Services/SalonService";
 import default_image from "../../../../assets/images/default_salon_img.png";
 import { fetchServices } from "Services/Service";
-import { fetchBarberBySalon } from "Services/barberService";
 import { fetchTimeSlots } from "Services/AvailableTimeslot";
 import { createAppointment } from "Services/AppointmentService";
 import Loader from "Components/Common/Loader";
@@ -44,6 +43,7 @@ import {
 import { LAYOUT_MODE_TYPES } from "../../../../Components/constants/layout";
 import { ROLES } from "common/data/Constants";
 import { debug } from "console";
+import { fetchBarberSession } from "Services/BarberSessionService";
 
 interface Service {
   id: number;
@@ -129,6 +129,12 @@ const Scheduleappointment = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<CategoryKey | null>(
     null
   );
+  let salonDetails = localStorage.getItem("salonDetails");
+  let storesalonDetailInfo: any;
+  if (salonDetails) {
+    storesalonDetailInfo = JSON.parse(salonDetails);
+  }
+
 
   function toggleArrowTab(tab: any) {
     if (activeArrowTab !== tab) {
@@ -156,8 +162,8 @@ const Scheduleappointment = () => {
 
               const price = barberService
                 ? parseFloat(barberService?.barber_price) ??
-                  parseFloat(barberService?.min_price) ??
-                  0
+                parseFloat(barberService?.min_price) ??
+                0
                 : parseFloat(service.servicePrice);
 
               return acc + price;
@@ -373,40 +379,43 @@ const Scheduleappointment = () => {
 
   // Select Salon
   useEffect(() => {
-    const loadSalons = async () => {
-      try {
-        const response = await fetchSalons(1, 10, "");
-        setSalons(response.salons);
+    if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
+      storeRoleInfo?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo) {
+      const loadSalons = async () => {
+        try {
+          const response = await fetchSalons(1, 10, "");
+          setSalons(response.salons);
 
-        const isManagerOrOwner =
-          storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
-          storeRoleInfo?.role_name === ROLES.SALON_OWNER;
-        const isSingleSalon = response.salons?.length === 1;
+          const isManagerOrOwner =
+            storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+            storeRoleInfo?.role_name === ROLES.SALON_OWNER;
+          const isSingleSalon = response.salons?.length === 1;
 
-        if (isManagerOrOwner || isSingleSalon) {
-          const selected = response.salons[0]?.salon;
-          setSelectedSalon(selected.id);
-          handleSalonSelect({
-            salonId: selected.id,
-            salonName: selected.name,
-          });
-          setIsNextButtonActive(true);
-          setPassedarrowSteps((prev) => [...prev, 2]);
-          setactiveArrowTab(2); // skip to "Select Services"
-        }
+          if (isManagerOrOwner || isSingleSalon) {
+            const selected = response.salons[0]?.salon;
+            setSelectedSalon(selected.id);
+            handleSalonSelect({
+              salonId: selected.id,
+              salonName: selected.name,
+            });
+            setIsNextButtonActive(true);
+            setPassedarrowSteps((prev) => [...prev, 2]);
+            setactiveArrowTab(2); // skip to "Select Services"
+          }
 
-        setShowLoader(false);
-        setInitialLoading(false); // 👈 Hide full-loader and show the stepper
-      } catch (error: any) {
-        showErrorToast(
-          error.response?.data?.message ||
+          setShowLoader(false);
+          setInitialLoading(false); // 👈 Hide full-loader and show the stepper
+        } catch (error: any) {
+          showErrorToast(
+            error.response?.data?.message ||
             error.message ||
             "Something went wrong"
-        );
-      }
-    };
+          );
+        }
+      };
 
-    loadSalons();
+      loadSalons();
+    }
   }, []);
 
   const handleSalonSelect = (salon: { salonId: number; salonName: string }) => {
@@ -421,75 +430,115 @@ const Scheduleappointment = () => {
   // -------------------------------
 
   const getDisabledLeaveDates = async (
-    leaves: any[],
-    nonWorkingDays: number[],
+    // leaves: any[],
+    nonWorkingDays: any[],
     barberId: number
   ) => {
     const disabledDates: string[] = [];
+    nonWorkingDays.forEach((info) => {
+      if (info.is_non_working_day || info.is_leave_day) {
+        if (info.leaves?.length > 0) {
+          info.leaves.forEach((leave: any) => {
+            const { start_date, end_date, status, availability_status } = leave;
+            if (status === "approved" && availability_status === "unavailable") {
+              const start = new Date(start_date);
+              const end = new Date(end_date);
+              let current = new Date(start);
+              while (current <= end) {
+                // Use UTC methods to extract the date parts and format manually
+                const year = current.getUTCFullYear();
+                const month = String(current.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
+                const day = String(current.getUTCDate()).padStart(2, "0");
+                disabledDates.push(`${year}-${month}-${day}`);
 
-    // ✅ 1. Handle approved leaves (as-is)
-    leaves.forEach((leave) => {
-      const { start_date, end_date, status, availability_status } = leave;
-      if (status === "approved" && availability_status === "unavailable") {
-        const start = new Date(start_date);
-        const end = new Date(end_date);
-        let current = new Date(start);
-        while (current <= end) {
-          disabledDates.push(current.toISOString().split("T")[0]);
-          current.setDate(current.getDate() + 1);
+                // Increment the date in UTC
+                current.setUTCDate(current.getUTCDate() + 1);
+              }
+            }
+          });
+        }
+        if (info.is_non_working_day) {
+          let current = new Date(info.date);
+          const year = current.getUTCFullYear();
+          const month = String(current.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
+          const day = String(current.getUTCDate()).padStart(2, "0");
+          disabledDates.push(`${year}-${month}-${day}`);
+
+          // Increment the date in UTC
+          // current.setUTCDate(current.getUTCDate() + 1);
         }
       }
-    });
+    })
+    // ✅ 1. Handle approved leaves (as-is)
+    // nonWorkingDays.leaves.forEach(({ start_date, end_date, status, availability_status }) => {
+    //   if (status === "approved" && availability_status === "unavailable") {
+    //     for (
+    //       let current = new Date(start_date);
+    //       current <= new Date(end_date);
+    //       current.setDate(current.getDate() + 1)
+    //     ) {
+    //       disabledDates.push(current.toISOString().split("T")[0]);
+    //     }
+    //   }
+    // });
+    // leaves.forEach((leave) => {
+    //   const { start_date, end_date, status, availability_status } = leave;
+    //   if (status === "approved" && availability_status === "unavailable") {
+    //     const start = new Date(start_date);
+    //     const end = new Date(end_date);
+    //     let current = new Date(start);
+    //     while (current <= end) {
+    //       disabledDates.push(current.toISOString().split("T")[0]);
+    //       current.setDate(current.getDate() + 1);
+    //     }
+    //   }
+    // });
 
     // ✅ 2. Override non-working days IF no available slots
-    const convertedDays = nonWorkingDays.map((day) => (day === 7 ? 0 : day));
+    // const convertedDays = nonWorkingDays.map((day) => (day === 7 ? 0 : day));
 
-    const today = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 30);
+    // const today = new Date();
+    // const maxDate = new Date();
+    // maxDate.setDate(today.getDate() + 30);
 
-    let current = new Date(today);
-    while (current <= maxDate) {
-      const dayOfWeek = current.getDay(); // 0 = Sunday, ..., 6 = Saturday
-      if (convertedDays.includes(dayOfWeek)) {
-        const formattedDate = current.toISOString().split("T")[0];
+    // let current = new Date(today);
+    // while (current <= maxDate) {
+    //   const dayOfWeek = current.getDay(); // 0 = Sunday, ..., 6 = Saturday
+    //   if (convertedDays.includes(dayOfWeek)) {
+    //     const formattedDate = current.toISOString().split("T")[0];
 
-        try {
-          const res = await fetchTimeSlots(String(barberId), formattedDate);
+    //     try {
+    //       const res = await fetchTimeSlots(String(barberId), formattedDate);
 
-          const slots = res?.[0]?.slots ?? [];
+    //       const slots = res?.[0]?.slots ?? [];
 
-          const hasAvailable = slots.some((s: any) => !s.is_booked);
+    //       const hasAvailable = slots.some((s: any) => !s.is_booked);
 
-          if (!hasAvailable) {
-            disabledDates.push(formattedDate);
-          }
-        } catch (error) {
-          console.warn("Error fetching slots for", formattedDate, error);
-          disabledDates.push(formattedDate); // fallback: disable
-        }
-      }
+    //       if (!hasAvailable) {
+    //         disabledDates.push(formattedDate);
+    //       }
+    //     } catch (error) {
+    //       console.warn("Error fetching slots for", formattedDate, error);
+    //       disabledDates.push(formattedDate); // fallback: disable
+    //     }
+    //   }
 
-      current.setDate(current.getDate() + 1);
-    }
+    //   current.setDate(current.getDate() + 1);
+    // }
 
     return disabledDates;
   };
 
   // Select Barber
   useEffect(() => {
-    const loadBarbers = async () => {
-      if (formData.selectedSalon) {
+    if (formData.selectedSalon) {
+      const getBarberSessionsData = async () => {
         try {
-          const response: any = await fetchBarberBySalon(
-            formData.selectedSalon,
-            1
-          );
-
+          const response: any = await fetchBarberSession(formData.selectedSalon);
           if (response?.length > 0) {
             // Step 1: Filter only available barbers
-            const availableBarbers = response.filter(
-              (barber: any) => barber.availability_status === "available"
+            const availableBarbers = response[0].barbers.filter(
+              (barbr: any) => barbr.barber.availability_status === "available"
             );
 
             // Step 2: Set selected barber list
@@ -498,28 +547,20 @@ const Scheduleappointment = () => {
             // Step 3: If single barber is auto-selected, extract leave dates
             if (availableBarbers.length === 1) {
               const leaveDates = getDisabledLeaveDates(
-                availableBarbers[0].leaves || [],
-                availableBarbers[0].non_working_days || [],
+                availableBarbers[0].schedule || [],
                 availableBarbers[0].id // ✅ Pass barber ID for slot check
               );
               setDisabledLeaveDates(await leaveDates); // ❗️ await the async call
             }
 
-            // 👉 Optional: If multiple barbers are shown in the dropdown,
-            // move the leave date logic to the dropdown's onChange handler
-          }
-        } catch (error: any) {
-          if (error.response && error.response.data) {
-            const apiMessage = error.response.data.message;
-            showErrorToast(apiMessage || "An error occurred");
-          } else {
-            showErrorToast(error.message || "Something went wrong");
           }
         }
-      }
-    };
+        catch (exe: any) {
+        }
+      };
+      getBarberSessionsData();
+    }
 
-    loadBarbers();
   }, [formData.selectedSalon]);
 
   const handleBarberSelect = async (barber: {
@@ -527,7 +568,8 @@ const Scheduleappointment = () => {
     name: any;
     services: [];
     leaves?: any[];
-    non_working_days?: number[];
+    // non_working_days?: number[];
+    schedule?: any[];
   }) => {
     lastClickedBarberIdRef.current = barber.id;
 
@@ -547,23 +589,24 @@ const Scheduleappointment = () => {
     appointmentData.selectBarbername = barber.name;
 
     // ✅ Open modal immediately
-    setIsModalOpen(true);
-    setBarberConfirmed(false);
-
+    // setIsModalOpen(true);
+    // setBarberConfirmed(false);
+    toggleModal();
     try {
       const leaveDates = await getDisabledLeaveDates(
-        barber.leaves || [],
-        barber.non_working_days || [],
+        barber.schedule || [],
+        // barber.leaves || [],
+        // barber.non_working_days || [],
         barber.id
       );
 
       setDisabledLeaveDates(leaveDates);
 
       // ✅ Only show modal if this is still the last clicked barber
-      if (lastClickedBarberIdRef.current === barber.id) {
-        setIsModalOpen(true);
-        setBarberConfirmed(false);
-      }
+      // if (lastClickedBarberIdRef.current === barber.id) {
+      //   setIsModalOpen(true);
+      //   setBarberConfirmed(false);
+      // }
     } catch (err) {
       showErrorToast("Failed to load leave dates");
     }
@@ -959,7 +1002,7 @@ const Scheduleappointment = () => {
       }
     };
     fetchTimeSlotsForDate();
-  }, [selectedDate, formData.selectedBarber]); // Effect depends on selectedDate and selectedBarber
+  }, [selectedDate]); // Effect depends on selectedDate and selectedBarber
 
   const blockUnavailableSlots = (slots: any, serviceTimeInSeconds: any) => {
     let lastBookedIndex: number | null = null;
@@ -969,7 +1012,7 @@ const Scheduleappointment = () => {
         if (
           lastBookedIndex !== null &&
           slot.start_time_seconds - slots[lastBookedIndex].end_time_seconds <
-            serviceTimeInSeconds
+          serviceTimeInSeconds
         ) {
           slots
             .slice(lastBookedIndex + 1, i)
@@ -1319,26 +1362,26 @@ const Scheduleappointment = () => {
                             storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
                             salons.length === 1
                           ) && (
-                            <NavItem>
-                              <NavLink
-                                href="#"
-                                className={classnames({
-                                  active: activeArrowTab === 1,
-                                  done:
-                                    activeArrowTab <= 7 && activeArrowTab > 0,
-                                })}
-                                onClick={() => toggleArrowTab(1)}
-                                style={{
-                                  pointerEvents: "none",
-                                  height: "100%",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                Select Salon
-                              </NavLink>
-                            </NavItem>
-                          )}
+                              <NavItem>
+                                <NavLink
+                                  href="#"
+                                  className={classnames({
+                                    active: activeArrowTab === 1,
+                                    done:
+                                      activeArrowTab <= 7 && activeArrowTab > 0,
+                                  })}
+                                  onClick={() => toggleArrowTab(1)}
+                                  style={{
+                                    pointerEvents: "none",
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  Select Salon
+                                </NavLink>
+                              </NavItem>
+                            )}
 
                           {/* Select Services 2*/}
                           <NavItem>
@@ -1481,125 +1524,126 @@ const Scheduleappointment = () => {
                           storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
                           salons.length === 1
                         ) && (
-                          <TabPane id="steparrow-description-info" tabId={1}>
-                            <div className="d-flex align-items-start gap-3 mt-4">
-                              <button
-                                type="button"
-                                className="btn btn-success btn-label right ms-auto nexttab nexttab"
-                                disabled={!selectedSalon}
-                                onClick={() => {
-                                  if (selectedSalon) {
-                                    toggleArrowTab(activeArrowTab + 1);
-                                    setIsNextButtonActive(false);
-                                  } else {
-                                    showWarningToast(
-                                      "Please select a salon before proceeding!"
-                                    );
-                                  }
-                                }}
-                              >
-                                <i className="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
-                                Next
-                              </button>
-                            </div>
-                            <Card>
-                              <CardHeader>
-                                <h5 className="card-title mb-0">
-                                  Select Salon
-                                </h5>
-                              </CardHeader>
-                              <div className="card-body">
-                                {showLoader ? (
-                                  <Loader />
-                                ) : (
-                                  <div className="row">
-                                    {salons?.length ? (
-                                      salons?.map((salon) => (
-                                        <div
-                                          key={salon.salon.id}
-                                          className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3 "
-                                          style={{
-                                            cursor: "pointer",
-                                            border:
-                                              salon.salon.id === selectedSalon
-                                                ? "2px solid rgb(106, 114, 137)"
-                                                : "2px solid transparent",
-                                            borderRadius: "8px",
-                                          }}
-                                          onClick={() => {
-                                            setSelectedSalon(salon.salon.id);
-                                            handleSalonSelect({
-                                              salonId: salon.salon.id,
-                                              salonName: salon.salon.name,
-                                            });
-                                            setIsNextButtonActive(true);
-                                          }}
-                                        >
-                                          <div className="d-flex align-items-center gap-3 border p-3 rounded min-h-md-180">
-                                            {/* Image Section */}
-                                            <img
-                                              src={
-                                                salon.salon.photos &&
-                                                salon.salon.photos.length > 2
-                                                  ? JSON.parse(
+                            <TabPane id="steparrow-description-info" tabId={1}>
+                              <div className="d-flex align-items-start gap-3 mt-4">
+                                <button
+                                  type="button"
+                                  className="btn btn-success btn-label right ms-auto nexttab nexttab"
+                                  disabled={!selectedSalon}
+                                  onClick={() => {
+                                    if (selectedSalon) {
+                                      toggleArrowTab(activeArrowTab + 1);
+                                      setIsNextButtonActive(false);
+                                    } else {
+                                      showWarningToast(
+                                        "Please select a salon before proceeding!"
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <i className="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
+                                  Next
+                                </button>
+                              </div>
+                              <Card>
+                                <CardHeader>
+                                  <h5 className="card-title mb-0">
+                                    Select Salon
+                                  </h5>
+                                </CardHeader>
+                                <div className="card-body">
+                                  {showLoader ? (
+                                    <Loader />
+                                  ) : (
+                                    <div className="row">
+                                      {salons?.length ? (
+                                        salons?.map((salon) => (
+                                          <div
+                                            key={salon.salon.id}
+                                            className="col-lg-6 col-xl-6 col-md-12 col-xs-12 col-sm-12 mb-3 "
+                                            style={{
+                                              cursor: "pointer",
+                                              borderRadius: "8px",
+                                            }}
+                                            onClick={() => {
+                                              setSelectedSalon(salon.salon.id);
+                                              handleSalonSelect({
+                                                salonId: salon.salon.id,
+                                                salonName: salon.salon.name,
+                                              });
+                                              setIsNextButtonActive(true);
+                                            }}
+                                          >
+                                            <div className="d-flex align-items-center gap-3 p-3 rounded min-h-md-180"
+                                            style={{
+                                              border:
+                                                salon.salon.id === selectedSalon
+                                                  ? "2px solid rgb(106, 114, 137)"
+                                                  : "1px solid #e9ebec",
+                                            }}>
+                                              {/* Image Section */}
+                                              <img
+                                                src={
+                                                  salon.salon.photos &&
+                                                    salon.salon.photos.length > 2
+                                                    ? JSON.parse(
                                                       salon.salon.photos
                                                     )[0]
-                                                  : default_image
-                                              }
-                                              alt={salon.salon.salon_name}
-                                              className="rounded"
-                                              style={{
-                                                width: "100px",
-                                                height: "100px",
-                                                objectFit: "cover",
-                                              }}
-                                            />
-                                            <div>
-                                              <h5 className="mb-1">
-                                                {salon.salon.name}
-                                              </h5>
-                                              <p className="mb-1 text-muted">
-                                                Address: {salon.address}
-                                              </p>
-                                              <p className="card-text text-muted mb-1">
-                                                Open:{" "}
-                                                {formatTime(
-                                                  salon.salon.open_time
-                                                )}{" "}
-                                                • Close:{" "}
-                                                {formatTime(
-                                                  salon.salon.close_time
-                                                )}
-                                              </p>
-                                              <span
-                                                className={`badge ${
-                                                  salon.salon.status === "open"
+                                                    : default_image
+                                                }
+                                                alt={salon.salon.salon_name}
+                                                className="rounded"
+                                                style={{
+                                                  width: "100px",
+                                                  height: "100px",
+                                                  objectFit: "cover",
+                                                }}
+                                              />
+                                              <div>
+                                                <h5 className="mb-1">
+                                                  {salon.salon.name}
+                                                </h5>
+                                                <p className="mb-1 text-muted">
+                                                  Address: {salon.address}
+                                                </p>
+                                                <p className="card-text text-muted mb-1">
+                                                  Open:{" "}
+                                                  {formatTime(
+                                                    salon.salon.open_time
+                                                  )}{" "}
+                                                  • Close:{" "}
+                                                  {formatTime(
+                                                    salon.salon.close_time
+                                                  )}
+                                                </p>
+                                                <span
+                                                  className={`badge ${salon.salon.status === "open"
                                                     ? "bg-success"
                                                     : "bg-danger"
-                                                }`}
-                                              >
-                                                {salon.salon.status
-                                                  ? salon.salon.status ===
-                                                    "close"
-                                                    ? "Closed for Today"
-                                                    : "Open"
-                                                  : "Open"}
-                                              </span>
+                                                    }`}
+                                                >
+                                                  {salon.salon.status
+                                                    ? salon.salon.status ===
+                                                      "close"
+                                                      ? "Closed for Today"
+                                                      : "Open"
+                                                    : "Open"}
+                                                </span>
+                                              </div>
                                             </div>
                                           </div>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="text-center my-3">
-                                        No Salon available
-                                      </div> // Optional: Show alternative content if no data
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </Card>
-                          </TabPane>
-                        )}
+                                        ))
+                                      ) : (
+                                        <div className="text-center my-3">
+                                          No Salon available
+                                        </div> // Optional: Show alternative content if no data
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </Card>
+                            </TabPane>
+                          )}
 
                         {/* Select Services 2 */}
                         <TabPane id="steparrow-description-info" tabId={2}>
@@ -1674,7 +1718,7 @@ const Scheduleappointment = () => {
                                             style={{
                                               minHeight:
                                                 window.innerWidth >= 768 &&
-                                                window.innerWidth <= 772
+                                                  window.innerWidth <= 772
                                                   ? "170px"
                                                   : "auto",
                                             }}
@@ -1834,11 +1878,11 @@ const Scheduleappointment = () => {
                                             selectBarber.map(
                                               (barberData: any) => {
                                                 const isAvailable =
-                                                  barberData.availability_status ===
+                                                  barberData.barber.availability_status ===
                                                   "available";
                                                 return (
                                                   <Col
-                                                    key={barberData.id}
+                                                    key={barberData.barber.id}
                                                     sm={6}
                                                     md={4}
                                                     lg={2}
@@ -1848,7 +1892,7 @@ const Scheduleappointment = () => {
                                                       onClick={() => {
                                                         if (isAvailable) {
                                                           handleBarberSelect(
-                                                            barberData
+                                                            barberData.barber
                                                           ); // Trigger modal
                                                         }
                                                       }}
@@ -1857,8 +1901,8 @@ const Scheduleappointment = () => {
                                                           ? "pointer"
                                                           : "not-allowed",
                                                         border:
-                                                          barberData.id ===
-                                                          selectedBarberId
+                                                          barberData.barber.id ===
+                                                            selectedBarberId
                                                             ? "2px solid rgb(106, 114, 137)"
                                                             : "2px solid transparent",
                                                       }}
@@ -1870,13 +1914,13 @@ const Scheduleappointment = () => {
                                                       >
                                                         <div className="team-profile-img mb-1">
                                                           <div className="avatar-lg img-thumbnail rounded-circle mx-auto">
-                                                            {barberData.photo ? (
+                                                            {barberData.barber.photo ? (
                                                               <img
                                                                 src={
-                                                                  barberData.photo
+                                                                  barberData.barber.photo
                                                                 }
                                                                 alt={
-                                                                  barberData.name
+                                                                  barberData.barber.name
                                                                 }
                                                                 className="img-fluid d-block rounded-circle"
                                                                 style={{
@@ -1887,10 +1931,10 @@ const Scheduleappointment = () => {
                                                               />
                                                             ) : (
                                                               <div className="avatar-title text-uppercase border rounded-circle bg-light text-primary d-flex justify-content-center align-items-center">
-                                                                {barberData.name?.charAt(
+                                                                {barberData.barber.name?.charAt(
                                                                   0
                                                                 )}
-                                                                {barberData.name
+                                                                {barberData.barber.name
                                                                   ?.split(" ")
                                                                   .slice(-1)
                                                                   .toString()
@@ -1900,10 +1944,10 @@ const Scheduleappointment = () => {
                                                           </div>
                                                         </div>
                                                         <h5 className="mt-2">
-                                                          {barberData.name}
+                                                          {barberData.barber.name}
                                                         </h5>
                                                         <p className="text-muted mb-0">
-                                                          {barberData.position}
+                                                          {barberData.barber.position}
                                                         </p>
                                                         <p className="text-muted mb-0">
                                                           {isAvailable
@@ -1988,11 +2032,10 @@ const Scheduleappointment = () => {
                                           <Flatpickr
                                             key={disabledLeaveDates.join(",")} // 💡 Key forces Flatpickr to remount
                                             placeholder="Click Here to Select Date & Time slot"
-                                            className={`form-control bg-light border-light  ${
-                                              selectedDate
-                                                ? "selected-date-highlight"
-                                                : ""
-                                            }`}
+                                            className={`form-control bg-light border-light  ${selectedDate
+                                              ? "selected-date-highlight"
+                                              : ""
+                                              }`}
                                             options={{
                                               dateFormat: "Y-m-d",
                                               minDate: new Date(),
@@ -2078,7 +2121,7 @@ const Scheduleappointment = () => {
                                                     const isPastTime =
                                                       isToday &&
                                                       slot.startTimeSeconds <
-                                                        currentTimeInSeconds; // Disable only past times for today
+                                                      currentTimeInSeconds; // Disable only past times for today
                                                     const isDisabled =
                                                       slot.isBooked ||
                                                       isPastTime;
@@ -2087,11 +2130,10 @@ const Scheduleappointment = () => {
                                                       <button
                                                         key={index}
                                                         type="button"
-                                                        className={`btn ${
-                                                          isSelected
-                                                            ? "btn-primary"
-                                                            : "btn-outline-primary"
-                                                        }`}
+                                                        className={`btn ${isSelected
+                                                          ? "btn-primary"
+                                                          : "btn-outline-primary"
+                                                          }`}
                                                         onClick={() =>
                                                           !slot.isBooked &&
                                                           handleSlotSelection(
@@ -2442,9 +2484,8 @@ const Scheduleappointment = () => {
                                       <div className="btn-group d-flex flex-wrap">
                                         {/* None Option */}
                                         <Label
-                                          className={`btn btn-outline-primary ${
-                                            tipPercentage === 0 ? "active" : ""
-                                          } flex-fill text-center`}
+                                          className={`btn btn-outline-primary ${tipPercentage === 0 ? "active" : ""
+                                            } flex-fill text-center`}
                                         >
                                           <Input
                                             type="radio"
@@ -2461,11 +2502,10 @@ const Scheduleappointment = () => {
                                         {[20, 25, 30, 40].map((percentage) => (
                                           <Label
                                             key={percentage}
-                                            className={`btn btn-outline-primary ${
-                                              tipPercentage == percentage
-                                                ? "active"
-                                                : ""
-                                            } flex-fill text-center`}
+                                            className={`btn btn-outline-primary ${tipPercentage == percentage
+                                              ? "active"
+                                              : ""
+                                              } flex-fill text-center`}
                                           >
                                             <Input
                                               type="radio"
@@ -2483,11 +2523,10 @@ const Scheduleappointment = () => {
 
                                         {/* Custom Tip Option */}
                                         <Label
-                                          className={`btn btn-outline-primary ${
-                                            tipPercentage === "custom"
-                                              ? "active"
-                                              : ""
-                                          } flex-fill text-center`}
+                                          className={`btn btn-outline-primary ${tipPercentage === "custom"
+                                            ? "active"
+                                            : ""
+                                            } flex-fill text-center`}
                                         >
                                           <Input
                                             type="radio"
