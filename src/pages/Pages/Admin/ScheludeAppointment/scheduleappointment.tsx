@@ -540,7 +540,7 @@ const Scheduleappointment = () => {
       const getBarberSessionsData = async () => {
         try {
           const response: any = await fetchBarberSession(
-            formData.selectedSalon
+            formData.selectedSalon, 1
           );
           if (response?.length > 0) {
             // Step 1: Filter only available barbers

@@ -6,10 +6,10 @@ const BARBER_SESSIONS_ENDPOINT = "barber-sessions";
 const apiClient = new APIClient();
 
 // Fetch the list of all barbers
-export const fetchBarberSession = async (salonId?: any): Promise<any> => {
+export const fetchBarberSession = async (salonId?: any, category?: any, barberId?: any): Promise<any> => {
   try {
     const response = await apiClient.get(`${BARBER_SESSIONS_ENDPOINT}`, {
-      params: { SalonId: salonId },
+      params: { SalonId: salonId,  category: category},
     });
 
     // Return the entire Axios response object
