@@ -3,14 +3,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 //redux
 import {
   Col,
-  Modal,
-  ModalBody,
-  Row,
-  Label,
-  Button,
-  ModalHeader,
-  Form,
-  Spinner,
+ 
   Accordion,
   AccordionItem,
   AccordionHeader,
@@ -221,7 +214,9 @@ const BarberAppointmentTable: React.FC = () => {
                 <h5 className="card-title mb-0 flex-grow-1">
                   Barbers Today's Appointments
                 </h5>
-
+                <b className="text-danger">
+                  Unavailable barber not shown in the schedule
+                </b>
                 <div className="flex-shrink-0"></div>
               </div>
             </div>
