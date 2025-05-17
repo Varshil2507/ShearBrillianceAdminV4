@@ -854,10 +854,11 @@ const CalenderScheduleInfo: React.FC = () => {
   //   }, [appointmentInfo]);
 
   const handleStatusChange = (newStatus: string) => {
-    toggleModal(); // Open the confirmation modal
+    // toggleModal(); // Open the confirmation modal
     setPreviousOption(selectedStatus);
     setSelectedStatus(newStatus); // Set the new status
     setAppointmentId(event.id); // Store the appointment ID for modal
+    setIsModalOpen(true); 
   };
 
   const confirmStatusChange = async () => {
@@ -869,7 +870,7 @@ const CalenderScheduleInfo: React.FC = () => {
         }); // API call to update status
         setShowSpinner(false);
         // toggle();
-        toggleModal(); // Close the modal
+        // toggleModal(); // Close the modal
         setEvent((prev: any) => ({
           ...prev,
           status: selectedStatus,
@@ -1333,7 +1334,8 @@ const CalenderScheduleInfo: React.FC = () => {
 
                   <AppointmentConfirmationModal
                     isOpen={isModalOpen}
-                    toggle={toggleModal}
+                    // toggle={toggleModal}
+                    toggle={() => setIsModalOpen(!isModalOpen)}
                     onConfirm={confirmStatusChange}
                     status={selectedStatus}
                     isAppointment={false}
