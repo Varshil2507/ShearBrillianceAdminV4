@@ -216,7 +216,7 @@
     padding: 10px;
     z-index: 3;
     color: rgba($white, 0.9);
-    fill: rgba($white, 0.9);
+    fill: rgba($white, 0.9) !important;
 
     &.flatpickr-disabled {
       display: none;
@@ -436,7 +436,7 @@
     &[disabled],
     &[disabled]:hover {
       font-size: 100%;
-      color: rgba($white, 0.9);
+      color: rgba($white, 0.9) !important;
       background: transparent;
       pointer-events: none;
     }
