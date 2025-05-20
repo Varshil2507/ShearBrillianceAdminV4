@@ -1206,50 +1206,55 @@ const BarberTable: React.FC = () => {
   };
 
   const setSalonInformation = () => {
+    let salonId;
+    let salonInfo;
+
     if (
       storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
       storeRoleInfo.role_name === ROLES.SALON_OWNER ||
       storesalonDetailInfo
     ) {
-      const salonId = storesalonDetailInfo
+      // ✅ Case 1: Salon Manager / Owner or salonDetails present in localStorage
+      salonId = storesalonDetailInfo
         ? storesalonDetailInfo.id
-        : storeUserInfo.salon.id;
-      setSelectedSalonId(salonId);
-      formik.setFieldValue("SalonId", salonId);
-      const salonInfo = salonData.find(
-        (salonInfo: any) => salonInfo.salon_id === salonId
-      );
-
-      const openTime: any = salonInfo
-        ? parseTime(salonInfo.salon.open_time)
-        : null;
-      const closeTime: any = salonInfo
-        ? parseTime(salonInfo.salon.close_time)
-        : null;
-      selectedSalonOpenTimeRef.current = openTime;
-      selectedSalonCloseTimeRef.current = closeTime;
-      selectedSalonOpenTimeAMPMRef.current = salonInfo?.salon
-        ? formatTime(salonInfo.salon.open_time)
-        : null;
-      selectedSalonCloseTimeAMPMRef.current = salonInfo?.salon
-        ? formatTime(salonInfo.salon.close_time)
-        : null;
-      setSalonOpenTime(openTime);
-      setSalonCloseTime(closeTime);
-      setSalonOpenTimeAMPM(selectedSalonOpenTimeAMPMRef.current);
-      setSalonCloseTimeAMPM(selectedSalonCloseTimeAMPMRef.current);
-      let updatedSchedule = [...schedule];
-      updatedSchedule = schedule.map((item) => {
-        return {
-          ...item,
-          isChecked: true,
-          startTime: openTime,
-          endTime: closeTime,
-          isReadonly: false,
-        };
-      });
-      setSchedule(updatedSchedule);
+        : storeUserInfo?.salon?.id;
+      salonInfo = storesalonDetailInfo ?? storeUserInfo?.salon;
+    } else if (salonData.length === 1) {
+      // ✅ Case 2: Only one salon available (Admin or SuperAdmin)
+      salonId = salonData[0].salon_id;
+      salonInfo = salonData[0]?.salon;
+    } else {
+      return; // If multiple salons and none selected, skip
     }
+
+    // Set salon ID
+    setSelectedSalonId(salonId);
+    formik.setFieldValue("SalonId", salonId);
+
+    // Parse salon open and close time
+    const openTime = parseTime(salonInfo?.open_time);
+    const closeTime = parseTime(salonInfo?.close_time);
+
+    selectedSalonOpenTimeRef.current = openTime;
+    selectedSalonCloseTimeRef.current = closeTime;
+
+    selectedSalonOpenTimeAMPMRef.current = formatTime(salonInfo?.open_time);
+    selectedSalonCloseTimeAMPMRef.current = formatTime(salonInfo?.close_time);
+
+    setSalonOpenTime(openTime);
+    setSalonCloseTime(closeTime);
+    setSalonOpenTimeAMPM(selectedSalonOpenTimeAMPMRef.current);
+    setSalonCloseTimeAMPM(selectedSalonCloseTimeAMPMRef.current);
+
+    // ✅ Apply timing to full week
+    const updatedSchedule = daysOfWeek.map((day) => ({
+      day,
+      isChecked: true,
+      startTime: openTime || "",
+      endTime: closeTime || "",
+      isReadonly: false,
+    }));
+    setSchedule(updatedSchedule);
   };
   const toggleDeleteModal = () => {
     setDeleteModal(!deleteModal); // Toggle the delete modal visibility
