@@ -220,7 +220,7 @@ const CustomerAppointmentList = ({ appointments }: any) => {
                     <ul className="ps-3">
                       {selectedAppointment.haircutDetails.map(
                         (item: any, index: number) => (
-                          <li key={index}>{item.name || "Unnamed Haircut"}</li>
+                          <li key={index}>{item.haircut_style || "Unnamed Haircut"}</li>
                         )
                       )}
                     </ul>
