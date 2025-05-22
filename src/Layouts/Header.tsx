@@ -345,7 +345,8 @@ const Header = ({ onChangeLayoutMode, layoutModeType, storeRoleInfo, headerClass
                     <BarberLeaveModal
                       isOpen={isModalOpen}
                       toggle={toggleModal}
-                      onSubmit={handleLeaveSubmit}  // Pass the handleLeaveSubmit function here
+                      onSubmit={handleLeaveSubmit}
+                        // Pass the handleLeaveSubmit function here
                     />
                   </>
                 )}

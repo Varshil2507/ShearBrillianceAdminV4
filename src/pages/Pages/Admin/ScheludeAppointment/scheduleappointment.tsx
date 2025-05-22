@@ -115,7 +115,7 @@ const Scheduleappointment = () => {
   const [tipPercentage, setTipPercentage] = useState<any>(0);
   const [customTip, setCustomTip] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
-
+  const [maxDate, setMaxDate] = useState<Date | undefined>();
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
   const [tipAmount, setTipAmount] = useState(0);
@@ -149,6 +149,10 @@ const Scheduleappointment = () => {
         }));
       }
 
+      if (tab === 4) {
+        setIsNextButtonActive(false); // Add this line
+      }
+
       var modifiedSteps = [...passedarrowSteps, tab];
       if (tab === 6) {
         let total;
@@ -176,6 +180,7 @@ const Scheduleappointment = () => {
         setTotalPrice(total);
         calculateFinalAmount(total, tipPercentage, customTip);
       }
+
       if (tab >= 1 && tab <= 7) {
         setactiveArrowTab(tab);
         setPassedarrowSteps(modifiedSteps);
@@ -306,9 +311,15 @@ const Scheduleappointment = () => {
 
   const userRole = localStorage.getItem("userRole");
   let storeRoleInfo: any;
+  let salonUserInfo: any;
   if (userRole) {
     storeRoleInfo = JSON.parse(userRole);
   }
+  const authSalonUser: any = localStorage.getItem("authSalonUser");
+  if (authSalonUser) {
+    salonUserInfo = JSON.parse(authSalonUser);
+  }
+
   // ---------------------------------
 
   // Fetch Appointment Detals
@@ -401,19 +412,19 @@ const Scheduleappointment = () => {
 
       loadSalons();
     } else {
-         const selected = storesalonDetailInfo;
-            setSelectedSalon(selected.id);
-            handleSalonSelect({
-              salonId: selected.id,
-              salonName: selected.name,
-            });
-            setIsNextButtonActive(true);
-            setPassedarrowSteps((prev) => [...prev, 2]);
-            setactiveArrowTab(2); // skip to "Select Services"
-          // }
+      const selected = storesalonDetailInfo ?? salonUserInfo;
+      setSelectedSalon(selected.id);
+      handleSalonSelect({
+        salonId: selected.id,
+        salonName: selected.name,
+      });
+      setIsNextButtonActive(true);
+      setPassedarrowSteps((prev) => [...prev, 2]);
+      setactiveArrowTab(2); // skip to "Select Services"
+      // }
 
-          setShowLoader(false);
-          setInitialLoading(false); // 👈 Hide full-loader and show the stepper
+      setShowLoader(false);
+      setInitialLoading(false); // 👈 Hide full-loader and show the stepper
     }
   }, []);
 
@@ -474,6 +485,43 @@ const Scheduleappointment = () => {
         }
       }
     });
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const todayDay = today.getDay(); // 0 = Sunday, ..., 6 = Saturday
+    // Check if today is explicitly a working day for the barber
+    const isTodayWorking = nonWorkingDays.some((info) => {
+      return (
+        info.date === todayStr &&
+        info.barber_id === barberId &&
+        !info.is_leave_day &&
+        !info.is_non_working_day
+      );
+    });
+    const isTodayMarkedLeaveOrNonWorking = nonWorkingDays.some((info) => {
+      return (
+        info.date === todayStr &&
+        info.barber_id === barberId &&
+        (info.is_leave_day || info.is_non_working_day)
+      );
+    });
+    const isBarberCompletelyUnschedToday = !nonWorkingDays.some(
+      (info) => info.date === todayStr && info.barber_id === barberId
+    );
+    if (
+      !isTodayWorking ||
+      isTodayMarkedLeaveOrNonWorking ||
+      isBarberCompletelyUnschedToday
+    ) {
+      const normalizedToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      const year = normalizedToday.getUTCFullYear();
+      const month = String(normalizedToday.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(normalizedToday.getUTCDate()).padStart(2, "0");
+      disabledDates.push(`${year}-${month}-${day}`);
+    }
     // ✅ 1. Handle approved leaves (as-is)
     // nonWorkingDays.leaves.forEach(({ start_date, end_date, status, availability_status }) => {
     //   if (status === "approved" && availability_status === "unavailable") {
@@ -533,6 +581,18 @@ const Scheduleappointment = () => {
 
     return disabledDates;
   };
+  const getMaxScheduleDate = (schedule: any[]): Date | undefined => {
+    const validDates = schedule
+      .filter((entry: any) => entry?.date)
+      .map((entry: any) => {
+        const [year, month, day] = entry.date.split("-").map(Number);
+        return new Date(year, month - 1, day); // Local date
+      });
+
+    if (validDates.length === 0) return undefined;
+
+    return new Date(Math.max(...validDates.map((date) => date.getTime())));
+  };
 
   // Select Barber
   useEffect(() => {
@@ -540,7 +600,8 @@ const Scheduleappointment = () => {
       const getBarberSessionsData = async () => {
         try {
           const response: any = await fetchBarberSession(
-            formData.selectedSalon, 1
+            formData.selectedSalon,
+            1
           );
           if (response?.length > 0) {
             // Step 1: Filter only available barbers
@@ -604,7 +665,8 @@ const Scheduleappointment = () => {
       );
 
       setDisabledLeaveDates(leaveDates);
-
+      const maxDate = getMaxScheduleDate(barber.schedule || []);
+      setMaxDate(maxDate);
       // ✅ Only show modal if this is still the last clicked barber
       // if (lastClickedBarberIdRef.current === barber.id) {
       //   setIsModalOpen(true);
@@ -1654,7 +1716,12 @@ const Scheduleappointment = () => {
                         {/* Select Services 2 */}
                         <TabPane id="steparrow-description-info" tabId={2}>
                           <div className="d-flex align-items-start gap-3 mt-4 my-2">
-                            {!(salons.length === 1) && (
+                            {!(
+                              storeRoleInfo?.role_name ===
+                                ROLES.SALON_MANAGER ||
+                              storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+                              storesalonDetailInfo
+                            ) && (
                               <button
                                 type="button"
                                 className="btn btn-light btn-label previestab"
@@ -2058,11 +2125,7 @@ const Scheduleappointment = () => {
                                             options={{
                                               dateFormat: "Y-m-d",
                                               minDate: new Date(),
-                                              maxDate: new Date(
-                                                new Date().setDate(
-                                                  new Date().getDate() + 30
-                                                )
-                                              ),
+                                              maxDate: maxDate,
                                               defaultDate: new Date(),
                                               disable: disabledLeaveDates, // ✅ Now works
                                             }}

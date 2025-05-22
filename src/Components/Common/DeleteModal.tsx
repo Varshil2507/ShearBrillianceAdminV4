@@ -8,9 +8,20 @@ interface DeleteModalProps {
   title?: string;
   subTitle?: string;
   showSpinner?: boolean;
+  customMessage?: string; // <-- NEW
+  variant?: "delete" | "cancelLeave"; // NEW
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({ show, onDeleteClick, onCloseClick, title, subTitle, showSpinner }) => {
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  show,
+  onDeleteClick,
+  onCloseClick,
+  customMessage,
+  title,
+  subTitle,
+  showSpinner,
+  variant,
+}) => {
   const [showTempSpinner, setShowSpinner] = useState<boolean>(false);
 
   // Reset the spinner state only when the modal is opened
@@ -25,19 +36,32 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ show, onDeleteClick, onCloseC
   const setDeleteData = () => {
     setShowSpinner(true);
     onDeleteClick?.(); // Invoke the onDeleteClick function if defined
-  }
+  };
 
   return (
-    <Modal fade={true} isOpen={show} toggle={onCloseClick} centered
+    <Modal
+      fade={true}
+      isOpen={show}
+      toggle={onCloseClick}
+      centered
       backdrop="static" // Prevents closing on outside click
     >
       <ModalBody className="py-3 px-5">
         <div className="mt-2 text-center">
-          <i className="ri-delete-bin-line display-5 text-danger"></i>
+          {variant !== "cancelLeave" && (
+            <i className="ri-delete-bin-line display-5 text-danger"></i>
+          )}
           <div className="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
             <h4>Are you sure ?</h4>
             <p className="text-muted mx-4 mb-0">
-              Are you sure you want to remove this <b>{title ? title : ""}</b> {subTitle ? ' ' + subTitle : ''}?
+              {customMessage ? (
+                customMessage
+              ) : (
+                <>
+                  Are you sure you want to remove this <b>{title}</b>
+                  {subTitle ? " " + subTitle : ""}?
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -52,22 +76,19 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ show, onDeleteClick, onCloseC
           </button>
           <button
             type="button"
-            className="btn w-sm btn-danger "
+            className="btn w-sm btn-danger"
             id="delete-record"
-            onClick={() => setDeleteData()}
-            disabled={
-              showTempSpinner
-            } // Disable button when loader is active
+            onClick={setDeleteData}
+            disabled={showTempSpinner}
           >
             {showTempSpinner && (
-              <Spinner
-                size="sm"
-                className="me-2"
-              >
+              <Spinner size="sm" className="me-2">
                 Loading...
               </Spinner>
             )}
-            Yes, Delete It!
+            {variant === "cancelLeave"
+              ? "Yes!"
+              : "Yes, Delete It!"}
           </button>
         </div>
       </ModalBody>

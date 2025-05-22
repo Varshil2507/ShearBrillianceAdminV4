@@ -281,11 +281,11 @@ const SalonTransferBarber: React.FC = () => {
               <div
                 key={salon.salon.id}
                 style={{
-                  border: "1px solid lightgray",
+                  border: "1px solid var(--vz-border-color)",
                   borderRadius: "10px",
                   padding: "20px",
-                  backgroundColor: "#fff",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  backgroundColor: "var(--vz-secondary-bg)",
+                  boxShadow: "0 1px 2px rgba(181, 186, 196, 0.5)",
                 }}
               >
                 {salon.initialLoader && <Loader />}
@@ -293,7 +293,7 @@ const SalonTransferBarber: React.FC = () => {
                   style={{
                     textAlign: "center",
                     marginBottom: "20px",
-                    color: "#333",
+                    color: "#rgba(var(--#{$prefix}link-color-rgb), var(--#{$prefix}link-opacity, 1))",
                   }}
                 >
                   {salon.salon.name}
@@ -315,10 +315,10 @@ const SalonTransferBarber: React.FC = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         style={{
-                          border: "1px solid #ddd",
+                          border: "1px solid var(--vz-border-color)",
                           borderRadius: "8px",
                           padding: "15px",
-                          backgroundColor: "#f7f7f7",
+                          backgroundColor: "var(--vz-light)",
                           minHeight: "200px",
                           display: "flex",
                           flexDirection: "column",
@@ -330,11 +330,11 @@ const SalonTransferBarber: React.FC = () => {
                               : "flex-start",
                         }}
                       >
-                        <h4 style={{ marginBottom: "15px", color: "#555" }}>
+                        <h4 style={{ marginBottom: "15px", color: "var(--vz-heading-color)" }}>
                           Walk-In Service
                         </h4>
                         {salon.categories.walkIn.length === 0 ? (
-                          <div style={{ color: "#999" }}>No data available</div>
+                          <div style={{ color: "var(--vz-card-title-color)" }}>No data available</div>
                         ) : (
                           salon.categories.walkIn.map((barber, index) => (
                             <Draggable
@@ -350,7 +350,7 @@ const SalonTransferBarber: React.FC = () => {
                                   style={{
                                     padding: "10px",
                                     backgroundColor: barber.color,
-                                    border: "1px solid #ccc",
+                                    border: "1px solid var(--vz-border-color)",
                                     borderRadius: "5px",
                                     color:
                                       barber.color === "#000000" ||
@@ -384,10 +384,10 @@ const SalonTransferBarber: React.FC = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         style={{
-                          border: "1px solid #ddd",
+                          border: "1px solid var(--vz-border-color)",
                           borderRadius: "8px",
                           padding: "15px",
-                          backgroundColor: "#f7f7f7",
+                          backgroundColor: "var(--vz-light)",
                           minHeight: "200px",
                           display: "flex",
                           flexDirection: "column",
@@ -399,7 +399,7 @@ const SalonTransferBarber: React.FC = () => {
                               : "flex-start",
                         }}
                       >
-                        <h4 style={{ marginBottom: "15px", color: "#555" }}>
+                        <h4 style={{ marginBottom: "15px", color: "var(--vz-heading-color)" }}>
                           Scheduled Service
                         </h4>
                         {salon.categories.schedule.length === 0 ? (
@@ -419,7 +419,7 @@ const SalonTransferBarber: React.FC = () => {
                                   style={{
                                     padding: "10px",
                                     backgroundColor: barber.color,
-                                    border: "1px solid #ccc",
+                                    border: "1px solid var(--vz-border-color)",
                                     borderRadius: "5px",
                                     color:
                                       barber.color === "#000000"

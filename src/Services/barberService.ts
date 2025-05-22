@@ -105,11 +105,10 @@ export const deleteBarber = async (id: number): Promise<void> => {
 
 export const fetchBarberBySalon = async (salonId: any, category: any): Promise<any> => {
   try {
+    const url = `${BARBER_ENDPOINT}?salonId=${salonId ?? ''}&category=${category ?? ''}`;
     
-    const response = await apiClient.get(`${BARBER_ENDPOINT}`, {
-      params: { salonId, category }, // Update to match the query parameters in the URL
-    });
-    return response; // Extract and return the data field
+    const response = await apiClient.get(url);
+    return response;
   } catch (error) {
     throw error;
   }

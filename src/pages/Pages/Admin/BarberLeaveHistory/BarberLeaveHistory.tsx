@@ -1,19 +1,23 @@
 import React, { useEffect, useState, useMemo } from "react";
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Spinner,
-  Row,
-  Col,
-} from "reactstrap";
+import { Row, Col } from "reactstrap";
 import TableContainer from "Components/Common/TableContainer";
 import Loader from "Components/Common/Loader";
-import { fetchLeaveHistory } from "../../../../Services/BarberLeaveHistoryService"; // Update the path to your service file
-import { Cell } from "@tanstack/react-table";
-import { formatDate, formatHours, otherFormatDate,formatUTCDate } from "Components/Common/DateUtil";
-import { showErrorToast } from "slices/layouts/toastService";
+import {
+  deleteLeave,
+  fetchLeaveHistory,
+} from "../../../../Services/BarberLeaveHistoryService"; // Update the path to your service file
+import {
+  formatDate,
+  formatHours,
+  otherFormatDate,
+  formatUTCDate,
+} from "Components/Common/DateUtil";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "slices/layouts/toastService";
+import DeleteModal from "Components/Common/DeleteModal";
 
 interface LeaveHistory {
   id: number;
@@ -25,7 +29,6 @@ interface LeaveHistory {
 
   createdAt: string;
 }
-const LEAVE_HISTORY_ENDPOINT = "/barber-leave/barber";
 
 interface LeaveHistoryTableProps {
   BarberId: number; // Make sure this prop is passed from the parent
@@ -42,6 +45,9 @@ const LeaveHistoryTable: React.FC = () => {
   const [selectedCurrentPage, setCurrentPage] = useState<any | null>(0);
   const [selectedTotalPages, setTotalPages] = useState(0);
   const [selectedTotalItems, setTotalItems] = useState<number | null>(0);
+  const [deleteModal, setDeleteModal] = useState(false); // State for delete modal visibility
+  const [selectedLeave, setSelectedLeave] = useState<any>(null);
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
   // const [selectedCurrentPage, setCurrentPage] = useState<number | null>(0);
 
@@ -51,10 +57,12 @@ const LeaveHistoryTable: React.FC = () => {
     startDate: any,
     endDate: any,
     status: any,
-    search: any
+    search: any,
+    showLoading: boolean = true // default = true
   ) => {
     try {
-      setShowLoader(true);
+      if (showLoading) setShowLoader(true);
+      // setShowLoader(true);
       const response = await fetchLeaveHistory(
         page === 0 ? 1 : page,
         limit,
@@ -70,17 +78,17 @@ const LeaveHistoryTable: React.FC = () => {
         setTotalItems(response.pagination?.totalItems || 0);
       }
 
-      setShowLoader(false);
+      if (showLoading) setShowLoader(false);
     } catch (error: any) {
-        // Check if the error has a response property (Axios errors usually have this)
-        if (error.response && error.response.data) {
-          const apiMessage = error.response.data.message; // Extract the message from the response
-          showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
-        } else {
-          // Fallback for other types of errors
-          showErrorToast(error.message || "Something went wrong");
-        }
-      setShowLoader(false);
+      // Check if the error has a response property (Axios errors usually have this)
+      if (error.response && error.response.data) {
+        const apiMessage = error.response.data.message; // Extract the message from the response
+        showErrorToast(apiMessage || "An error occurred"); // Show the error message in a toaster
+      } else {
+        // Fallback for other types of errors
+        showErrorToast(error.message || "Something went wrong");
+      }
+      if (showLoading) setShowLoader(false);
     }
   };
 
@@ -156,8 +164,9 @@ const LeaveHistoryTable: React.FC = () => {
           row: { original: { start_time: string; end_time: string } };
         }) => {
           const { start_time, end_time } = row.original;
-          return `${start_time ? formatHours(start_time) : "-"} - ${end_time ? formatHours(end_time) : ""
-            }`;
+          return `${start_time ? formatHours(start_time) : "-"} - ${
+            end_time ? formatHours(end_time) : ""
+          }`;
         },
       },
       {
@@ -186,9 +195,8 @@ const LeaveHistoryTable: React.FC = () => {
         cell: ({ getValue }: { getValue: () => string }) => {
           const value = getValue();
           // Remove all non-alphabetic characters and convert to uppercase
-          return value.replace(/[^a-zA-Z\s]/g, ' ').toUpperCase(); 
+          return value.replace(/[^a-zA-Z\s]/g, " ").toUpperCase();
         },
-
       },
       {
         header: "Status",
@@ -219,38 +227,82 @@ const LeaveHistoryTable: React.FC = () => {
         Cell: ({ cell }: { cell: { getValue: () => string | undefined } }) =>
           cell.getValue() || "--",
       },
+      {
+        header: "Actions",
+        accessorKey: "actions",
+        enableColumnFilter: false,
+        cell: ({ row }: { row: { original: LeaveHistory } }) => (
+          <div>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              disabled={row.original.status === "approved"}
+              onClick={() => onClickDelete(row.original)}
+            >
+              Cancel
+            </button>
+          </div>
+        ),
+      },
     ],
     []
   );
 
-  // const formatHours = (timeString: string) => {
-  //   const padZero = (num: number) => String(num).padStart(2, "0");
+  const handleDeleteLeave = async () => {
+    setShowSpinner(true);
+    try {
+      if (selectedLeave !== null) {
+        // ✅ Step 1: Check if leave is approved
+        // if (selectedLeave.status === "approved") {
+        //   showWarningToast("Approved leave cannot be canceled.");
+        //   setShowSpinner(false);
+        //   return;
+        // }
 
-  //   // Split the time string into hours, minutes, and seconds
-  //   const [hoursStr, minutesStr] = timeString.split(":");
+        // ✅ Step 2: Proceed with cancellation
+        await deleteLeave(selectedLeave.id);
 
-  //   let hours = parseInt(hoursStr, 10);
-  //   const minutes = padZero(parseInt(minutesStr, 10));
-  //   const ampm = hours >= 12 ? "PM" : "AM";
+        showSuccessToast("Leave cancelled successfully.");
+        setDeleteModal(false);
+        fetchLeaveHistoryData(
+          selectedCurrentPage ? selectedCurrentPage + 1 : 1,
+          null,
+          null,
+          "",
+          "",
+          false // ⬅️ don't show main loader on cancel
+        );
+        setSelectedLeave(null);
+      }
+    } catch (error) {
+      showErrorToast("Something went wrong while cancelling leave.");
+    } finally {
+      setShowSpinner(false);
+    }
+  };
 
-  //   // Convert to 12-hour format
-  //   hours = hours % 12 || 12;
-
-  //   return `${padZero(hours)}:${minutes} ${ampm}`;
-  // };
+  const onClickDelete = (leave: any) => {
+    setSelectedLeave(leave); // Ensure this is correctly assigning the ID
+    setDeleteModal(true);
+  };
+  const handleCloseModal = () => {
+    setDeleteModal(false); // Close the modal
+    setSelectedLeave(null); // Clear selected barber ID
+    setShowSpinner(false);
+  };
   const handleFilterData = async (data: any) => {
     if (data) {
       setStartDate(data.dateRange[0]);
       setEndDate(data.dateRange[1]);
       setStatus(data.status); // Update status in state
     }
-    
+
     fetchLeaveHistoryData(
       selectedCurrentPage === 0 ? 1 : selectedCurrentPage,
       data?.dateRange[0],
       data?.dateRange[1],
       data?.status === "All" ? "" : data?.status, // Send empty string for "All"
-      selectedSearchText ?? ""
+      selectedSearchText ?? "",
+      false // ⬅️ don't show main loader on cancel
     );
   };
 
@@ -263,31 +315,24 @@ const LeaveHistoryTable: React.FC = () => {
       selectedStartDate,
       selectedEndDate,
       selectedStatus,
-      selectedSearchText ?? ""
+      selectedSearchText ?? "",
+      false // ⬅️ don't show main loader on cancel
     ); // Fetch data for the new page
   };
 
   const handleSearchText = async (search: any) => {
-    
     setSelectedSearch(search);
     setShowLoader(true);
 
-    if(search) {
+    if (search) {
       fetchLeaveHistoryData(
         1,
         selectedStartDate,
         selectedEndDate,
         selectedStatus,
-        search
+        search,
+        false // ⬅️ don't show main loader on cancel
       );
-    // } else {
-    //   fetchLeaveHistoryData(
-    //     selectedCurrentPage ? selectedCurrentPage + 1 : 1,
-    //     selectedStartDate,
-    //     selectedEndDate,
-    //     selectedStatus,
-    //     search
-    //   );
     }
     // console.error("Error fetching searched leave history:", search);
   };
@@ -327,8 +372,16 @@ const LeaveHistoryTable: React.FC = () => {
           isStatusListFilter={true}
           SearchPlaceholder="Search by Status"
         />
-
       )}
+
+      <DeleteModal
+        show={deleteModal}
+        showSpinner={showSpinner}
+        onDeleteClick={handleDeleteLeave}
+        onCloseClick={handleCloseModal}
+        variant="cancelLeave" // 👈 changes icon and button
+        customMessage="Are you sure you want to cancel your leave?"
+      />
     </React.Fragment>
   );
 };

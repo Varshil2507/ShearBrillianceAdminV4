@@ -110,7 +110,7 @@ interface TableContainerProps {
   isTicketsListFilter?: any;
   isNFTRankingFilter?: any;
   isTaskListFilter?: any;
-isStatusFilter?:any;
+  isStatusFilter?: any;
   isStatusListFilter?: any;
   isLeaveFilter?: any;
   handleTaskClick?: any;
@@ -171,7 +171,7 @@ const TableContainer = ({
   totalItems,
   currentPageIndex,
   onChangeIndex,
-  appointmentType
+  appointmentType,
 }: TableContainerProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -239,7 +239,6 @@ const TableContainer = ({
     dateRange: Date[] | null;
     status: string;
   }) => {
-
     setFilters(selectedFilters);
     filterData(selectedFilters);
   };
@@ -251,7 +250,6 @@ const TableContainer = ({
   };
 
   const setPageIndexData = (item: any) => {
-
     // Prevent redundant updates if the page index is the same
     // if (selectedCurrentPageIndex === item) return;
     setPageIndex(item);
@@ -260,7 +258,6 @@ const TableContainer = ({
   };
 
   const setPageNextData = () => {
-
     const nextIndex = (currentPageIndex ?? 0) + 1;
     // Prevent redundant updates if already on the last page
     if (
@@ -297,9 +294,9 @@ const TableContainer = ({
                     <div
                       className={
                         isProductsFilter ||
-                          isContactsFilter ||
-                          isCompaniesFilter ||
-                          isNFTRankingFilter
+                        isContactsFilter ||
+                        isCompaniesFilter ||
+                        isNFTRankingFilter
                           ? "search-box me-2 mb-2 d-inline-block"
                           : "search-box me-2 mb-2 d-inline-block col-12"
                       }
@@ -329,26 +326,26 @@ const TableContainer = ({
                   <TaskStatusGlobalFilter
                     onFilterSubmit={handleFilterSubmit}
                     initialDateRange={selectedDateRange} // Pre-selected range
-                    initialStatus={selectedStatus} // Pre-selected status
+                    initialStatus={selectedStatus}
+                     // Pre-selected status
                   />
                 )}
 
-                                {isStatusFilter && (
-  <TaskListStatusFilter
-    onFilterSubmit={handleFilterSubmit}
-    initialStatus={selectedStatus}
-    appointmentType={appointmentType || "check_in"} // FIX: Use prop, not undefined variable
-  />
-)}
-
+                {isStatusFilter && (
+                  <TaskListStatusFilter
+                    onFilterSubmit={handleFilterSubmit}
+                    initialStatus={selectedStatus}
+                    appointmentType={appointmentType || "check_in"} // FIX: Use prop, not undefined variable
+                  />
+                )}
 
                 {isTaskListFilter && (
                   <TaskListGlobalFilter
                     onFilterSubmit={handleFilterSubmit}
                     initialDateRange={selectedDateRange} // Pre-selected range
                     initialStatus={selectedStatus}
-                    
- // Pre-selected status
+
+                    // Pre-selected status
                   />
                 )}
               </Row>
@@ -396,7 +393,6 @@ const TableContainer = ({
           <tbody>
             {getRowModel().rows?.length > 0 ? (
               getRowModel().rows.map((row: any) => {
-                
                 return (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell: any) => {

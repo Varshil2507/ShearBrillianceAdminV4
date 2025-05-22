@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalHeader,
@@ -17,8 +17,13 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Flatpickr from "react-flatpickr";
-import {formatDate}  from  "./DateUtil"
-import { showErrorToast, showSuccessToast } from "slices/layouts/toastService";
+import { formatDate, formatUTCDate } from "./DateUtil";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "slices/layouts/toastService";
+import { fetchLeaveHistory } from "Services/BarberLeaveHistoryService";
 
 interface BarberLeaveModalProps {
   isOpen: boolean;
@@ -26,19 +31,23 @@ interface BarberLeaveModalProps {
   onSubmit: (leaveData: any) => void;
 }
 const reasons = [
-  'personal',
-  'sick',
-  'family_emergency',
-  'vacation',
-  'training',
-  'child_care',
-  'maternity_leave',
-  'bereavement',
-  'appointment',
-  'other'
+  "personal",
+  "sick",
+  "family_emergency",
+  "vacation",
+  "training",
+  "child_care",
+  "maternity_leave",
+  "bereavement",
+  "appointment",
+  "other",
 ];
 
-const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onSubmit }) => {
+const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({
+  isOpen,
+  toggle,
+  onSubmit,
+}) => {
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
   const validationSchema = Yup.object().shape({
@@ -47,24 +56,39 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
     // end_date: Yup.string().required("End date is required"),
     reason: Yup.string().required("Reason is required"),
 
-    start_time: Yup.string().when("availability_status", (availability_status, schema) => {
-      // Ensure availability_status is treated as a string
-      if (typeof availability_status === "string" && availability_status === "available") {
-        return schema.required("Start time is required");
+    start_time: Yup.string().when(
+      "availability_status",
+      (availability_status, schema) => {
+        // Ensure availability_status is treated as a string
+        if (
+          typeof availability_status === "string" &&
+          availability_status === "available"
+        ) {
+          return schema.required("Start time is required");
+        }
+        return schema.notRequired();
       }
-      return schema.notRequired();
-    }),
+    ),
 
-    end_time: Yup.string().when("availability_status", (availability_status, schema) => {
-      // Ensure availability_status is treated as a string
-      if (typeof availability_status === "string" && availability_status === "available") {
-        return schema.required("End time is required");
+    end_time: Yup.string().when(
+      "availability_status",
+      (availability_status, schema) => {
+        // Ensure availability_status is treated as a string
+        if (
+          typeof availability_status === "string" &&
+          availability_status === "available"
+        ) {
+          return schema.required("End time is required");
+        }
+        return schema.notRequired();
       }
-      return schema.notRequired();
-    })
+    ),
   });
-
-
+useEffect(() => {
+  if (isOpen) {
+    formik.resetForm(); // Reset all values when modal opens
+  }
+}, [isOpen]);
 
   const formik = useFormik({
     initialValues: {
@@ -76,43 +100,102 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
       reason: "",
     },
     validationSchema,
-    onSubmit: async (values) => {
-      setShowSpinner(true);
-      if (values.availability_status === "available") {
-        const startTime = values.start_time;
-        const endTime = values.end_time;
-        if (startTime >= endTime) {
-          // Show an error or prevent submission
-          showErrorToast("Start time must be earlier than end time.");
-          setShowSpinner(false);
-          return; // Prevent further execution
-        }
+   onSubmit: async (values) => {
+  setShowSpinner(true);
 
+  if (values.availability_status === "available") {
+    const startTime = values.start_time;
+    const endTime = values.end_time;
+    if (startTime >= endTime) {
+      showErrorToast("Start time must be earlier than end time.");
+      setShowSpinner(false);
+      return;
+    }
+  }
+
+  try {
+
+    // Step 1: Fetch existing leave history from API
+    const response = await fetchLeaveHistory(1, 1000);
+    const existingLeaves = response?.leaves || [];
+
+    const getDateOnly = (date: Date) => {
+      return new Date(formatUTCDate(date)); // Format safely in UTC
+    };
+
+    const getDatesInRange = (start: Date, end: Date): Date[] => {
+      const dateArray = [];
+      const currentDate = new Date(start);
+      while (currentDate <= end) {
+        dateArray.push(getDateOnly(new Date(currentDate)));
+        currentDate.setDate(currentDate.getDate() + 1);
       }
+      return dateArray;
+    };
 
-      try {
+    const newStart = getDateOnly(new Date(values.start_date));
+    const newEnd = getDateOnly(new Date(values.end_date));
+    const selectedDates = getDatesInRange(newStart, newEnd);
 
-        const leaveData = {
-          availability_status: values.availability_status,
-          start_date: formatDate(values.start_date),
-          end_date: formatDate(values.end_date),
-          start_time: values.start_time,
-          end_time: values.end_time,
-          reason: values.reason,
-        };
+    // Step 2: Check for overlaps by status
+    let approvedOverlap = false;
+    let pendingOverlap = false;
 
-        await onSubmit(leaveData);
-        formik.resetForm();
-        setShowSpinner(false);
-        // Pass the leaveData to the parent component
-        showSuccessToast("Leave request submitted successfully!"); // Success toast
-      } catch (error) {
-        showErrorToast("Something went wrong, please try again!"); // Error toast
-      } finally {
-        setShowSpinner(false);
-        toggle();  // Close the modal after form submission
+    existingLeaves.forEach((leave: any) => {
+      const leaveStart = getDateOnly(new Date(leave.start_date));
+      const leaveEnd = getDateOnly(new Date(leave.end_date));
+      const leaveDates = getDatesInRange(leaveStart, leaveEnd);
+
+      const isDateConflict = leaveDates.some((date: Date) =>
+        selectedDates.some(
+          (selected: Date) => selected.getTime() === date.getTime()
+        )
+      );
+
+      if (isDateConflict) {
+        if (leave.status === "approved") approvedOverlap = true;
+        else pendingOverlap = true;
       }
-    },
+    });
+
+    // Step 3: Handle overlapping cases
+    if (approvedOverlap) {
+      showWarningToast(
+        "Your leave dates are already approved. You cannot apply again for the same dates."
+      );
+      setShowSpinner(false);
+      return;
+    }
+
+    if (pendingOverlap) {
+      showWarningToast(
+        "You already have a leave request in this date range. Please cancel the existing leave before applying again."
+      );
+      setShowSpinner(false);
+      return;
+    }
+
+    // Step 4: Proceed to submit
+    const leaveData = {
+      availability_status: values.availability_status,
+      start_date: formatDate(values.start_date),
+      end_date: formatDate(values.end_date),
+      start_time: values.start_time,
+      end_time: values.end_time,
+      reason: values.reason,
+    };
+
+    await onSubmit(leaveData);
+    formik.resetForm();
+    showSuccessToast("Leave request submitted successfully!");
+  } catch (error) {
+    showErrorToast("Something went wrong, please try again!");
+  } finally {
+    setShowSpinner(false);
+    toggle();
+  }
+},
+
   });
 
   // const formatDate = (dateString: any) => {
@@ -135,7 +218,6 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
   //   return formattedDate.replace(/\//g, '-');
   // };
 
-
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered backdrop="static">
       <ModalHeader toggle={toggle}>Leave Request</ModalHeader>
@@ -152,15 +234,21 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
                   value={formik.values.availability_status}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  invalid={formik.touched.availability_status && !!formik.errors.availability_status}
+                  invalid={
+                    formik.touched.availability_status &&
+                    !!formik.errors.availability_status
+                  }
                 >
                   <option value="">Select Status</option>
                   <option value="available">Available</option>
                   <option value="unavailable">Unavailable</option>
                 </Input>
-                {formik.touched.availability_status && formik.errors.availability_status && (
-                  <FormFeedback>{formik.errors.availability_status}</FormFeedback>
-                )}
+                {formik.touched.availability_status &&
+                  formik.errors.availability_status && (
+                    <FormFeedback>
+                      {formik.errors.availability_status}
+                    </FormFeedback>
+                  )}
               </FormGroup>
             </Col>
           </Row>
@@ -177,7 +265,9 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
                     value={formik.values.start_time}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    invalid={formik.touched.start_time && !!formik.errors.start_time}
+                    invalid={
+                      formik.touched.start_time && !!formik.errors.start_time
+                    }
                   />
                   {formik.touched.start_time && formik.errors.start_time && (
                     <FormFeedback>{formik.errors.start_time}</FormFeedback>
@@ -193,7 +283,9 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
                     value={formik.values.end_time}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    invalid={formik.touched.end_time && !!formik.errors.end_time}
+                    invalid={
+                      formik.touched.end_time && !!formik.errors.end_time
+                    }
                   />
                   {formik.touched.end_time && formik.errors.end_time && (
                     <FormFeedback>{formik.errors.end_time}</FormFeedback>
@@ -249,7 +341,8 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
                   <option value="">Select Reason</option>
                   {reasons.map((reason, index) => (
                     <option key={index} value={reason}>
-                      {reason.replace(/_/g, ' ').toUpperCase()} {/* Format enum value */}
+                      {reason.replace(/_/g, " ").toUpperCase()}{" "}
+                      {/* Format enum value */}
                     </option>
                   ))}
                 </Input>
@@ -261,22 +354,26 @@ const BarberLeaveModal: React.FC<BarberLeaveModalProps> = ({ isOpen, toggle, onS
           </Row>
           {/* Submit and Cancel Buttons */}
           <ModalFooter>
-            <Button color="secondary" onClick={toggle}>Cancel</Button>
+            <Button color="secondary" onClick={toggle}>
+              Cancel
+            </Button>
             <Button
               type="submit"
               color="primary"
               disabled={showSpinner} // Disable button while submitting
             >
-              {showSpinner && <Spinner size="sm" className="me-2">Submitting...</Spinner>}
+              {showSpinner && (
+                <Spinner size="sm" className="me-2">
+                  Submitting...
+                </Spinner>
+              )}
               Submit
             </Button>
           </ModalFooter>
         </Form>
       </ModalBody>
-
     </Modal>
   );
 };
-
 
 export default BarberLeaveModal;

@@ -4,6 +4,7 @@ import { APIClient } from './api_helper'; // Assuming APIClient is already defin
 
 const apiClient = new APIClient();
 const LEAVE_HISTORY_ENDPOINT = '/barber-leave/barber';
+const LEAVE_CANCELE_ENDPOINT = '/barber-leave/delete';
 
 export const fetchLeaveHistory = async (
   page: number,
@@ -26,8 +27,7 @@ export const fetchLeaveHistory = async (
     };
 
     // Send GET request with query parameters
-    const response: AxiosResponse<any> = await apiClient.get(LEAVE_HISTORY_ENDPOINT, { params });
-
+ const response: AxiosResponse<any> = await apiClient.get(LEAVE_HISTORY_ENDPOINT, { params });
     // Check response data
     if (response) {
       return response;
@@ -37,5 +37,14 @@ export const fetchLeaveHistory = async (
   } catch (error) {
     // console.error('Error fetching barber leave history:', error);
     throw error; // Re-throw the error to be handled by the calling function
+  }
+};
+
+export const deleteLeave = async (id: number): Promise<void> => {
+  try {
+    await apiClient.delete(`${LEAVE_CANCELE_ENDPOINT}/${id}`);
+  } catch (error) {
+    // console.error("Error deleting salon:", error);
+    throw error;
   }
 };

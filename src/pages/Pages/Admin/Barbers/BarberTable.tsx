@@ -592,12 +592,12 @@ const BarberTable: React.FC = () => {
         return true;
       });
 
-      if (!valid) {
-        alert(
-          "Please ensure start time is before end time and both are selected."
-        );
-        return;
-      }
+      // if (!valid) {
+      //   alert(
+      //     "Please ensure start time is before end time and both are selected."
+      //   );
+      //   return;
+      // }
 
       values.firstname.trim();
       values.lastname.trim();
@@ -910,23 +910,32 @@ const BarberTable: React.FC = () => {
     setSalonCloseTimeAMPM(null);
     setSelectedSalonId(barber.SalonId);
     formik.setFieldValue("SalonId", barber.SalonId);
-    const salonInfo = salonData.find(
-      (salon: any) => salon.salon_id === barber.SalonId
-    );
-    const openTime: any = salonInfo
-      ? parseTime(salonInfo.salon.open_time)
-      : null;
-    const closeTime: any = salonInfo
-      ? parseTime(salonInfo.salon.close_time)
-      : null;
+    let salonInfo;
+    let openTime = null;
+    let closeTime = null;
+
+    if (
+      // storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
+      // storeRoleInfo.role_name === ROLES.SALON_OWNER ||
+      storesalonDetailInfo
+    ) {
+      salonInfo = storesalonDetailInfo ?? storeUserInfo?.salon;
+    } else if (salonData.length === 1) {
+      salonInfo = salonData[0]?.salon;
+    } else {
+      salonInfo = salonData.find(
+        (salon: any) => salon.salon_id === barber.SalonId
+      )?.salon;
+    }
+
+    openTime = parseTime(salonInfo?.open_time);
+    closeTime = parseTime(salonInfo?.close_time);
+
     setSalonOpenTime(openTime);
     setSalonCloseTime(closeTime);
-    setSalonOpenTimeAMPM(
-      salonInfo ? formatTime(salonInfo.salon.open_time) : null
-    );
-    setSalonCloseTimeAMPM(
-      salonInfo ? formatTime(salonInfo.salon.close_time) : null
-    );
+    setSalonOpenTimeAMPM(formatTime(salonInfo?.open_time));
+    setSalonCloseTimeAMPM(formatTime(salonInfo?.close_time));
+
     if (barber.weekly_schedule) {
       // Convert object to an array format
       const scheduleArray = Object.keys(barber.weekly_schedule).map(
