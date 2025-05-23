@@ -439,148 +439,69 @@ const Scheduleappointment = () => {
   };
   // -------------------------------
 
-  const getDisabledLeaveDates = async (
-    // leaves: any[],
-    nonWorkingDays: any[],
-    barberId: number
-  ) => {
-    const disabledDates: string[] = [];
-    nonWorkingDays.forEach((info) => {
-      if (info.is_non_working_day || info.is_leave_day) {
-        if (info.leaves?.length > 0) {
-          info.leaves.forEach((leave: any) => {
-            const { start_date, end_date, status, availability_status } = leave;
-            if (
-              status === "approved" &&
-              availability_status === "unavailable"
-            ) {
-              const start = new Date(start_date);
-              const end = new Date(end_date);
-              let current = new Date(start);
-              while (current <= end) {
-                // Use UTC methods to extract the date parts and format manually
-                const year = current.getUTCFullYear();
-                const month = String(current.getUTCMonth() + 1).padStart(
-                  2,
-                  "0"
-                ); // Months are 0-based
-                const day = String(current.getUTCDate()).padStart(2, "0");
-                disabledDates.push(`${year}-${month}-${day}`);
+const getDisabledLeaveDates = async (
+  nonWorkingDays: any[],
+  barberId: number
+) => {
+  const disabledDates: string[] = [];
 
-                // Increment the date in UTC
-                current.setUTCDate(current.getUTCDate() + 1);
-              }
+  nonWorkingDays.forEach((info) => {
+    if (info.is_non_working_day || info.is_leave_day) {
+      if (info.leaves?.length > 0) {
+        info.leaves.forEach((leave: any) => {
+          const { start_date, end_date, status, availability_status } = leave;
+          if (
+            status === "approved" &&
+            availability_status === "unavailable"
+          ) {
+            const start = new Date(start_date);
+            const end = new Date(end_date);
+            let current = new Date(start);
+            while (current <= end) {
+              const year = current.getUTCFullYear();
+              const month = String(current.getUTCMonth() + 1).padStart(2, "0");
+              const day = String(current.getUTCDate()).padStart(2, "0");
+              disabledDates.push(`${year}-${month}-${day}`);
+              current.setUTCDate(current.getUTCDate() + 1);
             }
-          });
-        }
-        if (info.is_non_working_day) {
-          let current = new Date(info.date);
-          const year = current.getUTCFullYear();
-          const month = String(current.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
-          const day = String(current.getUTCDate()).padStart(2, "0");
-          disabledDates.push(`${year}-${month}-${day}`);
-
-          // Increment the date in UTC
-          // current.setUTCDate(current.getUTCDate() + 1);
-        }
+          }
+        });
       }
-    });
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0]; // "YYYY-MM-DD"
-    const todayDay = today.getDay(); // 0 = Sunday, ..., 6 = Saturday
-    // Check if today is explicitly a working day for the barber
-    const isTodayWorking = nonWorkingDays.some((info) => {
-      return (
-        info.date === todayStr &&
-        info.barber_id === barberId &&
-        !info.is_leave_day &&
-        !info.is_non_working_day
-      );
-    });
-    const isTodayMarkedLeaveOrNonWorking = nonWorkingDays.some((info) => {
-      return (
-        info.date === todayStr &&
-        info.barber_id === barberId &&
-        (info.is_leave_day || info.is_non_working_day)
-      );
-    });
-    const isBarberCompletelyUnschedToday = !nonWorkingDays.some(
-      (info) => info.date === todayStr && info.barber_id === barberId
-    );
-    if (
-      !isTodayWorking ||
-      isTodayMarkedLeaveOrNonWorking ||
-      isBarberCompletelyUnschedToday
-    ) {
-      const normalizedToday = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate()
-      );
-      const year = normalizedToday.getUTCFullYear();
-      const month = String(normalizedToday.getUTCMonth() + 1).padStart(2, "0");
-      const day = String(normalizedToday.getUTCDate()).padStart(2, "0");
-      disabledDates.push(`${year}-${month}-${day}`);
+
+      if (info.is_non_working_day) {
+        const current = new Date(info.date);
+        const year = current.getUTCFullYear();
+        const month = String(current.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(current.getUTCDate()).padStart(2, "0");
+        disabledDates.push(`${year}-${month}-${day}`);
+      }
     }
-    // ✅ 1. Handle approved leaves (as-is)
-    // nonWorkingDays.leaves.forEach(({ start_date, end_date, status, availability_status }) => {
-    //   if (status === "approved" && availability_status === "unavailable") {
-    //     for (
-    //       let current = new Date(start_date);
-    //       current <= new Date(end_date);
-    //       current.setDate(current.getDate() + 1)
-    //     ) {
-    //       disabledDates.push(current.toISOString().split("T")[0]);
-    //     }
-    //   }
-    // });
-    // leaves.forEach((leave) => {
-    //   const { start_date, end_date, status, availability_status } = leave;
-    //   if (status === "approved" && availability_status === "unavailable") {
-    //     const start = new Date(start_date);
-    //     const end = new Date(end_date);
-    //     let current = new Date(start);
-    //     while (current <= end) {
-    //       disabledDates.push(current.toISOString().split("T")[0]);
-    //       current.setDate(current.getDate() + 1);
-    //     }
-    //   }
-    // });
+  });
 
-    // ✅ 2. Override non-working days IF no available slots
-    // const convertedDays = nonWorkingDays.map((day) => (day === 7 ? 0 : day));
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const isTodayMarkedLeaveOrNonWorking = nonWorkingDays.some((info) => {
+    return (
+      info.date === todayStr &&
+      info.barber_id === barberId &&
+      (info.is_leave_day === true || info.is_non_working_day === true)
+    );
+  });
 
-    // const today = new Date();
-    // const maxDate = new Date();
-    // maxDate.setDate(today.getDate() + 30);
+  if (isTodayMarkedLeaveOrNonWorking) {
+    const normalizedToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const year = normalizedToday.getUTCFullYear();
+    const month = String(normalizedToday.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(normalizedToday.getUTCDate()).padStart(2, "0");
+    disabledDates.push(`${year}-${month}-${day}`);
+  }
 
-    // let current = new Date(today);
-    // while (current <= maxDate) {
-    //   const dayOfWeek = current.getDay(); // 0 = Sunday, ..., 6 = Saturday
-    //   if (convertedDays.includes(dayOfWeek)) {
-    //     const formattedDate = current.toISOString().split("T")[0];
-
-    //     try {
-    //       const res = await fetchTimeSlots(String(barberId), formattedDate);
-
-    //       const slots = res?.[0]?.slots ?? [];
-
-    //       const hasAvailable = slots.some((s: any) => !s.is_booked);
-
-    //       if (!hasAvailable) {
-    //         disabledDates.push(formattedDate);
-    //       }
-    //     } catch (error) {
-    //       console.warn("Error fetching slots for", formattedDate, error);
-    //       disabledDates.push(formattedDate); // fallback: disable
-    //     }
-    //   }
-
-    //   current.setDate(current.getDate() + 1);
-    // }
-
-    return disabledDates;
-  };
+  return disabledDates;
+};
   const getMaxScheduleDate = (schedule: any[]): Date | undefined => {
     const validDates = schedule
       .filter((entry: any) => entry?.date)

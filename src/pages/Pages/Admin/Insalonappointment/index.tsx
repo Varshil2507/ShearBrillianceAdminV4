@@ -14,7 +14,7 @@ const Salonappointment = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <BreadCrumb title="Currently In-Salon: Walk-Ins Appointments" pageTitle="Tasks" />
+                    <BreadCrumb title="Currently In-Salon: Walk-In Appointments" pageTitle="Tasks" />
                     <Displayappointment />
                 </Container>
             </div>
