@@ -915,8 +915,8 @@ const BarberTable: React.FC = () => {
     let closeTime = null;
 
     if (
-      // storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
-      // storeRoleInfo.role_name === ROLES.SALON_OWNER ||
+      storeRoleInfo.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo.role_name === ROLES.SALON_OWNER ||
       storesalonDetailInfo
     ) {
       salonInfo = storesalonDetailInfo ?? storeUserInfo?.salon;
