@@ -438,6 +438,18 @@ const Scheduleappointment = () => {
     }));
   };
   // -------------------------------
+  const getMaxScheduleDate = (schedule: any[]): Date | undefined => {
+    const validDates = schedule
+      .filter((entry: any) => entry?.date)
+      .map((entry: any) => {
+        const [year, month, day] = entry.date.split("-").map(Number);
+        return new Date(year, month - 1, day); // Local date
+      });
+
+    if (validDates.length === 0) return undefined;
+
+    return new Date(Math.max(...validDates.map((date) => date.getTime())));
+  };
 
 const getDisabledLeaveDates = async (
   nonWorkingDays: any[],
@@ -502,18 +514,7 @@ const getDisabledLeaveDates = async (
 
   return disabledDates;
 };
-  const getMaxScheduleDate = (schedule: any[]): Date | undefined => {
-    const validDates = schedule
-      .filter((entry: any) => entry?.date)
-      .map((entry: any) => {
-        const [year, month, day] = entry.date.split("-").map(Number);
-        return new Date(year, month - 1, day); // Local date
-      });
 
-    if (validDates.length === 0) return undefined;
-
-    return new Date(Math.max(...validDates.map((date) => date.getTime())));
-  };
 
   // Select Barber
   useEffect(() => {

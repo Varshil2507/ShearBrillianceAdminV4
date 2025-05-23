@@ -155,6 +155,7 @@ const Board = () => {
   const [isInvalid, setIsInvalid] = useState(false);
   const navigate = useNavigate();
   const [cardDetails, setCardDetails] = useState<any>(null); // Store card details fetched based on card.id
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
@@ -463,11 +464,31 @@ const Board = () => {
     };
 
     fetchHaircutDetailList();
+
     if (
-      storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
-      storeRoleInfo?.role_name !== ROLES.SALON_OWNER &&
-      !storesalonDetailInfo
+      storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      storesalonDetailInfo
     ) {
+      const salonId = storesalonDetailInfo
+        ? storesalonDetailInfo.id
+        : authSalonUser?.id;
+
+      formik.setFieldValue("salon_id", salonId);
+      appointmentFormik.setFieldValue("salon_id", salonId);
+      getBarberSessionsData(salonId);
+
+      // ✅ Fallback to salonUserInfo if storesalonDetailInfo is not available
+      const status = storesalonDetailInfo?.status || authSalonUser?.status;
+
+      if (status === "close") {
+        setIsButtonDisabled(true);
+      } else {
+        setIsButtonDisabled(false);
+      }
+    }
+
+    {
       const fetchSalonsList = async () => {
         try {
           const response: any = await fetchSalons(1, null, null);
@@ -2147,12 +2168,22 @@ const Board = () => {
                       className="btn btn-soft-info w-100"
                       data-bs-toggle="modal"
                       data-bs-target="#creatertaskModal"
-                      onClick={() => handleAddNewCard(line)}
+                      onClick={() => {
+                        if (isButtonDisabled) {
+                          showWarningToast(
+                            "This salon is currently closed. Appointments cannot be booked."
+                          );
+                        } else {
+                          handleAddNewCard(line);
+                        }
+                      }}
+                      // disabled={isButtonDisabled}
                     >
                       Add Appointment
                     </button>
                   </div>
                 )}
+
                 {/* data */}
                 <SimpleBar className="tasks-wrapper px-3 mx-n3">
                   <div

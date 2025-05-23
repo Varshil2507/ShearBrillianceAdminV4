@@ -235,9 +235,7 @@ const LeaveHistoryTable: React.FC = () => {
           <div>
             <button
               className="btn btn-sm btn-outline-danger"
-              disabled={["approved", "denied"].includes(
-                row.original.status.toLowerCase()
-              )}
+              disabled={["approved", "denied"].includes(row.original.status.toLowerCase())}
               onClick={() => onClickDelete(row.original)}
             >
               Cancel

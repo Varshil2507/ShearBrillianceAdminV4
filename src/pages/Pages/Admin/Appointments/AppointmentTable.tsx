@@ -135,6 +135,7 @@ const AppointmentTable: React.FC = () => {
   const [selectedBarber, setSelectedBarber] = useState<any | null>(null);
   const [selectedTotalItems, setTotalItems] = useState<number | null>(0);
   const [selectedTotalPages, setTotalPages] = useState<number | null>(0);
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
   const [showBarberSpinner, setShowBarberSpinner] = useState<boolean>(false);
   let salonDetails = localStorage.getItem("salonDetails");
@@ -344,8 +345,30 @@ const AppointmentTable: React.FC = () => {
       ""
     );
 
-    if (storeRoleInfo?.role_name !== ROLES.SALON_MANAGER &&
-      storeRoleInfo?.role_name !== ROLES.SALON_OWNER && !storesalonDetailInfo) {
+    if (
+      storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
+      storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      storesalonDetailInfo
+    ) {
+      const salonId = storesalonDetailInfo
+        ? storesalonDetailInfo.id
+        : salonUserInfo?.id;
+
+      formik.setFieldValue("salon_id", salonId);
+      formik.setFieldValue("salon_id", salonId);
+      getBarberSessionsData(salonId);
+
+      // ✅ Disable button if status is 'close'
+     const status =
+    storesalonDetailInfo?.status || salonUserInfo?.status;
+
+  if (status === "close") {
+    setIsButtonDisabled(true);
+  } else {
+    setIsButtonDisabled(false);
+  }
+    }
+    {
       const fetchSalonsList = async () => {
         try {
           const response: any = await fetchSalons(1, null, null);
@@ -380,7 +403,7 @@ const AppointmentTable: React.FC = () => {
         const openTime = new Date(`${today}T${salon.open_time}`);
         const closeTime = new Date(`${today}T${salon.close_time}`);
 
-        // Check if salon is open 
+        // Check if salon is open
         const isSalonOpen = now >= openTime && now < closeTime;
 
         if (!isSalonOpen) {
@@ -639,7 +662,8 @@ const AppointmentTable: React.FC = () => {
       event.preventDefault();
     }
   };
-  const emailValidationRegex = /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
+  const emailValidationRegex =
+    /^(?=.{5,50}$)[a-z0-9._%+-]{3,}@[a-z0-9.-]{3,}\.[a-z]{2,}$/;
   // validation
   const formik = useFormik({
     initialValues: {
@@ -827,14 +851,15 @@ const AppointmentTable: React.FC = () => {
           const todayScheduleInfo = scheduleArray.find(
             (info: any) => info.day === dayName.toLowerCase()
           );
-          return `${todayScheduleInfo &&
-              todayScheduleInfo.startTime &&
-              todayScheduleInfo.endTime
+          return `${
+            todayScheduleInfo &&
+            todayScheduleInfo.startTime &&
+            todayScheduleInfo.endTime
               ? `${formatHours(todayScheduleInfo.startTime)} to ${formatHours(
-                todayScheduleInfo.endTime
-              )}`
+                  todayScheduleInfo.endTime
+                )}`
               : "Unavailable"
-            }`; // Combine and display
+          }`; // Combine and display
         },
       },
       {
@@ -918,8 +943,8 @@ const AppointmentTable: React.FC = () => {
 
                 const price = barberService
                   ? parseFloat(barberService?.barber_price) ??
-                  parseFloat(barberService?.min_price) ??
-                  0
+                    parseFloat(barberService?.min_price) ??
+                    0
                   : parseFloat(service.min_price);
 
                 return acc + price;
@@ -934,8 +959,8 @@ const AppointmentTable: React.FC = () => {
 
                   const price = barberService
                     ? parseFloat(barberService?.barber_price) ??
-                    parseFloat(barberService?.min_price) ??
-                    0
+                      parseFloat(barberService?.min_price) ??
+                      0
                     : parseFloat(service.min_price);
 
                   return acc + price;
@@ -1080,13 +1105,21 @@ const AppointmentTable: React.FC = () => {
                     <button
                       className="btn btn-primary add-btn me-1"
                       onClick={() => {
-                        setIsEdit(false);
-                        toggle();
+                        if (isButtonDisabled) {
+                          showWarningToast(
+                            "This salon is currently closed. Appointments cannot be created."
+                          );
+                        } else {
+                          setIsEdit(false);
+                          toggle();
+                        }
                       }}
+                      // disabled={isButtonDisabled}
                     >
                       <i className="ri-add-line align-bottom me-1"></i> Create
                       Appointment
                     </button>
+
                     {isMultiDeleteButton && (
                       <button
                         className="btn btn-soft-danger"
@@ -1217,15 +1250,17 @@ const AppointmentTable: React.FC = () => {
                                 !barber.end_time
                               }
                             >
-                              {`${barber.name} - ${barber.start_time && barber.end_time
+                              {`${barber.name} - ${
+                                barber.start_time && barber.end_time
                                   ? `${formatHours(
-                                    barber.start_time
-                                  )} to ${formatHours(
-                                    barber.end_time
-                                  )} (Wait: ${barber.estimated_wait_time
-                                  } min)`
+                                      barber.start_time
+                                    )} to ${formatHours(
+                                      barber.end_time
+                                    )} (Wait: ${
+                                      barber.estimated_wait_time
+                                    } min)`
                                   : "Unavailable"
-                                }`}
+                              }`}
                             </option>
                           ))}
                         </>
@@ -1539,8 +1574,8 @@ const AppointmentTable: React.FC = () => {
                   price = barberService.barber_price
                     ? barberService.barber_price
                     : barberService.min_price
-                      ? barberService.min_price
-                      : 0;
+                    ? barberService.min_price
+                    : 0;
                 }
                 return (
                   <li key={index}>
