@@ -348,6 +348,7 @@ const AppointmentTable: React.FC = () => {
     if (
       storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
       storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      // storeRoleInfo?.role_name === ROLES.SALON_BARBER ||
       storesalonDetailInfo
     ) {
       const salonId = storesalonDetailInfo
@@ -359,14 +360,13 @@ const AppointmentTable: React.FC = () => {
       getBarberSessionsData(salonId);
 
       // ✅ Disable button if status is 'close'
-     const status =
-    storesalonDetailInfo?.status || salonUserInfo?.status;
+      const status = storesalonDetailInfo?.status || salonUserInfo?.status;
 
-  if (status === "close") {
-    setIsButtonDisabled(true);
-  } else {
-    setIsButtonDisabled(false);
-  }
+      if (status === "close") {
+        setIsButtonDisabled(true);
+      } else {
+        setIsButtonDisabled(false);
+      }
     }
     {
       const fetchSalonsList = async () => {
@@ -1102,23 +1102,25 @@ const AppointmentTable: React.FC = () => {
                 <h5 className="card-title mb-0 flex-grow-1">Appointments</h5>
                 <div className="flex-shrink-0">
                   <div className="d-flex flex-wrap gap-2">
-                    <button
-                      className="btn btn-primary add-btn me-1"
-                      onClick={() => {
-                        if (isButtonDisabled) {
-                          showWarningToast(
-                            "This salon is currently closed. Appointments cannot be created."
-                          );
-                        } else {
-                          setIsEdit(false);
-                          toggle();
-                        }
-                      }}
-                      // disabled={isButtonDisabled}
-                    >
-                      <i className="ri-add-line align-bottom me-1"></i> Create
-                      Appointment
-                    </button>
+                    {!isButtonDisabled && (
+                      <button
+                        className="btn btn-primary add-btn me-1"
+                        onClick={() => {
+                          if (isButtonDisabled) {
+                            showWarningToast(
+                              "This salon is currently closed. Appointments cannot be created."
+                            );
+                          } else {
+                            setIsEdit(false);
+                            toggle();
+                          }
+                        }}
+                        // disabled={isButtonDisabled}
+                      >
+                        <i className="ri-add-line align-bottom me-1"></i> Create
+                        Appointment
+                      </button>
+                    )}
 
                     {isMultiDeleteButton && (
                       <button

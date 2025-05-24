@@ -468,6 +468,7 @@ const Board = () => {
     if (
       storeRoleInfo?.role_name === ROLES.SALON_MANAGER ||
       storeRoleInfo?.role_name === ROLES.SALON_OWNER ||
+      // storeRoleInfo?.role_name === ROLES.SALON_BARBER ||
       storesalonDetailInfo
     ) {
       const salonId = storesalonDetailInfo
@@ -2162,7 +2163,7 @@ const Board = () => {
                         </UncontrolledDropdown>
                       </div> */}
                 </div>
-                {line.nameAlias === "Check In" && (
+                {line.nameAlias === "Check In" && !isButtonDisabled && (
                   <div className="my-2 mt-0">
                     <button
                       className="btn btn-soft-info w-100"
