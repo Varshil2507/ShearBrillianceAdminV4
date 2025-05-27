@@ -150,13 +150,13 @@ const Salesrevenue = () => {
   };
 
   useEffect(() => {
-    if (storeUserInfo.berber) {
-      setSelectedSalonId(storeUserInfo.berber.SalonId);
-      setSelectedBarberId(storeUserInfo.berber.id);
+    if (storeUserInfo.barber) {
+      setSelectedSalonId(storeUserInfo.barber.SalonId);
+      setSelectedBarberId(storeUserInfo.barber.id);
       // setTimeout(() => {
       //   applyDateFilter(
-      //     storeUserInfo.berber.SalonId,
-      //     storeUserInfo.berber.id
+      //     storeUserInfo.barber.SalonId,
+      //     storeUserInfo.barber.id
       //   );
       // }, 500);
     }
@@ -243,7 +243,7 @@ const Salesrevenue = () => {
           {showDatePicker && (
             <div className="row align-items-center mt-3 g-2">
               {/* Salon Dropdown */}
-              {((!storeUserInfo.berber && !storeUserInfo.salon) && !storesalonDetailInfo) && (
+              {((!storeUserInfo.barber && !storeUserInfo.salon) && !storesalonDetailInfo) && (
                 <div className="col-lg-3 col-md-6 col-sm-6">
                   <select
                     id="salonSelect"

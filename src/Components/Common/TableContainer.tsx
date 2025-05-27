@@ -289,7 +289,7 @@ const TableContainer = ({
           <CardBody className="border border-dashed border-end-0 border-start-0">
             <form>
               <Row>
-                {!storeUserInfo.berber && !isLeaveFilter && (
+                {!storeUserInfo.barber && !isLeaveFilter && (
                   <Col sm={5}>
                     <div
                       className={

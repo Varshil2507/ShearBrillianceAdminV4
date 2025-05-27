@@ -440,9 +440,9 @@ const Board = () => {
         storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
       );
     }
-    if (storeUserInfo?.berber) {
-      appointmentFormik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
-      appointmentFormik.setFieldValue("barber_id", storeUserInfo.berber.id);
+    if (storeUserInfo?.barber) {
+      appointmentFormik.setFieldValue("salon_id", storeUserInfo.barber.SalonId);
+      appointmentFormik.setFieldValue("barber_id", storeUserInfo.barber.id);
       setIsAppointmentAvailable(true);
     }
     fetchAppointments();
@@ -1124,12 +1124,12 @@ const Board = () => {
           storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
         );
       }
-      if (storeUserInfo?.berber) {
+      if (storeUserInfo?.barber) {
         appointmentFormik.setFieldValue(
           "salon_id",
-          storeUserInfo.berber.SalonId
+          storeUserInfo.barber.SalonId
         );
-        appointmentFormik.setFieldValue("barber_id", storeUserInfo.berber.id);
+        appointmentFormik.setFieldValue("barber_id", storeUserInfo.barber.id);
         setIsAppointmentAvailable(true);
       }
     } else {
@@ -1472,14 +1472,14 @@ const Board = () => {
               storesalonDetailInfo ? storesalonDetailInfo.id : salonUserInfo?.id
             );
           }
-          if (storeUserInfo?.berber) {
+          if (storeUserInfo?.barber) {
             appointmentFormik.setFieldValue(
               "salon_id",
-              storeUserInfo.berber.SalonId
+              storeUserInfo.barber.SalonId
             );
             appointmentFormik.setFieldValue(
               "barber_id",
-              storeUserInfo.berber.id
+              storeUserInfo.barber.id
             );
             setIsAppointmentAvailable(true);
           }

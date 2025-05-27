@@ -299,7 +299,7 @@ const Section = (props: any) => {
           {showDatePicker && (
             <div className="row align-items-center mt-3 g-2">
               {/* Salon Dropdown */}
-              {!storesalonDetailInfo && !storeUserInfo.berber && !storeUserInfo.salon && (
+              {!storesalonDetailInfo && !storeUserInfo.barber && !storeUserInfo.salon && (
 
                 <div className="col-lg-3 col-md-6 col-sm-6">
                   <select

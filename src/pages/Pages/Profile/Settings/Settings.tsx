@@ -180,7 +180,7 @@ const Settings: React.FC = () => {
             const updatedUser = await updatePatchUser(id, formData);
             if (updatedUser.user) {
                 const obj = {
-                    berber: authUserInfo.barber,
+                    barber: authUserInfo.barber,
                     salon: authUserInfo.salon,
                     token: authUserInfo.token,
                     user: updatedUser.user

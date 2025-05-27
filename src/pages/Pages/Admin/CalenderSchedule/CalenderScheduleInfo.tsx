@@ -134,13 +134,13 @@ const CalenderScheduleInfo: React.FC = () => {
     storeUserInfo = JSON.parse(authUSer);
   }
   useEffect(() => {
-    if (storeUserInfo.berber) {
-      setSelectedSalonId(storeUserInfo.berber.SalonId);
-      setSelectedBarberId(storeUserInfo.berber.id);
+    if (storeUserInfo.barber) {
+      setSelectedSalonId(storeUserInfo.barber.SalonId);
+      setSelectedBarberId(storeUserInfo.barber.id);
       setTimeout(() => {
         filterAppointment(
-          storeUserInfo.berber.SalonId,
-          storeUserInfo.berber.id
+          storeUserInfo.barber.SalonId,
+          storeUserInfo.barber.id
         );
       }, 500);
     }
@@ -946,8 +946,8 @@ const CalenderScheduleInfo: React.FC = () => {
               </div>
 
               {/* Dropdowns container moved to left side */}
-              {(!storeUserInfo.berber || !storesalonDetailInfo) &&
-                !storeUserInfo.berber && (
+              {(!storeUserInfo.barber || !storesalonDetailInfo) &&
+                !storeUserInfo.barber && (
                   <div className="row mt-4 d-flex align-items-center gap-2 gap-lg-0">
                     {/* Dropdown for selecting Salon */}
                     {!storeUserInfo.salon && !storesalonDetailInfo && (

@@ -364,7 +364,7 @@ const Payroll = () => {
                             </div>
                         </div>
                         {/* Salon Dropdown */}
-                        {!storesalonDetailInfo && !storeUserInfo.berber && !storeUserInfo.salon && (
+                        {!storesalonDetailInfo && !storeUserInfo.barber && !storeUserInfo.salon && (
                             <div className="col-lg-4 col-md-6 col-sm-6">
                                 <select
                                     id="salonSelect"

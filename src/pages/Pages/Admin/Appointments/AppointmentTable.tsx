@@ -182,9 +182,9 @@ const AppointmentTable: React.FC = () => {
         );
       }
       if (userCategory === ROLES.WALKIN_BARBER) {
-        if (storeUserInfo.berber) {
-          formik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
-          formik.setFieldValue("barber_id", storeUserInfo.berber.id);
+        if (storeUserInfo.barber) {
+          formik.setFieldValue("salon_id", storeUserInfo.barber.SalonId);
+          formik.setFieldValue("barber_id", storeUserInfo.barber.id);
           setIsAppointmentAvailable(true);
         }
       }
@@ -330,9 +330,9 @@ const AppointmentTable: React.FC = () => {
       );
     }
     if (userCategory === ROLES.WALKIN_BARBER) {
-      if (storeUserInfo.berber) {
-        formik.setFieldValue("salon_id", storeUserInfo.berber.SalonId);
-        formik.setFieldValue("barber_id", storeUserInfo.berber.id);
+      if (storeUserInfo.barber) {
+        formik.setFieldValue("salon_id", storeUserInfo.barber.SalonId);
+        formik.setFieldValue("barber_id", storeUserInfo.barber.id);
         setIsAppointmentAvailable(true);
       }
     }
