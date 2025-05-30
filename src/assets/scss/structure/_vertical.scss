@@ -535,7 +535,7 @@
             display: none !important;
         }
 
-        .navbar-menu .navbar-nav .nav-item:hover>a.menu-link {
+        .navbar-menu .navbar-nav .nav-item:hover>a.menu-link.no-sub-link {
             width: auto !important;
         }
 
@@ -637,6 +637,7 @@
                             position: relative;
                             width: calc(200px + var(--#{$prefix}vertical-menu-width-sm));
                             transition: none;
+                            background: var(--#{$prefix}vertical-menu-bg);
 
                             .icon-dual {
                                 fill: rgba($white, 0.16);

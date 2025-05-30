@@ -237,7 +237,7 @@ const VerticalLayout = (props: any) => {
                             ) : (
                                 <li className="nav-item">
                                     <Link
-                                        className="nav-link menu-link"
+                                        className="nav-link menu-link no-sub-link"
                                         to={item.link ? item.link : "/#"}
                                         id={`tooltip-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
                                     >
