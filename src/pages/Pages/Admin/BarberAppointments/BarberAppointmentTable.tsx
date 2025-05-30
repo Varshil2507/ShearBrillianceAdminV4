@@ -223,7 +223,7 @@ const BarberAppointmentTable: React.FC = () => {
                   Barbers Today's Appointments
                 </h5>
                 <b className="text-danger">
-                  Unavailable barber not shown in the appointment table.
+                  Unavailable barber not shown in the appointment table
                 </b>
                 <div className="flex-shrink-0"></div>
               </div>
