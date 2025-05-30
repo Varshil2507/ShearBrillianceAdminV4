@@ -223,7 +223,7 @@ const BarberAppointmentTable: React.FC = () => {
                   Barbers Today's Appointments
                 </h5>
                 <b className="text-danger">
-                  Unavailable barber not shown in the schedule
+                  Unavailable barber not shown in the appointment table.
                 </b>
                 <div className="flex-shrink-0"></div>
               </div>
@@ -264,7 +264,7 @@ const BarberAppointmentTable: React.FC = () => {
                     ))
                   ) : (
                     <div className="text-center py-3 w-100">
-                      No schedule data available for this week
+                      No appointment data available for today
                     </div>
                   )}
                 </Accordion>

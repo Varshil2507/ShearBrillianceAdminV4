@@ -65,8 +65,8 @@ import CalenderScheduleInfo from "pages/Pages/Admin/CalenderSchedule";
 import BasicPasswReset from "pages/Authentication/BasicPasswReset";
 import BarberPayroll from "pages/Pages/Admin/BarberPayroll";
 import {ROLES} from "../common/data/Constants"
-import BarberAppointmentTable from "pages/Pages/Admin/BareberAppointments/BarberAppointmentTable";
-import ReactBarberAppointmentTable from "pages/Pages/Admin/BareberAppointments";
+import BarberAppointmentTable from "pages/Pages/Admin/BarberAppointments/BarberAppointmentTable";
+import ReactBarberAppointmentTable from "pages/Pages/Admin/BarberAppointments";
 
 
 const authProtectedRoutes = [

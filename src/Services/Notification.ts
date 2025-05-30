@@ -14,7 +14,7 @@ export const fetchNotification = async (page: number, limit: number,search: any)
       });
       return response; // Ensure the API response is what you expect
     } catch (error: any) {
-      throw new Error("Failed to fetch blogs. Please try again.");
+      throw new Error("Failed to fetch notification. Please try again.");
     }
   };
   
